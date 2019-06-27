@@ -15,9 +15,9 @@ export default class PlayScene extends Phaser.Scene {
 
     this.load.spritesheet('ship', 'assets/shipsprite.png', {
       frameWidth: 49,
-      frameHeight: 50,
-      margin: 1,
-      spacing: 2
+      frameHeight: 50
+      //margin: 1,
+      // spacing: 2
     });
 
     this.load.image('tiles', 'assets/sky.png');

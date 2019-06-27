@@ -36,10 +36,10 @@ export default class Ship {
     this.sprite = scene.physics.add
       .sprite(x, y, 'ship', 0)
       // .setDrag(1000, 0)
-      .setMaxVelocity(300, 400)
       .setSize(50, 50)
-      .setOffset(0, 0)
-      .setVelocity(0, 0);
+      .setOffset(0, 0);
+
+    this.sprite.body.setAllowGravity(false);
 
     const {LEFT, RIGHT, UP, DOWN} = Phaser.Input.Keyboard.KeyCodes;
     this.keys = scene.input.keyboard.addKeys({
@@ -56,15 +56,22 @@ export default class Ship {
   update() {
     const {keys, sprite} = this;
 
-    if (keys.left.isDown || keys.up.isDown) {
+    if (keys.left.isDown) {
       this.direction = -1;
-    } else {
-      this.direction = 1;
-    }
-    if (keys.left.isDown || keys.right.isDown) {
       sprite.body.setVelocity(this.absVelocity * this.direction, 0);
-    } else {
+      sprite.anims.play('ship-west');
+    } else if (keys.up.isDown) {
+      this.direction = -1;
       sprite.body.setVelocity(0, this.absVelocity * this.direction);
+      sprite.anims.play('ship-north');
+    } else if (keys.right.isDown) {
+      this.direction = 1;
+      sprite.body.setVelocity(this.absVelocity * this.direction, 0);
+      sprite.anims.play('ship-east');
+    } else if (keys.down.isDown) {
+      this.direction = 1;
+      sprite.body.setVelocity(0, this.absVelocity * this.direction);
+      sprite.anims.play('ship-south');
     }
   }
 }
