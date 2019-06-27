@@ -47,8 +47,22 @@ export const setPath = (
   } else if (prevVal === 0 && nextVal === 2) {
     // If the user is moving from sea to harbor (0 to 2), then we must set the entry point
     entryPoint = nextCartPos;
+    // once we set our entry point we want to find the point at which to start filling
   }
   tileMatrix[nextCartPos.x][nextCartPos.y] = 1;
+};
+
+export const findFillPoint = (tileMatrix, entryPoint, exitPoint) => {
+  // tileMatrix, an array of arrays representing the plane
+  // entry point, {x, y} the point at which the cart reentered the harbor
+  // exit point, {x, y} the point at which the cart exited the harbor
+
+  // this finds the point according to the start and end points on the path, a point within the enclosed area where we want to begin filling
+
+  let fillPoint;
+
+  // once we find the fill point, we then want to call floodFillArea with that point.
+  floodFillArea(tileMatrix, fillPoint);
 };
 
 // eslint-disable-next-line complexity
@@ -76,8 +90,8 @@ export const getSurroundingSquares = (tile, tileMatrix) => {
   let range = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
   let tiles = [];
 
-  for (var i = range.xmin; i <= range.xmax; i++) {
-    for (var j = range.ymin; j <= range.ymax; j++) {
+  for (let i = range.xmin; i <= range.xmax; i++) {
+    for (let j = range.ymin; j <= range.ymax; j++) {
       if (tileValue === 0 || (tileValue === 1 && tileMatrix[i][j] === 1)) {
         tiles.push({x: i, y: j});
       }
@@ -93,25 +107,16 @@ export const floodFillArea = (tileMatrix, startPoint) => {
   //When an empty square is clicked on, reveal all adjacent blank squares until hitting numbers
 
   //stack of squares to examine
-  var toExplore = [startPoint];
-  var currentTile, next;
+  let toExplore = [startPoint];
+  let currentTile;
 
   while (toExplore.length > 0) {
     //look at next square in the stack and the surrounding squares
     currentTile = toExplore.shift();
-    next = getSurroundingSquares(currentTile);
+    toExplore = toExplore.concat(getSurroundingSquares(currentTile));
 
-    for (var i = next.xmin; i <= next.xmax; i++) {
-      for (var j = next.ymin; j <= next.ymax; j++) {
-        // whether the square is part of the path, or not fill it and make it part of the harbor
-        tileMatrix[i][j] = 2;
-
-        //If the square being looked at isn't owned by anyone, then we want to examine it's neighbors
-        if (tileMatrix[i][j] === 0) {
-          toExplore.push({x: i, y: j});
-        }
-      }
-    }
+    // whether the square is part of the path, or not fill it and make it part of the harbor
+    tileMatrix[currentTile.x][currentTile.y] = 2;
   }
   return tileMatrix;
 };
