@@ -11,15 +11,14 @@ export default class PlayScene extends Phaser.Scene {
     // used to prepare data
   }
   preload() {
-
     this.load.spritesheet('ship', 'assets/shipsprite.png', {
       frameWidth: 49,
       frameHeight: 50
       //margin: 1,
       // spacing: 2
     });
-    
-    this.load.tilemapCSV('map', 'assets/actualHopperTiles.csv');
+
+    this.load.tilemapCSV('map', 'assets/hopperiotiles.csv');
     this.load.image('colors', 'assets/tileset.png');
   }
   create() {
@@ -30,10 +29,9 @@ export default class PlayScene extends Phaser.Scene {
     // adds objects to the game
     this.add.image(400, 300, 'colors');
 
-    const map = this.make.tilemap({key: 'map', tileWidth: 16, tileHeight: 16});
+    const map = this.make.tilemap({key: 'map', tileWidth: 50, tileHeight: 50});
     const tileset = map.addTilesetImage('colors');
     const layer = map.createDynamicLayer(0, tileset, 0, 0);
-
   }
   update() {
     // the game loop which runs constantly
