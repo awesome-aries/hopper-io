@@ -3,8 +3,14 @@ import Phaser from 'phaser';
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.absVelocity = 300;
+    this.absVelocity = 10;
     this.direction = 1; //positive is down and right, negative is up and left
+
+    // set the type of tile the cart was at and is at to be the same value initially
+    this.prevCartTile = this.scene.layer.getTileAtWorldXY(x, y).index;
+    this.nextCartTile = this.prevCartTile;
+    this.exitPoint = null;
+    this.entryPoint = null;
 
     const anims = scene.anims;
     anims.create({
@@ -53,7 +59,7 @@ export default class Ship {
     this.sprite.body.moves = false;
   }
 
-  update(layer, tileValues) {
+  update() {
     const {keys, sprite} = this;
 
     // ******************Movement Logic******************
@@ -75,7 +81,53 @@ export default class Ship {
       sprite.anims.play('ship-south');
     }
 
+    // // ******************Path Logic******************
+    // // get the tile at the location of the ship
+    // let tile = this.scene.layer.putTileAtWorldXY(
+    //   this.scene.tileValues.pathTile,
+    //   this.sprite.x,
+    //   this.sprite.y
+    // );
+    this.setPath();
+
+    // *************************************************
+  }
+
+  setPath() {
     // ******************Path Logic******************
+
+    this.prevCartTile = this.nextCartTile;
+    this.nextCartTile = this.scene.layer.getTileAtWorldXY(
+      this.sprite.x,
+      this.sprite.y
+    ).index;
+
+    // If the user is moving from harbor to sea, then we must set the exit point
+    if (
+      this.prevCartTile === this.scene.tileValues.harborTile &&
+      this.nextCartTile === this.scene.tileValues.regularTile
+    ) {
+      console.log('setting exit point');
+      this.exitPoint = {
+        x: this.sprite.x,
+        y: this.sprite.y
+      };
+    } else if (
+      this.prevCartTile === this.scene.tileValues.regularTile &&
+      this.nextCartTile === this.scene.tileValues.harborTile
+    ) {
+      console.log('setting entry point');
+      // If the user is moving from sea to harbor, then we must set the entry point
+      this.entryPoint = {
+        x: this.sprite.x,
+        y: this.sprite.y
+      };
+    }
+
+    // if (this.entryPoint && this.exitPoint) {
+    //   console.log('set both!! exit:', this.exitPoint, 'entry', this.entryPoint);
+    // }
+
     // get the tile at the location of the ship
     let tile = this.scene.layer.putTileAtWorldXY(
       this.scene.tileValues.pathTile,

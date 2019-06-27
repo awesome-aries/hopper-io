@@ -31,7 +31,7 @@ export default class PlayScene extends Phaser.Scene {
     const tileset = map.addTilesetImage('colors');
     this.layer = map.createDynamicLayer(0, tileset, 0, 0);
 
-    this.ship = new Ship(this, 410, 255);
+    this.ship = new Ship(this, 500, 255);
 
     // the indicies for the different kinds of tiles
     this.tileValues = {
