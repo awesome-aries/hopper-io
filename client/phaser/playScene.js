@@ -11,7 +11,6 @@ export default class PlayScene extends Phaser.Scene {
     // used to prepare data
   }
   preload() {
-    // used to load assets like images and audio into memory
 
     this.load.spritesheet('ship', 'assets/shipsprite.png', {
       frameWidth: 49,
@@ -19,13 +18,22 @@ export default class PlayScene extends Phaser.Scene {
       //margin: 1,
       // spacing: 2
     });
-
-    this.load.image('tiles', 'assets/sky.png');
+    
+    this.load.tilemapCSV('map', 'assets/actualHopperTiles.csv');
+    this.load.image('colors', 'assets/tileset.png');
   }
   create() {
     // adds objects to the game
-    this.add.image(400, 300, 'tiles');
+
     this.ship = new Ship(this, 200, 200);
+
+    // adds objects to the game
+    this.add.image(400, 300, 'colors');
+
+    const map = this.make.tilemap({key: 'map', tileWidth: 16, tileHeight: 16});
+    const tileset = map.addTilesetImage('colors');
+    const layer = map.createDynamicLayer(0, tileset, 0, 0);
+
   }
   update() {
     // the game loop which runs constantly
