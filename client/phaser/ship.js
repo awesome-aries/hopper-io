@@ -53,9 +53,10 @@ export default class Ship {
     this.sprite.body.moves = false;
   }
 
-  update() {
+  update(layer, tileValues) {
     const {keys, sprite} = this;
 
+    // ******************Movement Logic******************
     if (keys.left.isDown) {
       this.direction = -1;
       sprite.body.setVelocity(this.absVelocity * this.direction, 0);
@@ -73,5 +74,13 @@ export default class Ship {
       sprite.body.setVelocity(0, this.absVelocity * this.direction);
       sprite.anims.play('ship-south');
     }
+
+    // ******************Path Logic******************
+    // get the tile at the location of the ship
+    let tile = this.scene.layer.putTileAtWorldXY(
+      this.scene.tileValues.pathTile,
+      this.sprite.x,
+      this.sprite.y
+    );
   }
 }
