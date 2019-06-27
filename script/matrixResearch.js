@@ -10,7 +10,6 @@ const createTileMatrix = (x, y) => {
       return el.fill(0);
     });
 };
-let plane = createTileMatrix(5);
 
 const transformPxToCoords = (
   userPos,
@@ -21,6 +20,7 @@ const transformPxToCoords = (
   // boardDimensionsPx = Ex: {width: 800, height: 800}
   // boardDimensionsCoords = Ex: {x: 10, y: 10 }
   // return the users position in terms of matrix x and y
+  // TODO
 };
 
 const setPath = (prevCartPos, nextCartPos, tileMatrix) => {
@@ -31,15 +31,24 @@ const setPath = (prevCartPos, nextCartPos, tileMatrix) => {
   // 2 = a filled in area, part of the harbor
 
   // Sets the current tile that the user is on as the path and sets the entry and exit points
+
+  // If the user is moving from harbor to sea (1 to 0), then we must set the exit point
+
+  // If the user is moving
+
   tileMatrix[cartPos.x][cartPos.y] = 1;
 };
 
-const getSurroundingSquares = (tile, boardDimensions) => {
+const getSurroundingSquares = (tile, tileValue, boardDimensions) => {
   // tile, an array of arrays representing the plane
   // boardDimensions = Ex: {x: 10, y: 10 }
   // tile = {x, y}
 
   //get range of the surrounding square coordinates
+  // if the value of the tile is 0 then get all
+  // but if the value is 1 (on the path), then we only want to grab
+  // surrounding squares that are also value 1
+
   let xmin = tile.x - 1 < 0 ? 0 : tile.x - 1;
   let ymin = tile.y - 1 < 0 ? 0 : tile.y - 1;
 
@@ -78,3 +87,5 @@ const floodFillArea = (tileMatrix, startPoint) => {
   }
   return tileMatrix;
 };
+
+let plane = createTileMatrix(10);
