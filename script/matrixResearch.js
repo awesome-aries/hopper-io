@@ -105,7 +105,7 @@ export const floodFillArea = (tileMatrix, startPoint) => {
   // tileMatrix, an array of arrays
   // startPoint = {x, y}
 
-  //When an empty square is clicked on, reveal all adjacent blank squares until hitting numbers
+  //Fill an area enclosed by path (including the tiles in the path itself)
 
   //stack of squares to examine
   let toExplore = [startPoint];
