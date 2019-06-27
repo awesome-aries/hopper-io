@@ -11,11 +11,17 @@ export default class PlayScene extends Phaser.Scene {
   }
   preload() {
     // used to load assets like images and audio into memory
-    this.load.image('sky', 'assets/sky.png');
+    this.load.tilemapCSV('map', 'assets/actualHopperTiles.csv');
+    this.load.image('colors', 'assets/tileset.png');
   }
   create() {
     // adds objects to the game
     this.add.image(400, 300, 'sky');
+    this.add.image(400, 300, 'colors');
+
+    const map = this.make.tilemap({key: 'map', tileWidth: 16, tileHeight: 16});
+    const tileset = map.addTilesetImage('colors');
+    const layer = map.createDynamicLayer(0, tileset, 0, 0);
   }
   update() {
     // the game loop which runs constantly
