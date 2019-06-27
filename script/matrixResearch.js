@@ -48,6 +48,7 @@ export const setPath = (
     // If the user is moving from sea to harbor (0 to 2), then we must set the entry point
     entryPoint = nextCartPos;
     // once we set our entry point we want to find the point at which to start filling
+    findFillPoint(tileMatrix, entryPoint, exitPoint);
   }
   tileMatrix[nextCartPos.x][nextCartPos.y] = 1;
 };
