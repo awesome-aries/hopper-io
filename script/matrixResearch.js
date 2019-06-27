@@ -1,4 +1,4 @@
-const createTileMatrix = (x, y) => {
+export const createTileMatrix = (x, y) => {
   // generates the matrix representation of our plane
 
   // 0 = unowned tile
@@ -12,7 +12,7 @@ const createTileMatrix = (x, y) => {
 };
 let plane = createTileMatrix(5);
 
-const transformPxToCoords = (
+export const transformPxToCoords = (
   userPos,
   boardDimensionsPx,
   boardDimensionsCoords
@@ -23,7 +23,7 @@ const transformPxToCoords = (
   // return the users position in terms of matrix x and y
 };
 
-const setPath = (prevCartPos, nextCartPos, tileMatrix) => {
+export const setPath = (prevCartPos, nextCartPos, tileMatrix) => {
   // cartPos = {x: 1, y: 1}
   // tileMatrix, an array of arrays where
   // 0 = unowned tile
@@ -34,7 +34,7 @@ const setPath = (prevCartPos, nextCartPos, tileMatrix) => {
   tileMatrix[cartPos.x][cartPos.y] = 1;
 };
 
-const getSurroundingSquares = (tile, boardDimensions) => {
+export const getSurroundingSquares = (tile, boardDimensions) => {
   // tile, an array of arrays representing the plane
   // boardDimensions = Ex: {x: 10, y: 10 }
   // tile = {x, y}
@@ -49,7 +49,7 @@ const getSurroundingSquares = (tile, boardDimensions) => {
   return {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
 };
 
-const floodFillArea = (tileMatrix, startPoint) => {
+export const floodFillArea = (tileMatrix, startPoint) => {
   // tileMatrix, an array of arrays
   // startPoint = {x, y}
 
