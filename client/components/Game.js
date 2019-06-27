@@ -12,8 +12,8 @@ class Game extends React.Component {
       physics: {
         default: 'arcade',
         arcade: {
-          gravity: {y: 300},
-          debug: false
+          gravity: {y: 0}, //because its a top down game, so no gravity
+          debug: true
         }
       },
       scene: [StartingScene, PlayScene]
