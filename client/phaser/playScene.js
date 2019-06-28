@@ -18,8 +18,8 @@ export default class PlayScene extends Phaser.Scene {
       // spacing: 2
     });
 
-    this.load.tilemapCSV('map', 'assets/hopperiotiles.csv');
-    this.load.image('colors', 'assets/tileset.png');
+    this.load.tilemapCSV('map', 'assets/testtilemap.csv');
+    this.load.image('colors', 'assets/test-tile-set50x50tiles.png');
   }
 
   create() {
@@ -40,21 +40,16 @@ export default class PlayScene extends Phaser.Scene {
 
     // the indicies for the different kinds of tiles
     this.tileValues = {
-      regularTile: 56,
-      borderTile: 62,
-      harborTile: 363, //need val
-      pathTile: 62 //need val
+      regularTile: 0,
+      borderTile: 2,
+      harborTile: 1,
+      pathTile: 3
     };
 
     // set function to run when a regular tile is collided with
-    // ** not working
-    // this.layer.setTileIndexCallback(
-    //   [this.tileValues.pathTile, this.tileValues.harborTile],
-    //   this.setPath,
-    //   this
-    // );
 
     // make the ship not able to leave the world
+    // for some reason adds weird borders in the middle of the map
     // this.ship.sprite.body.setCollideWorldBounds(true);
 
     // have the camera follow the sprite
@@ -64,7 +59,7 @@ export default class PlayScene extends Phaser.Scene {
 
     //  Checks to see if the player overlaps with a tile
     // ***not working on layer or tilemap
-    // this.physics.add.overlap(this.ship, this.layer, this.setPath(), null, this);
+    this.physics.add.overlap(this.ship, this.layer, this.setPath, null, this);
   }
   update() {
     // the game loop which runs constantly

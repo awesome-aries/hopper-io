@@ -1,0 +1,54 @@
+{
+  "columns": 2,
+  "image": "test-tile-set50x50tiles.png",
+  "imageheight": 100,
+  "imagewidth": 100,
+  "margin": 0,
+  "name": "test-tile-set50x50tiles",
+  "spacing": 0,
+  "tilecount": 4,
+  "tiledversion": "1.2.4",
+  "tileheight": 50,
+  "tiles": [
+    {
+      "id": 0,
+      "type": "regular"
+    },
+    {
+      "id": 1,
+      "properties": [
+        {
+          "name": "overlap",
+          "type": "string",
+          "value": "true"
+        }
+      ],
+      "type": "harbor"
+    },
+    {
+      "id": 2,
+      "properties": [
+        {
+          "name": "colliade",
+          "type": "string",
+          "value": "true"
+        }
+      ],
+      "type": "border"
+    },
+    {
+      "id": 3,
+      "properties": [
+        {
+          "name": "overlap",
+          "type": "string",
+          "value": "true"
+        }
+      ],
+      "type": "path"
+    }
+  ],
+  "tilewidth": 50,
+  "type": "tileset",
+  "version": 1.2
+}
