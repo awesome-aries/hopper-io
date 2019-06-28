@@ -3,15 +3,18 @@ import Phaser from 'phaser';
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.absVelocity = 200;
+    this.absVelocity = 150;
     this.direction = 1; //positive is down and right, negative is up and left
 
     // set the type of tile the cart was at and is at to be the same value initially
-    this.prevCartTile = this.scene.layer.getTileAtWorldXY(x, y).index;
-    this.nextCartTile = this.prevCartTile;
+
+    this.currCartTile = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
+    this.prevCartTile = this.currCartTile;
     this.exitPoint = null;
     this.entryPoint = null;
 
+    // **************************************
+    // create animation
     const anims = scene.anims;
     anims.create({
       key: 'ship-north',
@@ -90,7 +93,7 @@ export default class Ship {
     //   this.sprite.x,
     //   this.sprite.y
     // );
-    // this.setPath();
+    this.setPath();
 
     // *************************************************
   }
@@ -98,45 +101,144 @@ export default class Ship {
   setPath() {
     // ******************Path Logic******************
 
-    this.prevCartTile = this.nextCartTile;
-    this.nextCartTile = this.scene.layer.getTileAtWorldXY(
+    // set tile values
+
+    let prevTileIndex = this.prevCartTile.index;
+    let prevTileXY = `${this.prevCartTile.x},${this.prevCartTile.y}`;
+
+    let currTileIndex = this.currCartTile.index;
+    let currTileXY = `${this.currCartTile.x},${this.currCartTile.y}`;
+
+    let newTile = this.scene.foregroundLayer.getTileAtWorldXY(
       this.sprite.x,
       this.sprite.y
     );
+    let newTileIndex = newTile.index;
+    let newTileXY = `${newTile.x},${newTile.y}`;
 
-    console.log(this.nextCartTile);
+    // check to see if the cart has moved to a new tile or not.
+    if (newTileXY !== currTileXY) {
+      // If the user is moving from harbor to sea, then we must set the exit point
+      if (
+        prevTileIndex === this.scene.tileValues.harborTile &&
+        newTileIndex === this.scene.tileValues.regularTile
+      ) {
+        this.exitPoint = {
+          x: this.sprite.x,
+          y: this.sprite.y
+        };
+      } else if (
+        prevTileIndex === this.scene.tileValues.pathTile &&
+        newTileIndex === this.scene.tileValues.harborTile
+      ) {
+        // If the user is moving from sea to harbor, then we must set the entry point
+        this.entryPoint = {
+          x: this.sprite.x,
+          y: this.sprite.y
+        };
+      }
 
-    // If the user is moving from harbor to sea, then we must set the exit point
-    // if (
-    //   this.prevCartTile === this.scene.tileValues.harborTile &&
-    //   this.nextCartTile === this.scene.tileValues.regularTile
-    // ) {
-    //   console.log('setting exit point');
-    //   this.exitPoint = {
-    //     x: this.sprite.x,
-    //     y: this.sprite.y
-    //   };
-    // } else if (
-    //   this.prevCartTile === this.scene.tileValues.regularTile &&
-    //   this.nextCartTile === this.scene.tileValues.harborTile
-    // ) {
-    //   console.log('setting entry point');
-    //   // If the user is moving from sea to harbor, then we must set the entry point
-    //   this.entryPoint = {
-    //     x: this.sprite.x,
-    //     y: this.sprite.y
-    //   };
-    // }
+      if (this.entryPoint && this.exitPoint) {
+        console.log(
+          'set both!! exit:',
+          this.exitPoint,
+          'entry',
+          this.entryPoint
+        );
+        // when both have been set then we want to clear them and call the findFillPoint method
+        this.findFillPoint(this.exitPoint, this.entryPoint);
+        this.exitPoint = this.entryPoint = null;
+        this.freeze();
+      }
 
-    // if (this.entryPoint && this.exitPoint) {
-    //   console.log('set both!! exit:', this.exitPoint, 'entry', this.entryPoint);
-    // }
+      // update the values
+      this.prevCartTile = this.currCartTile;
+      this.currCartTile = newTile;
 
-    // get the tile at the location of the ship
-    let tile = this.scene.layer.putTileAtWorldXY(
-      this.scene.tileValues.pathTile,
-      this.sprite.x,
-      this.sprite.y
+      // get the tile at the location of the ship and make it a path tile if on a regular tile
+      if (newTileIndex === this.scene.tileValues.regularTile) {
+        let tile = this.scene.foregroundLayer.putTileAtWorldXY(
+          this.scene.tileValues.pathTile,
+          this.sprite.x,
+          this.sprite.y
+        );
+      }
+    }
+  }
+  findFillPoint(exitPoint, entryPoint) {
+    console.log('in the findFillPoint method', exitPoint, entryPoint);
+    let fillPoint;
+    // this.floodFillArea(fillPoint);
+  }
+  floodFillArea(startTile) {
+    // startTile is a phaser tile object
+    //Fill an area enclosed by path (including the tiles in the path itself)
+    //stack of tiles to examine
+    console.group('floodFill');
+    console.log('in floodFill, startTile', startTile);
+
+    let toExplore = [startTile];
+    let currentTile;
+    while (toExplore.length > 0) {
+      //look at next tile in the stack and the surrounding tiles
+      console.log('toExplore', toExplore);
+      currentTile = toExplore.shift();
+      console.log('currentTile', currentTile);
+      let neighbors = this.getSurroundingTiles(currentTile);
+      toExplore = toExplore.concat(neighbors);
+      console.log('adding neighbors!');
+      console.log('toExplore', toExplore);
+      // whether the tile is part of the path, or not fill it and make it part of the harbor
+      currentTile.index = this.scene.tileValues.borderTile;
+    }
+    console.log('floodFIll end!!');
+    console.groupEnd('floodFill');
+  }
+  getSurroundingTiles(currTile) {
+    // this takes a phase tile object
+    //get range of the surrounding square coordinates
+    // if the value of the tile is 0 then get all
+    // but if the value is a path tile, then we only want to grab
+    // surrounding squares that are also path tiles
+    console.group('getNeighbors');
+
+    let xmin = currTile.x - 1 < 0 ? 0 : currTile.x - 1;
+    let ymin = currTile.y - 1 < 0 ? 0 : currTile.y - 1;
+
+    // get the max possible values of the plane
+    let planeDimensions = this.scene.map.worldToTileXY(
+      this.scene.foregroundLayer.width,
+      this.scene.foregroundLayer.height
     );
+
+    let xmax =
+      currTile.x + 1 >= planeDimensions.x
+        ? planeDimensions.x - 1
+        : currTile.x + 1;
+    let ymax =
+      currTile.y + 1 >= planeDimensions.y
+        ? planeDimensions.y - 1
+        : currTile.y + 1;
+
+    let range = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
+    console.log('range', range);
+    let tiles = [];
+
+    for (let i = xmin; i <= xmax; i++) {
+      for (let j = ymin; j <= ymax; j++) {
+        let neighborTile = this.scene.foregroundLayer.getTileAtXY(i, j);
+        console.log('neighborTile', neighborTile);
+        if (
+          neighborTile.index === this.scene.tileValues.regularTile ||
+          (currTile.index === this.scene.tileValues.pathTile &&
+            neighborTile.index === this.scene.tileValues.pathTile)
+        ) {
+          tiles.push(neighborTile);
+        }
+      }
+    }
+    console.log('returning tiles', tiles);
+    console.groupEnd('getNeighbors');
+    return tiles;
   }
 }
