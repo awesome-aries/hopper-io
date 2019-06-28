@@ -31,6 +31,7 @@ export default class PlayScene extends Phaser.Scene {
     const map = this.make.tilemap({key: 'map', tileWidth: 50, tileHeight: 50});
     const tileset = map.addTilesetImage('colors');
     this.layer = map.createDynamicLayer(0, tileset, 0, 0);
+    console.log('this.layer', this.layer);
 
     this.ship = new Ship(
       this,
@@ -59,16 +60,17 @@ export default class PlayScene extends Phaser.Scene {
 
     //  Checks to see if the player overlaps with a tile
     // ***not working on layer or tilemap
-    this.physics.add.overlap(this.ship, this.layer, this.setPath, null, this);
+    this.physics.overlapTiles(this.ship.sprite, map, this.setPath, null, this);
   }
+
   update() {
     // the game loop which runs constantly
     this.ship.update();
   }
-  setPath(ship, tile) {
+  setPath() {
     // lets assume we can do overlap with ship sprite and tilelayer
     // ******************Path Logic******************
-    tile.index = this.tileValues.pathTile;
+    // tile.index = this.tileValues.pathTile;
 
     console.log('arguments', arguments);
   }

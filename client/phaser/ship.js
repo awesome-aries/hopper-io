@@ -90,7 +90,7 @@ export default class Ship {
     //   this.sprite.x,
     //   this.sprite.y
     // );
-    this.setPath();
+    // this.setPath();
 
     // *************************************************
   }
@@ -98,34 +98,36 @@ export default class Ship {
   setPath() {
     // ******************Path Logic******************
 
-    /*   this.prevCartTile = this.nextCartTile;
+    this.prevCartTile = this.nextCartTile;
     this.nextCartTile = this.scene.layer.getTileAtWorldXY(
       this.sprite.x,
       this.sprite.y
-    ).index;
+    );
+
+    console.log(this.nextCartTile);
 
     // If the user is moving from harbor to sea, then we must set the exit point
-    if (
-      this.prevCartTile === this.scene.tileValues.harborTile &&
-      this.nextCartTile === this.scene.tileValues.regularTile
-    ) {
-      console.log('setting exit point');
-      this.exitPoint = {
-        x: this.sprite.x,
-        y: this.sprite.y
-      };
-    } else if (
-      this.prevCartTile === this.scene.tileValues.regularTile &&
-      this.nextCartTile === this.scene.tileValues.harborTile
-    ) {
-      console.log('setting entry point');
-      // If the user is moving from sea to harbor, then we must set the entry point
-      this.entryPoint = {
-        x: this.sprite.x,
-        y: this.sprite.y
-      };
-    }
- */
+    // if (
+    //   this.prevCartTile === this.scene.tileValues.harborTile &&
+    //   this.nextCartTile === this.scene.tileValues.regularTile
+    // ) {
+    //   console.log('setting exit point');
+    //   this.exitPoint = {
+    //     x: this.sprite.x,
+    //     y: this.sprite.y
+    //   };
+    // } else if (
+    //   this.prevCartTile === this.scene.tileValues.regularTile &&
+    //   this.nextCartTile === this.scene.tileValues.harborTile
+    // ) {
+    //   console.log('setting entry point');
+    //   // If the user is moving from sea to harbor, then we must set the entry point
+    //   this.entryPoint = {
+    //     x: this.sprite.x,
+    //     y: this.sprite.y
+    //   };
+    // }
+
     // if (this.entryPoint && this.exitPoint) {
     //   console.log('set both!! exit:', this.exitPoint, 'entry', this.entryPoint);
     // }
