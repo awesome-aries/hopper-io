@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.absVelocity = 10;
+    this.absVelocity = 200;
     this.direction = 1; //positive is down and right, negative is up and left
 
     // set the type of tile the cart was at and is at to be the same value initially
@@ -46,6 +46,8 @@ export default class Ship {
       .setOffset(0, 0);
 
     this.sprite.body.setAllowGravity(false);
+    // ** doesnt seem to do anything T_T
+    // this.sprite.body.collideWorldBounds = true;
 
     const {LEFT, RIGHT, UP, DOWN} = Phaser.Input.Keyboard.KeyCodes;
     this.keys = scene.input.keyboard.addKeys({
@@ -96,7 +98,7 @@ export default class Ship {
   setPath() {
     // ******************Path Logic******************
 
-    this.prevCartTile = this.nextCartTile;
+    /*   this.prevCartTile = this.nextCartTile;
     this.nextCartTile = this.scene.layer.getTileAtWorldXY(
       this.sprite.x,
       this.sprite.y
@@ -123,7 +125,7 @@ export default class Ship {
         y: this.sprite.y
       };
     }
-
+ */
     // if (this.entryPoint && this.exitPoint) {
     //   console.log('set both!! exit:', this.exitPoint, 'entry', this.entryPoint);
     // }
