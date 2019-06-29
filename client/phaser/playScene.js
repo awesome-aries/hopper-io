@@ -15,13 +15,20 @@ export default class PlayScene extends Phaser.Scene {
 
     this.tileMapRow = 50;
     this.tileMapHeight = 50;
+
+    // this.shipSpawnX =
   }
   init() {
     // used to prepare data
+    console.group('tilemapdata');
+    console.dir(TileMapJS.layers[0].data);
+    console.groupEnd('tilemapdata');
+
     // get the tilemap array data and send it to our clientStore
     clientStore.dispatch({
       type: clientActionTypes.tiles.SET_TILEMAP,
-      tileMap: TileMapJS.layers[0].data
+      tileMap: TileMapJS.layers[0].data,
+      tileMapRowLength: this.tileMapRow
     });
   }
   preload() {
@@ -59,11 +66,6 @@ export default class PlayScene extends Phaser.Scene {
     const tileset = this.map.addTilesetImage('colors');
     // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
     this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
-
-    console.group('test');
-    console.log('this.foregroundLayer: ', this.foregroundLayer);
-    console.log('map', this.map);
-    console.groupEnd('test');
 
     this.ship = new Ship(
       this,

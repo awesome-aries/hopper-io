@@ -1,10 +1,12 @@
+import {XYToInd, IndToXY} from '../../util/tileMapConversions';
 /**
  * ACTION TYPES
  */
 
 export const tilesActionTypes = {
   SET_TILEMAP: 'SET_TILEMAP',
-  SET_USER_XY: 'SET_USER_XY'
+  SET_SHIP_XY: 'SET_SHIP_XY',
+  MOVE_SHIP: 'MOVE_SHIP'
 };
 
 /**
@@ -13,21 +15,23 @@ export const tilesActionTypes = {
 
 const initialState = {
   tileMap: [],
-  userWorldXY: {}, //{x, y} (in pixels)
-  userXY: {} //{x, y} (in coords)
+  tileMapRowLength: null, //number
+  shipWorldXY: {}, //{x, y} (in pixels)
+  shipXY: {} //{x, y} (in coords)
 };
 
 /**
  * ACTION CREATORS
  */
 
-export const setTilemap = tileMap => ({
+export const setTilemap = (tileMap, tileMapRowLength) => ({
   type: tilesActionTypes.SET_TILEMAP,
-  tileMap
+  tileMap,
+  tileMapRowLength
 });
 
-export const setUserXY = coords => ({
-  type: tilesActionTypes.SET_USER_XY,
+export const setUShipXY = coords => ({
+  type: tilesActionTypes.SET_SHIP_XY,
   coords //{x, y}
 });
 
@@ -39,12 +43,13 @@ export default function(state = initialState, action) {
     case tilesActionTypes.SET_TILEMAP:
       return {
         ...state,
-        tileMap: action.tileMap
+        tileMap: action.tileMap,
+        tileMapRowLength: action.tileMapRowLength
       };
-    case tilesActionTypes.SET_USER_XY:
+    case tilesActionTypes.SET_SHIP_XY:
       return {
         ...state,
-        userXY: action.coords
+        shipXY: action.coords
       };
     default:
       return state;
