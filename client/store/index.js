@@ -5,8 +5,9 @@ import {composeWithDevTools} from 'redux-devtools-extension';
 import user from './user';
 import axios from 'axios';
 import tilesReducer, {tilesActionTypes} from './tilesLocation';
+import playersReducer, {playersActionTypes} from './players';
 
-const reducer = combineReducers({user, tilesReducer});
+const reducer = combineReducers({user, tilesReducer, playersReducer});
 const middleware = composeWithDevTools(
   applyMiddleware(
     thunkMiddleware.withExtraArgument({axios}),
@@ -18,7 +19,8 @@ const clientStore = createStore(reducer, middleware);
 
 // exporting our action types so it can be used in our phaser scene
 export const clientActionTypes = {
-  tiles: tilesActionTypes
+  tiles: tilesActionTypes,
+  players: playersActionTypes
 };
 
 export default clientStore;

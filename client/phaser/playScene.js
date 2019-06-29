@@ -7,40 +7,18 @@ export default class PlayScene extends Phaser.Scene {
   constructor() {
     // passing 'play' as a parameter that will serve as the identifier for this scene
     super('play');
-    this.tileMapPath = 'assets/testtilemap.csv';
-    this.tileSetPath = 'assets/test-tile-set50x50tiles.png';
+
+    this.TILE_MAP_PATH = 'assets/testtilemap.csv';
+    this.TILE_SET_PATH = 'assets/test-tile-set50x50tiles.png';
+    this.SHIP_SPRITE_PATH = 'assets/shipspritealpha.png';
+
+    this.TILE_SET_NAME = 'colors';
 
     this.tileWidth = 50;
     this.tileHeight = 50;
 
     this.tileMapRow = 50;
     this.tileMapHeight = 50;
-
-    // this.shipSpawnX =
-  }
-  init() {
-    // used to prepare data
-    console.group('tilemapdata');
-    console.dir(TileMapJS.layers[0].data);
-    console.groupEnd('tilemapdata');
-
-    // get the tilemap array data and send it to our clientStore
-    clientStore.dispatch({
-      type: clientActionTypes.tiles.SET_TILEMAP,
-      tileMap: TileMapJS.layers[0].data,
-      tileMapRowLength: this.tileMapRow
-    });
-  }
-  preload() {
-    this.load.spritesheet('ship', 'assets/shipspritealpha.png', {
-      frameWidth: 49,
-      frameHeight: 50
-      //margin: 1,
-      // spacing: 2
-    });
-
-    this.load.tilemapCSV('map', this.tileMapPath);
-    this.load.image('colors', this.tileSetPath);
 
     // the indicies for the different kinds of tiles
     this.tileValues = {
@@ -50,22 +28,50 @@ export default class PlayScene extends Phaser.Scene {
       // harborTile: 3,
       pathTile: 3
     };
+
+    // this.shipSpawnX =
+  }
+  init() {
+    // used to prepare data
+
+    // get the tilemap array data and send it to our clientStore
+    clientStore.dispatch({
+      type: clientActionTypes.tiles.SET_TILEMAP,
+      tileMap: TileMapJS.layers[0].data,
+      tileMapRowLength: this.tileMapRow
+    });
+  }
+  preload() {
+    // loading in data
+
+    this.load.spritesheet('ship', this.SHIP_SPRITE_PATH, {
+      frameWidth: 49,
+      frameHeight: 50
+    });
+
+    this.load.tilemapCSV('map', this.TILE_MAP_PATH);
+    this.load.image(this.TILE_SET_NAME, this.TILE_SET_PATH);
   }
 
   create() {
     // adds objects to the game
 
-    // adds objects to the game
-    this.add.image(400, 300, 'colors');
+    // **************** Set up the tilemap **************
 
     this.map = this.make.tilemap({
       key: 'map',
       tileWidth: this.tileWidth,
       tileHeight: 50
     });
-    const tileset = this.map.addTilesetImage('colors');
+    const tileset = this.map.addTilesetImage(this.TILE_SET_NAME);
+
+    // might want to set up a static background layer
     // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
     this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
+
+    // **************************************************
+
+    // **************** Set up the Ship **************
 
     this.ship = new Ship(
       this,
@@ -75,16 +81,13 @@ export default class PlayScene extends Phaser.Scene {
       // this.map.heightInPixels / 2 + 25
     );
 
-    // set function to run when a regular tile is collided with
-    // this.backgroundLayer.setTileIndexCallback(
-    //   this.tileValues.regularTile,
-    //   this.setPath,
-    //   this
-    // );
-
     // make the ship not able to leave the world
     // for some reason adds weird borders in the middle of the map
     // this.ship.sprite.body.setCollideWorldBounds(true);
+
+    // **************************************************
+
+    // **************** Set up the Camera **************
 
     // have the camera follow the sprite
     this.cameras.main.startFollow(this.ship.sprite);
@@ -96,40 +99,25 @@ export default class PlayScene extends Phaser.Scene {
       this.map.heightInPixels
     );
 
-    //  Checks to see if the player overlaps with a tile
-    // ***not working on layer or tilemap
-    // this.physics.add.overlap(
-    //   this.ship.sprite,
-    //   this.harborLayer,
-    //   // this.setPath,
-    //   () => {
-    //     console.log('overlapcallback called');
-    //   },
-    //   null,
-    //   this
-    // );
-    // this.physics.add.overlapTiles(this.ship.sprite, )
+    // **************************************************
+
+    // ************* Set up the Input Cntrls ***********
 
     const {SHIFT} = Phaser.Input.Keyboard.KeyCodes;
     this.keys = this.input.keyboard.addKeys({
       shift: SHIFT
     });
+    // **************************************************
   }
 
   update() {
     // the game loop which runs constantly
-    this.ship.update();
-    this.manuallyMakeHarbor();
-  }
-  setPath(ship, tile) {
-    // lets assume we can do overlap with ship sprite and tilelayer
-    // ******************Path Logic******************
-    // tile.index = this.tileValues.pathTile;
 
-    console.group();
-    console.log('ship', ship);
-    console.log('tile', tile);
-    console.groupEnd();
+    // get the state from the clientStore
+    const {tiles, players} = clientStore.getState();
+
+    this.ship.update(tiles, players);
+    this.manuallyMakeHarbor();
   }
 
   manuallyMakeHarbor() {

@@ -11,13 +11,7 @@ const initialState = {
     previous: [], //need to keep track of the previous state of the tileMap
     present: []
   },
-  tileMapRowLength: null, //number
-  // maybe dont need this, and just calc in phaser
-  // shipWorldXY: {}, //{x, y} (in pixels)
-  shipXY: {
-    previous: {}, //{x, y} (in coords)
-    present: {}
-  }
+  tileMapRowLength: null //number
 };
 
 /**
@@ -26,8 +20,6 @@ const initialState = {
 
 export const tilesActionTypes = {
   SET_TILEMAP: 'SET_TILEMAP',
-  SET_SHIP_XY: 'SET_SHIP_XY',
-  MOVE_SHIP: 'MOVE_SHIP',
   SET_TILE: 'SET_TILE'
 };
 
@@ -41,24 +33,12 @@ export const setTilemap = (tileMap, tileMapRowLength) => ({
   tileMapRowLength
 });
 
-export const setUShipXY = (x, y) => ({
-  type: tilesActionTypes.SET_SHIP_XY,
-  x,
-  y
-});
-
 export const setTile = (tileX, tileY, tileIndex) => ({
   // change the value of the tile index at the specified location
   type: tilesActionTypes.SET_TILE,
   x: tileX,
   y: tileY,
   tileIndex //the tile index aka the type of tile
-});
-
-export const moveShip = (newX, newY) => ({
-  type: tilesActionTypes.MOVE_SHIP,
-  newX,
-  newY
 });
 
 /**
@@ -80,17 +60,7 @@ export default function(state = initialState, action) {
         },
         tileMapRowLength: action.tileMapRowLength
       };
-    case tilesActionTypes.SET_SHIP_XY:
-      return {
-        ...state,
-        shipXY: {
-          previous: state.shipXY.present,
-          present: {
-            x: action.x,
-            y: action.y
-          }
-        }
-      };
+
     case tilesActionTypes.SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(action.x, action.y, state.tileMapRowLength);
@@ -107,17 +77,6 @@ export default function(state = initialState, action) {
               return x;
             }
           })
-        }
-      };
-    case tilesActionTypes.MOVE_SHIP:
-      return {
-        ...state,
-        shipXY: {
-          previous: state.shipXY.present,
-          present: {
-            x: action.newX,
-            y: action.newY
-          }
         }
       };
     default:
