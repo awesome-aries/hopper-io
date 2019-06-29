@@ -8,10 +8,9 @@ export default class Ship {
     this.direction = 1; //positive is down and right, negative is up and left
     let playerTile = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
     clientStore.dispatch({
-      type: clientActionTypes.players.SET_PLAYER_XY,
+      type: clientActionTypes.game.SET_PLAYER_XY,
       x: playerTile.x,
-      y: playerTile.y,
-      tileIdx: playerTile.index
+      y: playerTile.y
     });
     // set the type of tile the cart was at and is at to be the same value initially
     // const {tiles, players} = clientStore.getState();
@@ -128,7 +127,7 @@ export default class Ship {
 
     // let currTileIndex = this.currCartTile.index;
     const {
-      players: {playerXY, currentTileIdx, entryPoint, exitPoint}
+      game: {playerXY, currentTileIdx, entryPoint, exitPoint}
     } = clientStore.getState();
     let currTileXY = `${playerXY.present.x},${playerXY.present.y}`;
 
@@ -153,7 +152,7 @@ export default class Ship {
         newTileIndex === this.scene.tileValues.regularTile
       ) {
         clientStore.dispatch({
-          type: clientActionTypes.players.SET_EXIT_POINT,
+          type: clientActionTypes.game.SET_EXIT_POINT,
           x: this.sprite.x,
           y: this.sprite.y
         });
@@ -163,7 +162,7 @@ export default class Ship {
       ) {
         // If the user is moving from sea to harbor, then we must set the entry point
         clientStore.dispatch({
-          type: clientActionTypes.players.SET_ENTRY_POINT,
+          type: clientActionTypes.game.SET_ENTRY_POINT,
           x: this.sprite.x,
           y: this.sprite.y
         });
@@ -174,21 +173,20 @@ export default class Ship {
         // when both have been set then we want to clear them and call the findFillPoint method
         this.findFillPoint(exitPoint, entryPoint);
         clientStore.dispatch({
-          type: clientActionTypes.players.CLEAR_EXIT_ENTRY
+          type: clientActionTypes.game.CLEAR_EXIT_ENTRY
         });
         this.freeze();
       }
 
       // update the values
       clientStore.dispatch({
-        type: clientActionTypes.players.MOVE_PLAYER,
+        type: clientActionTypes.game.MOVE_PLAYER,
         x: this.sprite.x,
-        y: this.sprite.y,
-        tileIdx: newTile.index
+        y: this.sprite.y
       });
 
       clientStore.dispatch({
-        type: clientActionTypes.tiles.SET_TILE,
+        type: clientActionTypes.game.SET_TILE,
         tileX: newTile.x,
         tileY: newTile.y,
         tileIndex: newTile.index
@@ -205,7 +203,7 @@ export default class Ship {
           this.sprite.y
         );
         clientStore.dispatch({
-          type: clientActionTypes.tiles.SET_TILE,
+          type: clientActionTypes.game.SET_TILE,
           tileX: tile.x,
           tileY: tile.y,
           tileIndex: tile.index

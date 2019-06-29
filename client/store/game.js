@@ -155,8 +155,8 @@ export default function gameReducer(state = initialState, action) {
         ...state,
         tileMap: {
           // we want to track the previous state of the tile map, so store the present version in previous when updating the present one
-          previous: state.tileMap.present,
-          present: action.tileMap
+          previous: [...action.tileMap],
+          present: [...action.tileMap]
         },
         tileMapRowLength: action.tileMapRowLength
       };
@@ -168,7 +168,7 @@ export default function gameReducer(state = initialState, action) {
         ...state,
         tileMap: {
           // save present in the previous
-          previous: state.tileMap.present,
+          previous: [...state.tileMap.present],
           // change the value for the correct ind
           present: state.tileMap.present.map((x, xInd) => {
             if (xInd === ind) {

@@ -36,7 +36,7 @@ export default class PlayScene extends Phaser.Scene {
 
     // get the tilemap array data and send it to our clientStore
     clientStore.dispatch({
-      type: clientActionTypes.tiles.SET_TILEMAP,
+      type: clientActionTypes.game.SET_TILEMAP,
       tileMap: TileMapJS.layers[0].data,
       tileMapRowLength: this.tileMapRow
     });
