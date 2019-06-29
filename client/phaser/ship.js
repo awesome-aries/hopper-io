@@ -181,6 +181,13 @@ export default class Ship {
         tileIdx: newTile.index
       });
 
+      clientStore.dispatch({
+        type: clientActionTypes.tiles.SET_TILE,
+        tileX: newTile.x,
+        tileY: newTile.y,
+        tileIndex: newTile.index
+      });
+
       // this.prevCartTile = this.currCartTile;
       // this.currCartTile = newTile;
 
