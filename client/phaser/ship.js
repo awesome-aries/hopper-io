@@ -141,6 +141,12 @@ export default class Ship {
 
     // check to see if the cart has moved to a new tile or not.
     if (newTileXY !== currTileXY) {
+      console.group('tileValues');
+      console.log('currTileXY', currTileXY);
+      console.log('newTileXY', newTileXY);
+      console.log('currentTileIdx.previous', currentTileIdx.previous);
+      console.log('newTileIndex', newTileIndex);
+      console.groupEnd('tileValues');
       // If the user is moving from harbor to sea, then we must set the exit point
       if (
         currentTileIdx.previous === this.scene.tileValues.harborTile &&
