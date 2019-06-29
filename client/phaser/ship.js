@@ -1,17 +1,36 @@
 import Phaser from 'phaser';
+import clientStore, {clientActionTypes} from '../store';
 
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
     this.absVelocity = 150;
     this.direction = 1; //positive is down and right, negative is up and left
-
+    let playerTile = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
+    clientStore.dispatch({
+      type: clientActionTypes.players.SET_PLAYER_XY,
+      x: playerTile.x,
+      y: playerTile.y,
+      tileIdx: playerTile.index
+    });
     // set the type of tile the cart was at and is at to be the same value initially
-
-    this.currCartTile = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
-    this.prevCartTile = this.currCartTile;
-    this.exitPoint = null;
-    this.entryPoint = null;
+    // const {tiles, players} = clientStore.getState();
+    this.currCartTile = {
+      xy: {
+        previous: {
+          x: playerTile.x,
+          y: playerTile.y
+        },
+        present: {
+          x: playerTile.x,
+          y: playerTile.y
+        }
+      },
+      index: {
+        previous: playerTile.index,
+        present: playerTile.index
+      }
+    };
 
     // **************************************
     // create animation
@@ -98,16 +117,20 @@ export default class Ship {
     // *************************************************
   }
 
+  // eslint-disable-next-line complexity
   setPath() {
     // ******************Path Logic******************
 
     // set tile values
 
-    let prevTileIndex = this.prevCartTile.index;
-    let prevTileXY = `${this.prevCartTile.x},${this.prevCartTile.y}`;
+    // let prevTileIndex = this.prevCartTile.index;
+    // let prevTileXY = `${this.prevCartTile.x},${this.prevCartTile.y}`;
 
-    let currTileIndex = this.currCartTile.index;
-    let currTileXY = `${this.currCartTile.x},${this.currCartTile.y}`;
+    // let currTileIndex = this.currCartTile.index;
+    const {
+      players: {playerXY, currentTileIdx, entryPoint, exitPoint}
+    } = clientStore.getState();
+    let currTileXY = `${playerXY.present.x},${playerXY.present.y}`;
 
     let newTile = this.scene.foregroundLayer.getTileAtWorldXY(
       this.sprite.x,
@@ -120,40 +143,46 @@ export default class Ship {
     if (newTileXY !== currTileXY) {
       // If the user is moving from harbor to sea, then we must set the exit point
       if (
-        prevTileIndex === this.scene.tileValues.harborTile &&
+        currentTileIdx.previous === this.scene.tileValues.harborTile &&
         newTileIndex === this.scene.tileValues.regularTile
       ) {
-        this.exitPoint = {
+        clientStore.dispatch({
+          type: clientActionTypes.players.SET_EXIT_POINT,
           x: this.sprite.x,
           y: this.sprite.y
-        };
+        });
       } else if (
-        prevTileIndex === this.scene.tileValues.pathTile &&
+        currentTileIdx.previous === this.scene.tileValues.pathTile &&
         newTileIndex === this.scene.tileValues.harborTile
       ) {
         // If the user is moving from sea to harbor, then we must set the entry point
-        this.entryPoint = {
+        clientStore.dispatch({
+          type: clientActionTypes.players.SET_ENTRY_POINT,
           x: this.sprite.x,
           y: this.sprite.y
-        };
+        });
       }
 
-      if (this.entryPoint && this.exitPoint) {
-        console.log(
-          'set both!! exit:',
-          this.exitPoint,
-          'entry',
-          this.entryPoint
-        );
+      if (entryPoint && exitPoint) {
+        console.log('set both!! exit:', exitPoint, 'entry', entryPoint);
         // when both have been set then we want to clear them and call the findFillPoint method
-        this.findFillPoint(this.exitPoint, this.entryPoint);
-        this.exitPoint = this.entryPoint = null;
+        this.findFillPoint(exitPoint, entryPoint);
+        clientStore.dispatch({
+          type: clientActionTypes.players.CLEAR_EXIT_ENTRY
+        });
         this.freeze();
       }
 
       // update the values
-      this.prevCartTile = this.currCartTile;
-      this.currCartTile = newTile;
+      clientStore.dispatch({
+        type: clientActionTypes.players.MOVE_PLAYER,
+        x: this.sprite.x,
+        y: this.sprite.y,
+        tileIdx: newTile.index
+      });
+
+      // this.prevCartTile = this.currCartTile;
+      // this.currCartTile = newTile;
 
       // get the tile at the location of the ship and make it a path tile if on a regular tile
       if (newTileIndex === this.scene.tileValues.regularTile) {
@@ -162,6 +191,12 @@ export default class Ship {
           this.sprite.x,
           this.sprite.y
         );
+        clientStore.dispatch({
+          type: clientActionTypes.tiles.SET_TILE,
+          tileX: tile.x,
+          tileY: tile.y,
+          tileIndex: tile.index
+        });
       }
     }
   }

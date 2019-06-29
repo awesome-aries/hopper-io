@@ -7,7 +7,11 @@ import axios from 'axios';
 import tilesReducer, {tilesActionTypes} from './tilesLocation';
 import playersReducer, {playersActionTypes} from './players';
 
-const reducer = combineReducers({user, tilesReducer, playersReducer});
+const reducer = combineReducers({
+  user,
+  tiles: tilesReducer,
+  players: playersReducer
+});
 const middleware = composeWithDevTools(
   applyMiddleware(
     thunkMiddleware.withExtraArgument({axios}),

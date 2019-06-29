@@ -21,24 +21,30 @@ const initialState = {
     previous: {}, //{x, y} (in coords)
     present: {}
   },
-  harborEntryPoint: null,
-  harborExitPoint: null
+  currentTileIdx: {
+    previous: null,
+    present: null
+  },
+  entryPoint: null,
+  exitPoint: null
 };
 
 /**
  * ACTION CREATORS
  */
 
-export const moveShip = (newX, newY) => ({
+export const movePlayer = (newX, newY, newTileIdx) => ({
   type: playersActionTypes.MOVE_PLAYER,
   newX,
-  newY
+  newY,
+  newTileIdx
 });
 
-export const setPlayerXY = (x, y) => ({
+export const setPlayerXY = (x, y, tileIdx) => ({
   type: playersActionTypes.SET_PLAYER_XY,
   x,
-  y
+  y,
+  tileIdx
 });
 
 export const setExitPoint = (x, y) => ({
@@ -70,11 +76,18 @@ export default function playersReducer(state = initialState, action) {
       return {
         ...state,
         playerXY: {
-          previous: state.playerXY.present,
+          previous: {
+            x: action.x,
+            y: action.y
+          },
           present: {
             x: action.x,
             y: action.y
           }
+        },
+        currentTileIdx: {
+          previous: state.currentTileIdx.present,
+          present: action.tileIdx
         }
       };
     case playersActionTypes.MOVE_PLAYER:
@@ -86,12 +99,16 @@ export default function playersReducer(state = initialState, action) {
             x: action.newX,
             y: action.newY
           }
+        },
+        currentTileIdx: {
+          previous: state.currentTileIdx.present,
+          present: action.newTileIdx
         }
       };
     case playersActionTypes.SET_ENTRY_POINT:
       return {
         ...state,
-        harborEntryPoint: {
+        entryPoint: {
           x: action.x,
           y: action.y
         }
@@ -99,7 +116,7 @@ export default function playersReducer(state = initialState, action) {
     case playersActionTypes.SET_EXIT_POINT:
       return {
         ...state,
-        harborExitPoint: {
+        exitPoint: {
           x: action.x,
           y: action.y
         }
@@ -107,8 +124,8 @@ export default function playersReducer(state = initialState, action) {
     case playersActionTypes.CLEAR_EXIT_ENTRY:
       return {
         ...state,
-        harborEntryPoint: null,
-        harborExitPoint: null
+        entryPoint: null,
+        exitPoint: null
       };
     default:
       return state;
