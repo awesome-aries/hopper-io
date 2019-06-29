@@ -1,14 +1,28 @@
-import clientStore from '../store';
+import clientStore, {clientActionTypes} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
+import TileMapJS from '../../public/assets/testtilemap';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
     // passing 'play' as a parameter that will serve as the identifier for this scene
     super('play');
+    this.tileMapPath = 'assets/testtilemap.csv';
+    this.tileSetPath = 'assets/test-tile-set50x50tiles.png';
+
+    this.tileWidth = 50;
+    this.tileHeight = 50;
+
+    this.tileMapRow = 50;
+    this.tileMapHeight = 50;
   }
   init() {
     // used to prepare data
+    // get the tilemap array data and send it to our clientStore
+    clientStore.dispatch({
+      type: clientActionTypes.tiles.SET_TILEMAP,
+      tileMap: TileMapJS.layers[0].data
+    });
   }
   preload() {
     this.load.spritesheet('ship', 'assets/shipspritealpha.png', {
@@ -18,8 +32,8 @@ export default class PlayScene extends Phaser.Scene {
       // spacing: 2
     });
 
-    this.load.tilemapCSV('map', 'assets/testtilemap.csv');
-    this.load.image('colors', 'assets/test-tile-set50x50tiles.png');
+    this.load.tilemapCSV('map', this.tileMapPath);
+    this.load.image('colors', this.tileSetPath);
 
     // the indicies for the different kinds of tiles
     this.tileValues = {
@@ -37,7 +51,11 @@ export default class PlayScene extends Phaser.Scene {
     // adds objects to the game
     this.add.image(400, 300, 'colors');
 
-    this.map = this.make.tilemap({key: 'map', tileWidth: 50, tileHeight: 50});
+    this.map = this.make.tilemap({
+      key: 'map',
+      tileWidth: this.tileWidth,
+      tileHeight: 50
+    });
     const tileset = this.map.addTilesetImage('colors');
     // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
     this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
@@ -49,8 +67,10 @@ export default class PlayScene extends Phaser.Scene {
 
     this.ship = new Ship(
       this,
-      this.map.widthInPixels / 2 + 25,
-      this.map.heightInPixels / 2 + 25
+      this.map.widthInPixels / 2 + this.tileWidth / 2,
+      this.map.heightInPixels / 2 + this.tileHeight / 2
+      // this.map.widthInPixels / 2 + 25,
+      // this.map.heightInPixels / 2 + 25
     );
 
     // set function to run when a regular tile is collided with

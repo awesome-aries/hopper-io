@@ -2,15 +2,17 @@
  * ACTION TYPES
  */
 
-const SET_TILEMAP = 'SET_TILEMAP';
-const SET_USER_XY = 'SET_USER_XY';
+export const tilesActionTypes = {
+  SET_TILEMAP: 'SET_TILEMAP',
+  SET_USER_XY: 'SET_USER_XY'
+};
 
 /**
  * INITIAL STATE
  */
 
 const initialState = {
-  tileMap: {},
+  tileMap: [],
   userWorldXY: {}, //{x, y} (in pixels)
   userXY: {} //{x, y} (in coords)
 };
@@ -20,12 +22,12 @@ const initialState = {
  */
 
 export const setTilemap = tileMap => ({
-  type: SET_TILEMAP,
+  type: tilesActionTypes.SET_TILEMAP,
   tileMap
 });
 
 export const setUserXY = coords => ({
-  type: SET_USER_XY,
+  type: tilesActionTypes.SET_USER_XY,
   coords //{x, y}
 });
 
@@ -34,12 +36,12 @@ export const setUserXY = coords => ({
  */
 export default function(state = initialState, action) {
   switch (action.type) {
-    case SET_TILEMAP:
+    case tilesActionTypes.SET_TILEMAP:
       return {
         ...state,
         tileMap: action.tileMap
       };
-    case SET_USER_XY:
+    case tilesActionTypes.SET_USER_XY:
       return {
         ...state,
         userXY: action.coords
