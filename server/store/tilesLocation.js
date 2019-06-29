@@ -2,11 +2,19 @@
  * ACTION TYPES
  */
 
+const tilesActionTypes = {};
+
 /**
  * INITIAL STATE
  */
 
-const initialState = {};
+const initialState = {
+  tileMap: {
+    previous: [], //need to keep track of the previous state of the tileMap
+    present: []
+  },
+  tileMapRowLength: null //number
+};
 
 /**
  * ACTION CREATORS
@@ -19,9 +27,14 @@ const initialState = {};
 /**
  * REDUCER
  */
-export default function(state = initialState, action) {
+function tilesReducer(state = initialState, action) {
   switch (action.type) {
     default:
       return state;
   }
 }
+
+module.exports = {
+  tilesReducer,
+  tilesActionTypes
+};
