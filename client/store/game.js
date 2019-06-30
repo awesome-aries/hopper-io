@@ -1,9 +1,7 @@
 /* eslint-disable complexity */
 /* eslint-disable no-case-declarations */
 // IndToXY returns obj {x,y}
-import {XYToInd, IndToXY} from '../../util/tileMapConversions';
-
-import clientStore from './';
+import {XYToInd} from '../../util/tileMapConversions';
 
 /**
  * INITIAL STATE
@@ -181,11 +179,9 @@ export default function gameReducer(state = initialState, action) {
     case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
-      let newXY = IndToXY(ind, state.tileMapRowLength);
       console.group('SET_TILE');
       console.log('action', action);
       console.log('ind', ind);
-      console.log('newXY', newXY);
       console.groupEnd('SET_TILE');
       return {
         ...state,
