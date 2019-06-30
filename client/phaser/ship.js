@@ -30,6 +30,16 @@ export default class Ship {
     this.sprite.body.setAllowGravity(false);
     // ** doesnt seem to do anything T_T
     // this.sprite.body.collideWorldBounds = true;
+    const startPos = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
+    const harbor = this.getSurroundingTiles(startPos);
+    console.log('start: ', startPos);
+    harbor.forEach(tile => {
+      this.scene.setTileIndex(this.scene.tileValues.harborTile, {
+        x: tile.x,
+        y: tile.y,
+        type: 'tile'
+      });
+    });
 
     // **************************************
     // create animation
