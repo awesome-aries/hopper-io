@@ -13,7 +13,7 @@ class Ui extends React.Component {
         <p>regularTile: 0, borderTile: 2, harborTile: 1, pathTile: 3</p>
         <p>
           click tile to set harbor, shift + click to floodfill, arrow keys to
-          move ship, hit space to stop moving
+          move ship, hit space to stop/restart moving
         </p>
         {this.props.children}
       </div>

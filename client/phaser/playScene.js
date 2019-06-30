@@ -31,7 +31,7 @@ export default class PlayScene extends Phaser.Scene {
   }
   init() {
     // used to prepare data
-    console.log('TileMapJS', TileMapJS);
+
     // get the tilemap array data and send it to our clientStore
     clientStore.dispatch({
       type: clientActionTypes.game.SET_TILEMAP,
@@ -66,7 +66,7 @@ export default class PlayScene extends Phaser.Scene {
     // might want to set up a static background layer
     // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
     this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
-    console.log(this.foregroundLayer);
+
     this.tileMapWidth = this.foregroundLayer.tilemap.width;
     this.tileMapHeight = this.foregroundLayer.tilemap.height;
 
@@ -131,8 +131,6 @@ export default class PlayScene extends Phaser.Scene {
     } else {
       newTile = this.map.getTileAt(location.x, location.y);
     }
-
-    console.log('newTile', newTile);
 
     // if it's a different type
     if (newTile.index !== tileIndex) {

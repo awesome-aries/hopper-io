@@ -4,7 +4,7 @@ import clientStore, {clientActionTypes} from '../store';
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.absVelocity = 30;
+    this.absVelocity = 100;
     this.direction = 1; //positive is down and right, negative is up and left
 
     // ********* Set the Ship's starting location *********
@@ -66,7 +66,7 @@ export default class Ship {
     });
   }
   freeze() {
-    this.sprite.body.moves = false;
+    this.sprite.body.moves = !this.sprite.body.moves;
   }
 
   update() {
@@ -138,10 +138,10 @@ export default class Ship {
       console.log('previousTileIdx', currentTileIdx.previous);
       console.log('presentTileIdx', currentTileIdx.present);
       console.groupEnd('tileValues');
-      // If the user is moving from harbor to sea, then we must set the exit point
+      // If the user is moving from harbor to a different kind of tile, then we must set the exit point
       if (
         currentTileIdx.previous === this.scene.tileValues.harborTile &&
-        currentTileIdx.present === this.scene.tileValues.regularTile
+        currentTileIdx.present !== this.scene.tileValues.harborTile
       ) {
         clientStore.dispatch({
           type: clientActionTypes.game.SET_EXIT_POINT,
@@ -149,7 +149,7 @@ export default class Ship {
           y: newTile.y
         });
       } else if (
-        currentTileIdx.previous === this.scene.tileValues.pathTile &&
+        currentTileIdx.previous !== this.scene.tileValues.harborTile &&
         currentTileIdx.present === this.scene.tileValues.harborTile
       ) {
         // If the user is moving from sea to harbor, then we must set the entry point

@@ -126,6 +126,10 @@ export default function gameReducer(state = initialState, action) {
         }
       };
     case gameActionTypes.MOVE_PLAYER:
+      console.group('MOVE_PLAYER');
+      console.log('action:', action);
+      console.log('currentTileIdx', state.currentTileIdx);
+      console.groupEnd('MOVE_PLAYER');
       return {
         ...state,
         playerXY: {
@@ -179,11 +183,6 @@ export default function gameReducer(state = initialState, action) {
     case gameActionTypes.SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
-      console.group('set_tile');
-      console.log('action', action);
-      console.log('ind:', ind);
-      console.groupEnd('set_tile');
-
       return {
         ...state,
         tileMap: {
