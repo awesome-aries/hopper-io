@@ -110,11 +110,10 @@ export default class Ship {
 
     // get the current state of the store
     const {
-      game: {playerXY, currentTileIdx, entryPoint, exitPoint}
+      game: {playerXY, playerPhaserXY, currentTileIdx, entryPoint, exitPoint}
     } = clientStore.getState();
 
-    // have to switch x and y to match phaser (see tileMapConversions.js for detailed explanation)
-    let currTileXY = `${playerXY.present.y},${playerXY.present.x}`;
+    let currTileXY = `${playerPhaserXY.present.x},${playerPhaserXY.present.y}`;
 
     let newTile = this.scene.foregroundLayer.getTileAtWorldXY(
       this.sprite.x,
@@ -141,7 +140,10 @@ export default class Ship {
         currentTileIdx.present !== this.scene.tileValues.harborTile
       ) {
         clientStore.dispatch(
-          clientActionCreators.game.setExitPoint(newTile.x, newTile.y)
+          clientActionCreators.game.setExitPoint(
+            playerPhaserXY.present.x,
+            playerPhaserXY.present.y
+          )
         );
       } else if (
         currentTileIdx.previous !== this.scene.tileValues.harborTile &&
@@ -150,7 +152,10 @@ export default class Ship {
         // If the user is moving from sea to harbor, then we must set the entry point
 
         clientStore.dispatch(
-          clientActionCreators.game.setEntryPoint(newTile.x, newTile.y)
+          clientActionCreators.game.setEntryPoint(
+            playerPhaserXY.present.x,
+            playerPhaserXY.present.y
+          )
         );
       }
 
@@ -169,8 +174,8 @@ export default class Ship {
           this.scene.tileValues.pathTile, //type of tile to set it to
           {
             type: 'tile', //must indicate format of xy
-            x: playerXY.present.x,
-            y: playerXY.present.y
+            x: playerPhaserXY.present.x,
+            y: playerPhaserXY.present.y
           }
         );
       }

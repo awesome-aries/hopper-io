@@ -11,7 +11,11 @@ const initialState = {
   // maybe dont need this, and just calc in phaser
   // shipWorldXY: {}, //{x, y} (in pixels)
   playerXY: {
-    previous: {}, //{x, y} (in coords)
+    previous: {}, //{x, y} (coords in javascript order)
+    present: {}
+  },
+  playerPhaserXY: {
+    previous: {}, //{x, y} (coords in phaser order)
     present: {}
   },
   currentTileIdx: {
@@ -46,16 +50,14 @@ const SET_TILES = 'SET_TILES';
 
 export const gameActionCreators = {
   movePlayer: (x, y) => ({
-    //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
     type: MOVE_PLAYER,
-    x: y,
-    y: x
+    x: x,
+    y: y
   }),
   setPlayerXY: (x, y) => ({
-    //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
     type: SET_PLAYER_XY,
-    x: y,
-    y: x
+    x: x,
+    y: y
   }),
   setExitPoint: (x, y) => ({
     //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
@@ -105,9 +107,20 @@ export const gameActionCreators = {
 export default function gameReducer(state = initialState, action) {
   switch (action.type) {
     case SET_PLAYER_XY:
+      // for player position we keep them in phaser order so as to not mess up other calculations, but calculate current tile using javascript conventions
       return {
         ...state,
         playerXY: {
+          previous: {
+            x: action.y,
+            y: action.x
+          },
+          present: {
+            x: action.y,
+            y: action.x
+          }
+        },
+        playerPhaserXY: {
           previous: {
             x: action.x,
             y: action.y
@@ -117,29 +130,42 @@ export default function gameReducer(state = initialState, action) {
             y: action.y
           }
         },
+        //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
         currentTileIdx: {
-          previous: {...state.currentTileIdx}.present,
+          previous:
+            state.tileMap.present[
+              XYToInd(action.y, action.x, state.tileMapRowLength)
+            ], //initialize to be the same
           present:
             state.tileMap.present[
-              XYToInd(action.x, action.y, state.tileMapRowLength)
+              XYToInd(action.y, action.x, state.tileMapRowLength)
             ]
         }
       };
     case MOVE_PLAYER:
+      // for player position we keep them in phaser order so as to not mess up other calculations, but calculate current tile using javascript conventions
       return {
         ...state,
         playerXY: {
           previous: {...state.playerXY.present},
           present: {
+            x: action.y,
+            y: action.x
+          }
+        },
+        playerPhaserXY: {
+          previous: {...state.playerPhaserXY.present},
+          present: {
             x: action.x,
             y: action.y
           }
         },
+        //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
         currentTileIdx: {
           previous: {...state.currentTileIdx}.present,
           present:
             state.tileMap.present[
-              XYToInd(action.x, action.y, state.tileMapRowLength)
+              XYToInd(action.y, action.x, state.tileMapRowLength)
             ]
         }
       };
