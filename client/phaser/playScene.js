@@ -1,14 +1,15 @@
 import clientStore, {clientActionTypes} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
-import TileMapJS from '../../public/assets/testtilemap';
+// import TileMapJS from '../../public/assets/small-test-map.js';
+import * as TileMapJS from '../../public/assets/small-test-map.json';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
     // passing 'play' as a parameter that will serve as the identifier for this scene
     super('play');
 
-    this.TILE_MAP_PATH = 'assets/testtilemap.csv';
+    this.TILE_MAP_PATH = 'assets/small-test-map.csv';
     this.TILE_SET_PATH = 'assets/test-tile-set50x50tiles.png';
     this.SHIP_SPRITE_PATH = 'assets/shipspritealpha.png';
 
@@ -16,9 +17,6 @@ export default class PlayScene extends Phaser.Scene {
 
     this.tileWidth = 50;
     this.tileHeight = 50;
-
-    this.tileMapRow = 50;
-    this.tileMapHeight = 50;
 
     // the indicies for the different kinds of tiles
     this.tileValues = {
@@ -33,12 +31,12 @@ export default class PlayScene extends Phaser.Scene {
   }
   init() {
     // used to prepare data
-
+    console.log('TileMapJS', TileMapJS);
     // get the tilemap array data and send it to our clientStore
     clientStore.dispatch({
       type: clientActionTypes.game.SET_TILEMAP,
       tileMap: TileMapJS.layers[0].data,
-      tileMapRowLength: this.tileMapRow
+      tileMapRowLength: TileMapJS.layers[0].width
     });
   }
   preload() {
@@ -68,18 +66,17 @@ export default class PlayScene extends Phaser.Scene {
     // might want to set up a static background layer
     // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
     this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
+    console.log(this.foregroundLayer);
+    this.tileMapWidth = this.foregroundLayer.tilemap.width;
+    this.tileMapHeight = this.foregroundLayer.tilemap.height;
 
     // **************************************************
 
     // **************** Set up the Ship **************
 
-    this.ship = new Ship(
-      this,
-      this.map.widthInPixels / 2 + this.tileWidth / 2,
-      this.map.heightInPixels / 2 + this.tileHeight / 2
-      // this.map.widthInPixels / 2 + 25,
-      // this.map.heightInPixels / 2 + 25
-    );
+    let shipX = this.map.widthInPixels / 2 + this.tileWidth / 2;
+    let shipY = this.map.heightInPixels / 2 + this.tileHeight / 2;
+    this.ship = new Ship(this, shipX, shipY);
 
     // make the ship not able to leave the world
     // for some reason adds weird borders in the middle of the map
@@ -120,6 +117,38 @@ export default class PlayScene extends Phaser.Scene {
     this.manuallyMakeHarbor();
   }
 
+  setTileIndex(tileIndex, location) {
+    // Sets the tile type in phaser and redux using world (pixel) coordinates
+
+    // location argument holds data about what type of coordinates are being passed in
+    // { type: 'world'/'tile', x, y }
+    // type indicates what format x and y are in, world means x and y are in pixels and tile means they are according to the tileMap coords
+    let newTile;
+
+    if (location.type === 'world') {
+      // get the tile
+      newTile = this.foregroundLayer.getTileAtWorldXY(location.x, location.y);
+    } else {
+      newTile = this.map.getTileAt(location.x, location.y);
+    }
+
+    console.log('newTile', newTile);
+
+    // if it's a different type
+    if (newTile.index !== tileIndex) {
+      // set the tile in phaser
+      newTile.index = tileIndex;
+
+      // also change the tile in the store
+      clientStore.dispatch({
+        type: clientActionTypes.game.SET_TILE,
+        x: newTile.x,
+        y: newTile.y,
+        tileIndex
+      });
+    }
+  }
+
   manuallyMakeHarbor() {
     // draw harbor tiles with mouse
     const pointer = this.input.activePointer;
@@ -131,19 +160,19 @@ export default class PlayScene extends Phaser.Scene {
         pointerTileXY.y
       );
 
+      let clickedTile = this.foregroundLayer.getTileAtWorldXY(
+        snappedWorldPoint.x,
+        snappedWorldPoint.y
+      );
+
       if (this.keys.shift.isDown) {
-        this.ship.floodFillArea(
-          this.foregroundLayer.getTileAtWorldXY(
-            snappedWorldPoint.x,
-            snappedWorldPoint.y
-          )
-        );
-      } else {
-        this.foregroundLayer.putTileAtWorldXY(
-          this.tileValues.harborTile,
-          snappedWorldPoint.x,
-          snappedWorldPoint.y
-        );
+        this.ship.floodFillArea(clickedTile);
+      } else if (clickedTile.index !== this.tileValues.harborTile) {
+        this.setTileIndex(this.tileValues.harborTile, {
+          type: 'world', //must indicate format of xy
+          x: snappedWorldPoint.x,
+          y: snappedWorldPoint.y
+        });
       }
     }
   }

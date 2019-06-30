@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 /* eslint-disable no-case-declarations */
 // IndToXY returns obj {x,y}
 import {XYToInd, IndToXY} from '../../util/tileMapConversions';
@@ -37,35 +38,36 @@ export const gameActionTypes = {
   SET_ENTRY_POINT: 'SET_ENTRY_POINT',
   CLEAR_EXIT_ENTRY: 'CLEAR_EXIT_ENTRY',
   SET_TILEMAP: 'SET_TILEMAP',
-  SET_TILE: 'SET_TILE'
+  SET_TILE: 'SET_TILE',
+  SET_TILES: 'SET_TILES'
 };
 
 /**
  * ACTION CREATORS
  */
 
-export const movePlayer = (newX, newY) => ({
+export const movePlayer = (x, y) => ({
   type: gameActionTypes.MOVE_PLAYER,
-  newX,
-  newY
+  x: x,
+  y: y
 });
 
 export const setPlayerXY = (x, y) => ({
   type: gameActionTypes.SET_PLAYER_XY,
-  x,
-  y
+  x: x,
+  y: y
 });
 
 export const setExitPoint = (x, y) => ({
   type: gameActionTypes.SET_EXIT_POINT,
-  x,
-  y
+  x: x,
+  y: y
 });
 
 export const setEntryPoint = (x, y) => ({
   type: gameActionTypes.SET_ENTRY_POINT,
-  x,
-  y
+  x: x,
+  y: y
 });
 
 export const clearExitEntry = () => ({
@@ -81,8 +83,15 @@ export const setTilemap = (tileMap, tileMapRowLength) => ({
 export const setTile = (tileX, tileY, tileIndex) => ({
   // change the value of the tile index at the specified location
   type: gameActionTypes.SET_TILE,
-  x: tileX,
-  y: tileY,
+  tileX,
+  tileY,
+  tileIndex //the tile index aka the type of tile
+});
+
+export const setTiles = (XYArray, tileIndex) => ({
+  // change the value of the tiles of the corresponding indices
+  type: gameActionTypes.SET_TILE,
+  XYArray, // [{x,y}]
   tileIndex //the tile index aka the type of tile
 });
 
@@ -109,23 +118,29 @@ export default function gameReducer(state = initialState, action) {
           }
         },
         currentTileIdx: {
-          previous: state.currentTileIdx.present,
-          present: state.tileMap[XYToInd(action.x, action.y)]
+          previous: {...state.currentTileIdx}.present,
+          present:
+            state.tileMap.present[
+              XYToInd(action.x, action.y, state.tileMapRowLength)
+            ]
         }
       };
     case gameActionTypes.MOVE_PLAYER:
       return {
         ...state,
         playerXY: {
-          previous: state.playerXY.present,
+          previous: {...state.playerXY.present},
           present: {
-            x: action.newX,
-            y: action.newY
+            x: action.x,
+            y: action.y
           }
         },
         currentTileIdx: {
-          previous: state.currentTileIdx.present,
-          present: state.tileMap[XYToInd(action.newX, action.newY)]
+          previous: {...state.currentTileIdx}.present,
+          present:
+            state.tileMap.present[
+              XYToInd(action.x, action.y, state.tileMapRowLength)
+            ]
         }
       };
     case gameActionTypes.SET_ENTRY_POINT:
@@ -163,7 +178,12 @@ export default function gameReducer(state = initialState, action) {
 
     case gameActionTypes.SET_TILE:
       // corresponding index in tileMap
-      let ind = XYToInd(action.x, action.y, state.tileMapRowLength);
+      let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
+      console.group('set_tile');
+      console.log('action', action);
+      console.log('ind:', ind);
+      console.groupEnd('set_tile');
+
       return {
         ...state,
         tileMap: {
@@ -177,6 +197,23 @@ export default function gameReducer(state = initialState, action) {
               return x;
             }
           })
+        }
+      };
+    case gameActionTypes.SET_TILES:
+      // convert all the x y to ind
+      let inds = action.XYArray.map(coords => {
+        return XYToInd(coords.x, coords.y, state.tileMapRowLength);
+      });
+      // make copy of the present tileMap and set new index value (tile type) for each tile specified
+      let presentCopy = [...state.tileMap.present];
+      inds.forEach(i => {
+        presentCopy[i] = action.tileIndex;
+      });
+      return {
+        ...state,
+        tileMap: {
+          previous: [...state.tileMap.present],
+          present: presentCopy
         }
       };
     default:

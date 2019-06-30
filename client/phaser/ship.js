@@ -4,32 +4,28 @@ import clientStore, {clientActionTypes} from '../store';
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.absVelocity = 150;
+    this.absVelocity = 30;
     this.direction = 1; //positive is down and right, negative is up and left
-    let playerTile = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
+
+    // ********* Set the Ship's starting location *********
+
+    let tileXY = this.scene.map.worldToTileXY(x, y);
+
     clientStore.dispatch({
       type: clientActionTypes.game.SET_PLAYER_XY,
-      x: playerTile.x,
-      y: playerTile.y
+      x: tileXY.x,
+      y: tileXY.y
     });
-    // set the type of tile the cart was at and is at to be the same value initially
-    // const {tiles, players} = clientStore.getState();
-    this.currCartTile = {
-      xy: {
-        previous: {
-          x: playerTile.x,
-          y: playerTile.y
-        },
-        present: {
-          x: playerTile.x,
-          y: playerTile.y
-        }
-      },
-      index: {
-        previous: playerTile.index,
-        present: playerTile.index
-      }
-    };
+
+    this.sprite = scene.physics.add
+      .sprite(x, y, 'ship', 0)
+      // .setDrag(1000, 0)
+      .setSize(50, 50)
+      .setOffset(0, 0);
+
+    this.sprite.body.setAllowGravity(false);
+    // ** doesnt seem to do anything T_T
+    // this.sprite.body.collideWorldBounds = true;
 
     // **************************************
     // create animation
@@ -60,22 +56,13 @@ export default class Ship {
       repeat: -1
     });
 
-    this.sprite = scene.physics.add
-      .sprite(x, y, 'ship', 0)
-      // .setDrag(1000, 0)
-      .setSize(50, 50)
-      .setOffset(0, 0);
-
-    this.sprite.body.setAllowGravity(false);
-    // ** doesnt seem to do anything T_T
-    // this.sprite.body.collideWorldBounds = true;
-
-    const {LEFT, RIGHT, UP, DOWN} = Phaser.Input.Keyboard.KeyCodes;
+    const {LEFT, RIGHT, UP, DOWN, SPACE} = Phaser.Input.Keyboard.KeyCodes;
     this.keys = scene.input.keyboard.addKeys({
       left: LEFT,
       right: RIGHT,
       up: UP,
-      down: DOWN
+      down: DOWN,
+      space: SPACE
     });
   }
   freeze() {
@@ -102,6 +89,9 @@ export default class Ship {
       this.direction = 1;
       sprite.body.setVelocity(0, this.absVelocity * this.direction);
       sprite.anims.play('ship-south');
+    } else if (keys.space.isDown) {
+      // for testing purposes
+      this.freeze();
     }
 
     // // ******************Path Logic******************
@@ -120,51 +110,53 @@ export default class Ship {
   setPath() {
     // ******************Path Logic******************
 
-    // set tile values
-
-    // let prevTileIndex = this.prevCartTile.index;
-    // let prevTileXY = `${this.prevCartTile.x},${this.prevCartTile.y}`;
-
-    // let currTileIndex = this.currCartTile.index;
+    // get the current state of the store
     const {
       game: {playerXY, currentTileIdx, entryPoint, exitPoint}
     } = clientStore.getState();
+
     let currTileXY = `${playerXY.present.x},${playerXY.present.y}`;
 
     let newTile = this.scene.foregroundLayer.getTileAtWorldXY(
       this.sprite.x,
       this.sprite.y
     );
-    let newTileIndex = newTile.index;
     let newTileXY = `${newTile.x},${newTile.y}`;
 
     // check to see if the cart has moved to a new tile or not.
     if (newTileXY !== currTileXY) {
+      // If we've reached a new tile, then set that as the new present tile
+      clientStore.dispatch({
+        type: clientActionTypes.game.MOVE_PLAYER,
+        x: newTile.x,
+        y: newTile.y
+      });
+
       console.group('tileValues');
       console.log('currTileXY', currTileXY);
       console.log('newTileXY', newTileXY);
-      console.log('currentTileIdx.previous', currentTileIdx.previous);
-      console.log('newTileIndex', newTileIndex);
+      console.log('previousTileIdx', currentTileIdx.previous);
+      console.log('presentTileIdx', currentTileIdx.present);
       console.groupEnd('tileValues');
       // If the user is moving from harbor to sea, then we must set the exit point
       if (
         currentTileIdx.previous === this.scene.tileValues.harborTile &&
-        newTileIndex === this.scene.tileValues.regularTile
+        currentTileIdx.present === this.scene.tileValues.regularTile
       ) {
         clientStore.dispatch({
           type: clientActionTypes.game.SET_EXIT_POINT,
-          x: this.sprite.x,
-          y: this.sprite.y
+          x: newTile.x,
+          y: newTile.y
         });
       } else if (
         currentTileIdx.previous === this.scene.tileValues.pathTile &&
-        newTileIndex === this.scene.tileValues.harborTile
+        currentTileIdx.present === this.scene.tileValues.harborTile
       ) {
         // If the user is moving from sea to harbor, then we must set the entry point
         clientStore.dispatch({
           type: clientActionTypes.game.SET_ENTRY_POINT,
-          x: this.sprite.x,
-          y: this.sprite.y
+          x: newTile.x,
+          y: newTile.y
         });
       }
 
@@ -178,36 +170,16 @@ export default class Ship {
         this.freeze();
       }
 
-      // update the values
-      clientStore.dispatch({
-        type: clientActionTypes.game.MOVE_PLAYER,
-        x: this.sprite.x,
-        y: this.sprite.y
-      });
-
-      clientStore.dispatch({
-        type: clientActionTypes.game.SET_TILE,
-        tileX: newTile.x,
-        tileY: newTile.y,
-        tileIndex: newTile.index
-      });
-
-      // this.prevCartTile = this.currCartTile;
-      // this.currCartTile = newTile;
-
       // get the tile at the location of the ship and make it a path tile if on a regular tile
-      if (newTileIndex === this.scene.tileValues.regularTile) {
-        let tile = this.scene.foregroundLayer.putTileAtWorldXY(
-          this.scene.tileValues.pathTile,
-          this.sprite.x,
-          this.sprite.y
+      if (currentTileIdx.present === this.scene.tileValues.regularTile) {
+        this.scene.setTileIndex(
+          this.scene.tileValues.pathTile, //type of tile to set it to
+          {
+            type: 'tile', //must indicate format of xy
+            x: playerXY.present.x,
+            y: playerXY.present.y
+          }
         );
-        clientStore.dispatch({
-          type: clientActionTypes.game.SET_TILE,
-          tileX: tile.x,
-          tileY: tile.y,
-          tileIndex: tile.index
-        });
       }
     }
   }

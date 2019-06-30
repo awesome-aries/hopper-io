@@ -5,10 +5,16 @@ const {composeWithDevTools} = require('redux-devtools-extension');
 const {tilesReducer, tilesActionTypes} = require('./tilesLocation');
 
 const reducer = combineReducers({tilesReducer});
-const middleware = composeWithDevTools(
-  applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))
+const composeEnhancers = composeWithDevTools({
+  trace: true
+});
+
+const serverStore = createStore(
+  reducer,
+  composeEnhancers(
+    applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))
+  )
 );
-const serverStore = createStore(reducer, middleware);
 
 const serverActionTypes = {
   tiles: tilesActionTypes

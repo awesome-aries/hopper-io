@@ -11,14 +11,21 @@ const reducer = combineReducers({
   user,
   game: gameReducer
 });
-const middleware = composeWithDevTools(
-  applyMiddleware(
-    thunkMiddleware.withExtraArgument({axios}),
-    createLogger({collapsed: true})
+
+const composeEnhancers = composeWithDevTools({
+  trace: true,
+  traceLimit: 25
+});
+
+const clientStore = createStore(
+  reducer,
+  composeEnhancers(
+    applyMiddleware(
+      thunkMiddleware.withExtraArgument({axios}),
+      createLogger({collapsed: true})
+    )
   )
 );
-
-const clientStore = createStore(reducer, middleware);
 
 // exporting our action types so it can be used in our phaser scene
 export const clientActionTypes = {
