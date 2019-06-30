@@ -22,13 +22,17 @@ form div {
 
 span.tile0 {
   background-color: grey;
+  padding: 0 5px;
 }
 span.tile1 {
   background-color: purple;
+  padding: 0 5px;
 }
 span.tile2 {
   background-color: rgb(49, 49, 49);
+  padding: 0 5px;
 }
 span.tile3 {
   background-color: pink;
+  padding: 0 5px;
 }

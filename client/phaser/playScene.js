@@ -1,4 +1,4 @@
-import clientStore, {clientActionTypes} from '../store';
+import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
 // import TileMapJS from '../../public/assets/small-test-map.js';
@@ -33,11 +33,12 @@ export default class PlayScene extends Phaser.Scene {
     // used to prepare data
 
     // get the tilemap array data and send it to our clientStore
-    clientStore.dispatch({
-      type: clientActionTypes.game.SET_TILEMAP,
-      tileMap: TileMapJS.layers[0].data,
-      tileMapRowLength: TileMapJS.layers[0].width
-    });
+    clientStore.dispatch(
+      clientActionCreators.game.setTilemap(
+        TileMapJS.layers[0].data,
+        TileMapJS.layers[0].width
+      )
+    );
   }
   preload() {
     // loading in data
@@ -125,8 +126,8 @@ export default class PlayScene extends Phaser.Scene {
     // type indicates what format x and y are in, world means x and y are in pixels and tile means they are according to the tileMap coords
     let newTile;
 
+    // get the tile
     if (location.type === 'world') {
-      // get the tile
       newTile = this.foregroundLayer.getTileAtWorldXY(location.x, location.y);
     } else {
       newTile = this.map.getTileAt(location.x, location.y);
@@ -137,13 +138,12 @@ export default class PlayScene extends Phaser.Scene {
       // set the tile in phaser
       newTile.index = tileIndex;
 
+      console.log('newTile', newTile);
+
       // also change the tile in the store
-      clientStore.dispatch({
-        type: clientActionTypes.game.SET_TILE,
-        x: newTile.x,
-        y: newTile.y,
-        tileIndex
-      });
+      clientStore.dispatch(
+        clientActionCreators.game.setTile(newTile.x, newTile.y, tileIndex)
+      );
     }
   }
 

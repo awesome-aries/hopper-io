@@ -1,5 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {XYToInd} from '../../util/tileMapConversions';
 
 class Ui extends React.Component {
   constructor() {
@@ -24,14 +25,16 @@ class Ui extends React.Component {
               if ((ind + 1) % this.props.rowLength === 0) {
                 return (
                   <span key={ind} className={'tile' + tile}>
-                    <span>{tile}</span>
+                    <span>
+                      {this.props.shipInd === ind ? '❗️' : ' ' + tile + ' '}
+                    </span>
                     <br />
                   </span>
                 );
               } else {
                 return (
                   <span key={ind} className={'tile' + tile}>
-                    {tile}
+                    {this.props.shipInd === ind ? '❗️' : ' ' + tile + ' '}
                   </span>
                 );
               }
@@ -47,7 +50,12 @@ class Ui extends React.Component {
 
 const mapStateToProps = state => ({
   tileMap: state.game.tileMap.present,
-  rowLength: state.game.tileMapRowLength
+  rowLength: state.game.tileMapRowLength,
+  shipInd: XYToInd(
+    state.game.playerXY.present.x,
+    state.game.playerXY.present.y,
+    state.game.tileMapRowLength
+  )
 });
 
 export default connect(mapStateToProps)(Ui);

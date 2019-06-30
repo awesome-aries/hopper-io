@@ -5,7 +5,7 @@ import {composeWithDevTools} from 'redux-devtools-extension';
 import user from './user';
 import axios from 'axios';
 // import tilesReducer, {tilesActionTypes} from './tilesLocation';
-import gameReducer, {gameActionTypes} from './game';
+import gameReducer, {gameActionCreators} from './game';
 
 const reducer = combineReducers({
   user,
@@ -27,9 +27,9 @@ const clientStore = createStore(
   )
 );
 
-// exporting our action types so it can be used in our phaser scene
-export const clientActionTypes = {
-  game: gameActionTypes
+// this has all our action creator methods
+export const clientActionCreators = {
+  game: gameActionCreators
 };
 
 export default clientStore;

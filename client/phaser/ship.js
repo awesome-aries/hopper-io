@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import clientStore, {clientActionTypes} from '../store';
+import clientStore, {clientActionCreators} from '../store';
 
 export default class Ship {
   constructor(scene, x, y) {
@@ -11,11 +11,9 @@ export default class Ship {
 
     let tileXY = this.scene.map.worldToTileXY(x, y);
 
-    clientStore.dispatch({
-      type: clientActionTypes.game.SET_PLAYER_XY,
-      x: tileXY.x,
-      y: tileXY.y
-    });
+    clientStore.dispatch(
+      clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y)
+    );
 
     this.sprite = scene.physics.add
       .sprite(x, y, 'ship', 0)
@@ -115,7 +113,8 @@ export default class Ship {
       game: {playerXY, currentTileIdx, entryPoint, exitPoint}
     } = clientStore.getState();
 
-    let currTileXY = `${playerXY.present.x},${playerXY.present.y}`;
+    // have to switch x and y to match phaser (see tileMapConversions.js for detailed explanation)
+    let currTileXY = `${playerXY.present.y},${playerXY.present.x}`;
 
     let newTile = this.scene.foregroundLayer.getTileAtWorldXY(
       this.sprite.x,
@@ -126,11 +125,9 @@ export default class Ship {
     // check to see if the cart has moved to a new tile or not.
     if (newTileXY !== currTileXY) {
       // If we've reached a new tile, then set that as the new present tile
-      clientStore.dispatch({
-        type: clientActionTypes.game.MOVE_PLAYER,
-        x: newTile.x,
-        y: newTile.y
-      });
+      clientStore.dispatch(
+        clientActionCreators.game.movePlayer(newTile.x, newTile.y)
+      );
 
       console.group('tileValues');
       console.log('currTileXY', currTileXY);
@@ -143,30 +140,26 @@ export default class Ship {
         currentTileIdx.previous === this.scene.tileValues.harborTile &&
         currentTileIdx.present !== this.scene.tileValues.harborTile
       ) {
-        clientStore.dispatch({
-          type: clientActionTypes.game.SET_EXIT_POINT,
-          x: newTile.x,
-          y: newTile.y
-        });
+        clientStore.dispatch(
+          clientActionCreators.game.setExitPoint(newTile.x, newTile.y)
+        );
       } else if (
         currentTileIdx.previous !== this.scene.tileValues.harborTile &&
         currentTileIdx.present === this.scene.tileValues.harborTile
       ) {
         // If the user is moving from sea to harbor, then we must set the entry point
-        clientStore.dispatch({
-          type: clientActionTypes.game.SET_ENTRY_POINT,
-          x: newTile.x,
-          y: newTile.y
-        });
+
+        clientStore.dispatch(
+          clientActionCreators.game.setEntryPoint(newTile.x, newTile.y)
+        );
       }
 
       if (entryPoint && exitPoint) {
         console.log('set both!! exit:', exitPoint, 'entry', entryPoint);
         // when both have been set then we want to clear them and call the findFillPoint method
         this.findFillPoint(exitPoint, entryPoint);
-        clientStore.dispatch({
-          type: clientActionTypes.game.CLEAR_EXIT_ENTRY
-        });
+
+        clientStore.dispatch(clientActionCreators.game.clearExitEntry());
         this.freeze();
       }
 

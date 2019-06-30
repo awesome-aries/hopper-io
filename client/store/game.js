@@ -3,6 +3,8 @@
 // IndToXY returns obj {x,y}
 import {XYToInd, IndToXY} from '../../util/tileMapConversions';
 
+import clientStore from './';
+
 /**
  * INITIAL STATE
  */
@@ -31,69 +33,69 @@ const initialState = {
  * ACTION TYPES
  */
 
-export const gameActionTypes = {
-  SET_PLAYER_XY: 'SET_PLAYER_XY',
-  MOVE_PLAYER: 'MOVE_PLAYER',
-  SET_EXIT_POINT: 'SET_EXIT_POINT',
-  SET_ENTRY_POINT: 'SET_ENTRY_POINT',
-  CLEAR_EXIT_ENTRY: 'CLEAR_EXIT_ENTRY',
-  SET_TILEMAP: 'SET_TILEMAP',
-  SET_TILE: 'SET_TILE',
-  SET_TILES: 'SET_TILES'
-};
+const SET_PLAYER_XY = 'SET_PLAYER_XY';
+const MOVE_PLAYER = 'MOVE_PLAYER';
+const SET_EXIT_POINT = 'SET_EXIT_POINT';
+const SET_ENTRY_POINT = 'SET_ENTRY_POINT';
+const CLEAR_EXIT_ENTRY = 'CLEAR_EXIT_ENTRY';
+const SET_TILEMAP = 'SET_TILEMAP';
+const SET_TILE = 'SET_TILE';
+const SET_TILES = 'SET_TILES';
 
 /**
  * ACTION CREATORS
  */
 
-export const movePlayer = (x, y) => ({
-  type: gameActionTypes.MOVE_PLAYER,
-  x: x,
-  y: y
-});
-
-export const setPlayerXY = (x, y) => ({
-  type: gameActionTypes.SET_PLAYER_XY,
-  x: x,
-  y: y
-});
-
-export const setExitPoint = (x, y) => ({
-  type: gameActionTypes.SET_EXIT_POINT,
-  x: x,
-  y: y
-});
-
-export const setEntryPoint = (x, y) => ({
-  type: gameActionTypes.SET_ENTRY_POINT,
-  x: x,
-  y: y
-});
-
-export const clearExitEntry = () => ({
-  type: gameActionTypes.CLEAR_EXIT_ENTRY
-});
-
-export const setTilemap = (tileMap, tileMapRowLength) => ({
-  type: gameActionTypes.SET_TILEMAP,
-  tileMap,
-  tileMapRowLength
-});
-
-export const setTile = (tileX, tileY, tileIndex) => ({
-  // change the value of the tile index at the specified location
-  type: gameActionTypes.SET_TILE,
-  tileX,
-  tileY,
-  tileIndex //the tile index aka the type of tile
-});
-
-export const setTiles = (XYArray, tileIndex) => ({
-  // change the value of the tiles of the corresponding indices
-  type: gameActionTypes.SET_TILE,
-  XYArray, // [{x,y}]
-  tileIndex //the tile index aka the type of tile
-});
+export const gameActionCreators = {
+  movePlayer: (x, y) => ({
+    //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
+    type: MOVE_PLAYER,
+    x: y,
+    y: x
+  }),
+  setPlayerXY: (x, y) => ({
+    //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
+    type: SET_PLAYER_XY,
+    x: y,
+    y: x
+  }),
+  setExitPoint: (x, y) => ({
+    //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
+    type: SET_EXIT_POINT,
+    x: y,
+    y: x
+  }),
+  setEntryPoint: (x, y) => ({
+    //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
+    type: SET_ENTRY_POINT,
+    x: y,
+    y: x
+  }),
+  clearExitEntry: () => ({
+    type: CLEAR_EXIT_ENTRY
+  }),
+  setTilemap: (tileMap, tileMapRowLength) => ({
+    type: SET_TILEMAP,
+    tileMap,
+    tileMapRowLength
+  }),
+  setTile: (tileX, tileY, tileIndex) => ({
+    // change the value of the tile index at the specified location
+    type: SET_TILE,
+    y: tileX, //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
+    x: tileY,
+    tileIndex //the tile index aka the type of tile
+  }),
+  setTiles: (XYArray, tileIndex) => ({
+    // change the value of the tiles of the corresponding indices
+    type: SET_TILE,
+    XYArray: {
+      y: XYArray.x,
+      x: XYArray.y
+    }, //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
+    tileIndex //the tile index aka the type of tile
+  })
+};
 
 /**
  * THUNK CREATORS
@@ -104,7 +106,7 @@ export const setTiles = (XYArray, tileIndex) => ({
  */
 export default function gameReducer(state = initialState, action) {
   switch (action.type) {
-    case gameActionTypes.SET_PLAYER_XY:
+    case SET_PLAYER_XY:
       return {
         ...state,
         playerXY: {
@@ -125,7 +127,7 @@ export default function gameReducer(state = initialState, action) {
             ]
         }
       };
-    case gameActionTypes.MOVE_PLAYER:
+    case MOVE_PLAYER:
       return {
         ...state,
         playerXY: {
@@ -143,7 +145,7 @@ export default function gameReducer(state = initialState, action) {
             ]
         }
       };
-    case gameActionTypes.SET_ENTRY_POINT:
+    case SET_ENTRY_POINT:
       return {
         ...state,
         entryPoint: {
@@ -151,7 +153,7 @@ export default function gameReducer(state = initialState, action) {
           y: action.y
         }
       };
-    case gameActionTypes.SET_EXIT_POINT:
+    case SET_EXIT_POINT:
       return {
         ...state,
         exitPoint: {
@@ -159,13 +161,13 @@ export default function gameReducer(state = initialState, action) {
           y: action.y
         }
       };
-    case gameActionTypes.CLEAR_EXIT_ENTRY:
+    case CLEAR_EXIT_ENTRY:
       return {
         ...state,
         entryPoint: null,
         exitPoint: null
       };
-    case gameActionTypes.SET_TILEMAP:
+    case SET_TILEMAP:
       return {
         ...state,
         tileMap: {
@@ -176,9 +178,15 @@ export default function gameReducer(state = initialState, action) {
         tileMapRowLength: action.tileMapRowLength
       };
 
-    case gameActionTypes.SET_TILE:
+    case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
+      let newXY = IndToXY(ind, state.tileMapRowLength);
+      console.group('SET_TILE');
+      console.log('action', action);
+      console.log('ind', ind);
+      console.log('newXY', newXY);
+      console.groupEnd('SET_TILE');
       return {
         ...state,
         tileMap: {
@@ -194,7 +202,7 @@ export default function gameReducer(state = initialState, action) {
           })
         }
       };
-    case gameActionTypes.SET_TILES:
+    case SET_TILES:
       // convert all the x y to ind
       let inds = action.XYArray.map(coords => {
         return XYToInd(coords.x, coords.y, state.tileMapRowLength);
