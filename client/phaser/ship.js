@@ -7,13 +7,18 @@ export default class Ship {
     this.scene = scene;
     this.absVelocity = 200;
     this.direction = 1; //positive is down and right, negative is up and left
+    this.didTurn = false; // we have to know if we turned or not
+    this.facingDir = 'north'; //keep track of direction we're facing
+    // we need to keep track of the all the verticies of the drawn polygon
+    // aka every place we turn and the entry and exit, we'll store them here.
+    this.vertices = [];
 
     // ********* Set the Ship's starting location *********
 
     let tileXY = this.scene.map.worldToTileXY(x, y);
 
     clientStore.dispatch(
-      clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y)
+      clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y, this.facingDir)
     );
 
     this.sprite = scene.physics.add
@@ -76,18 +81,22 @@ export default class Ship {
       this.direction = -1;
       sprite.body.setVelocity(this.absVelocity * this.direction, 0);
       sprite.anims.play('ship-west');
+      this.facingDir = 'west';
     } else if (keys.up.isDown) {
       this.direction = -1;
       sprite.body.setVelocity(0, this.absVelocity * this.direction);
       sprite.anims.play('ship-north');
+      this.facingDir = 'north';
     } else if (keys.right.isDown) {
       this.direction = 1;
       sprite.body.setVelocity(this.absVelocity * this.direction, 0);
       sprite.anims.play('ship-east');
+      this.facingDir = 'east';
     } else if (keys.down.isDown) {
       this.direction = 1;
       sprite.body.setVelocity(0, this.absVelocity * this.direction);
       sprite.anims.play('ship-south');
+      this.facingDir = 'south';
     } else if (keys.space.isDown) {
       // for testing purposes
       this.freeze();
@@ -95,11 +104,7 @@ export default class Ship {
 
     // // ******************Path Logic******************
     // // get the tile at the location of the ship
-    // let tile = this.scene.layer.putTileAtWorldXY(
-    //   this.scene.tileValues.pathTile,
-    //   this.sprite.x,
-    //   this.sprite.y
-    // );
+
     this.setPath();
 
     // *************************************************
@@ -111,7 +116,7 @@ export default class Ship {
 
     // get the current state of the store
     const {
-      game: {playerXY, playerPhaserXY, currentTileIdx, entryPoint, exitPoint}
+      game: {playerPhaserXY, currentTileIdx, entryPoint, exitPoint, direction}
     } = clientStore.getState();
 
     let currTileXY = `${playerPhaserXY.present.x},${playerPhaserXY.present.y}`;
@@ -124,17 +129,24 @@ export default class Ship {
 
     // check to see if the cart has moved to a new tile or not.
     if (newTileXY !== currTileXY) {
+      console.log('vertices', this.vertices);
       // If we've reached a new tile, then set that as the new present tile
       clientStore.dispatch(
-        clientActionCreators.game.movePlayer(newTile.x, newTile.y)
+        clientActionCreators.game.movePlayer(
+          newTile.x,
+          newTile.y,
+          this.facingDir
+        )
       );
 
-      console.group('tileValues');
-      console.log('currTileXY', currTileXY);
-      console.log('newTileXY', newTileXY);
-      console.log('previousTileIdx', currentTileIdx.previous);
-      console.log('presentTileIdx', currentTileIdx.present);
-      console.groupEnd('tileValues');
+      //check to see if the ship has changed directions and if so save tile in our list of vertices
+      if (direction.previous !== direction.present) {
+        this.vertices.push([
+          playerPhaserXY.previous.x,
+          playerPhaserXY.previous.y
+        ]);
+      }
+
       // If the user is moving from harbor to a different kind of tile, then we must set the exit point
       if (
         currentTileIdx.previous === this.scene.tileValues.harborTile &&
@@ -146,6 +158,11 @@ export default class Ship {
             playerPhaserXY.present.y
           )
         );
+        //save the exit point in our vertices
+        this.vertices.push([
+          playerPhaserXY.present.x,
+          playerPhaserXY.present.y
+        ]);
       } else if (
         currentTileIdx.previous !== this.scene.tileValues.harborTile &&
         currentTileIdx.present === this.scene.tileValues.harborTile
@@ -158,6 +175,11 @@ export default class Ship {
             playerPhaserXY.present.y
           )
         );
+        //save the entry point in our vertices
+        this.vertices.push([
+          playerPhaserXY.present.x,
+          playerPhaserXY.present.y
+        ]);
       }
 
       if (entryPoint && exitPoint) {

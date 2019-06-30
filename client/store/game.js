@@ -18,6 +18,10 @@ const initialState = {
     previous: {}, //{x, y} (coords in phaser order)
     present: {}
   },
+  direction: {
+    previous: '',
+    present: ''
+  },
   currentTileIdx: {
     previous: null,
     present: null
@@ -49,15 +53,17 @@ const SET_TILES = 'SET_TILES';
  */
 
 export const gameActionCreators = {
-  movePlayer: (x, y) => ({
+  movePlayer: (x, y, direction) => ({
     type: MOVE_PLAYER,
     x: x,
-    y: y
+    y: y,
+    direction
   }),
-  setPlayerXY: (x, y) => ({
+  setPlayerXY: (x, y, direction) => ({
     type: SET_PLAYER_XY,
     x: x,
-    y: y
+    y: y,
+    direction
   }),
   setExitPoint: (x, y) => ({
     //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
@@ -130,6 +136,10 @@ export default function gameReducer(state = initialState, action) {
             y: action.y
           }
         },
+        direction: {
+          previous: action.direction,
+          present: action.direction
+        },
         //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
         currentTileIdx: {
           previous:
@@ -159,6 +169,10 @@ export default function gameReducer(state = initialState, action) {
             x: action.x,
             y: action.y
           }
+        },
+        direction: {
+          previous: state.direction.present,
+          present: action.direction
         },
         //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
         currentTileIdx: {
@@ -205,10 +219,6 @@ export default function gameReducer(state = initialState, action) {
     case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
-      console.group('SET_TILE');
-      console.log('action', action);
-      console.log('ind', ind);
-      console.groupEnd('SET_TILE');
       return {
         ...state,
         tileMap: {

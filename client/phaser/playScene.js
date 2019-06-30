@@ -138,8 +138,6 @@ export default class PlayScene extends Phaser.Scene {
       // set the tile in phaser
       newTile.index = tileIndex;
 
-      console.log('newTile', newTile);
-
       // also change the tile in the store
       clientStore.dispatch(
         clientActionCreators.game.setTile(newTile.x, newTile.y, tileIndex)
