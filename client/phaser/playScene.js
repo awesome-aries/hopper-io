@@ -2,14 +2,14 @@ import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
 // import TileMapJS from '../../public/assets/small-test-map.js';
-import * as TileMapJS from '../../public/assets/small-test-map.json';
+import * as TileMapJS from '../../public/assets/testtilemap.json';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
     // passing 'play' as a parameter that will serve as the identifier for this scene
     super('play');
 
-    this.TILE_MAP_PATH = 'assets/small-test-map.csv';
+    this.TILE_MAP_PATH = 'assets/testtilemap.csv';
     this.TILE_SET_PATH = 'assets/test-tile-set50x50tiles.png';
     this.SHIP_SPRITE_PATH = 'assets/shipspritealpha.png';
 
@@ -52,6 +52,18 @@ export default class PlayScene extends Phaser.Scene {
     this.load.image(this.TILE_SET_NAME, this.TILE_SET_PATH);
   }
 
+  randomizeXY(mapWidth, mapHeight, tileWidth, tileHeight) {
+    const maxX = mapWidth / tileWidth;
+    const maxY = mapHeight / tileHeight;
+    let startPosition = {};
+    //5 represents 3 as the min, so that the ship always spawns 3 tiles from the min border
+    //and 2 so that the ship always spawns 3 away from the max (its exclusive so its really -3 + 1)
+    //if we ever want to change the harbor size(right now were assuming 3x3) we would change these values!
+    startPosition.x = Math.floor(Math.random() * (maxX - 5) + 3) * tileWidth;
+    startPosition.y = Math.floor(Math.random() * (maxY - 5) + 3) * tileHeight;
+    return startPosition;
+  }
+
   create() {
     // adds objects to the game
 
@@ -75,9 +87,18 @@ export default class PlayScene extends Phaser.Scene {
 
     // **************** Set up the Ship **************
 
-    let shipX = this.map.widthInPixels / 2 + this.tileWidth / 2;
-    let shipY = this.map.heightInPixels / 2 + this.tileHeight / 2;
-    this.ship = new Ship(this, shipX, shipY);
+    const {x, y} = this.randomizeXY(
+      this.map.widthInPixels,
+      this.map.heightInPixels,
+      this.map.tileWidth,
+      this.map.tileHeight
+    );
+
+    this.ship = new Ship(
+      this,
+      x + this.map.tileWidth / 2,
+      y + this.map.tileHeight / 2
+    );
 
     // make the ship not able to leave the world
     // for some reason adds weird borders in the middle of the map
@@ -138,8 +159,6 @@ export default class PlayScene extends Phaser.Scene {
       // set the tile in phaser
       newTile.index = tileIndex;
 
-      console.log('newTile', newTile);
-
       // also change the tile in the store
       clientStore.dispatch(
         clientActionCreators.game.setTile(newTile.x, newTile.y, tileIndex)
@@ -162,6 +181,7 @@ export default class PlayScene extends Phaser.Scene {
         snappedWorldPoint.x,
         snappedWorldPoint.y
       );
+      console.log('clicked tile', clickedTile);
 
       if (this.keys.shift.isDown) {
         this.ship.floodFillArea(clickedTile);
