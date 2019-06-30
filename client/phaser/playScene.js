@@ -162,6 +162,7 @@ export default class PlayScene extends Phaser.Scene {
         snappedWorldPoint.x,
         snappedWorldPoint.y
       );
+      console.log('clicked tile', clickedTile);
 
       if (this.keys.shift.isDown) {
         this.ship.floodFillArea(clickedTile);

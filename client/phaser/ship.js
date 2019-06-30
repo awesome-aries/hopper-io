@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
 
@@ -181,20 +182,24 @@ export default class Ship {
       }
     }
   }
+
   findFillPoint(exitPoint, entryPoint) {
     console.log('in the findFillPoint method', exitPoint, entryPoint);
     let fillPoint;
     // this.floodFillArea(fillPoint);
   }
+
   floodFillArea(startTile) {
     // startTile is a phaser tile object
     //Fill an area enclosed by path (including the tiles in the path itself)
     //stack of tiles to examine
-    console.group('floodFill');
-    console.log('in floodFill, startTile', startTile);
+    console.group('In floodFill');
+    console.log('startTile', startTile);
 
-    let toExplore = [startTile];
+    let toExplore = [];
+    toExplore.push(startTile);
     let currentTile;
+    console.log('toExplore', toExplore.length > 0);
     while (toExplore.length > 0) {
       //look at next tile in the stack and the surrounding tiles
       console.log('toExplore', toExplore);
@@ -205,11 +210,12 @@ export default class Ship {
       console.log('adding neighbors!');
       console.log('toExplore', toExplore);
       // whether the tile is part of the path, or not fill it and make it part of the harbor
-      currentTile.index = this.scene.tileValues.borderTile;
+      currentTile.index = this.scene.tileValues.harborTile;
     }
     console.log('floodFIll end!!');
     console.groupEnd('floodFill');
   }
+
   getSurroundingTiles(currTile) {
     // this takes a phase tile object
     //get range of the surrounding square coordinates
@@ -239,13 +245,18 @@ export default class Ship {
     let range = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
     console.log('range', range);
     let tiles = [];
-
+    console.log(
+      'foreground ',
+      this.scene.foregroundLayer,
+      'map ',
+      this.scene.map
+    );
     for (let i = xmin; i <= xmax; i++) {
       for (let j = ymin; j <= ymax; j++) {
-        let neighborTile = this.scene.foregroundLayer.getTileAtXY(i, j);
+        let neighborTile = this.scene.foregroundLayer.getTileAt(i, j);
         console.log('neighborTile', neighborTile);
         if (
-          neighborTile.index === this.scene.tileValues.regularTile ||
+          currTile.index === this.scene.tileValues.regularTile ||
           (currTile.index === this.scene.tileValues.pathTile &&
             neighborTile.index === this.scene.tileValues.pathTile)
         ) {
