@@ -185,7 +185,10 @@ export default class Ship {
       if (entryPoint && exitPoint) {
         console.log('set both!! exit:', exitPoint, 'entry', entryPoint);
         // when both have been set then we want to clear them and call the findFillPoint method
-        this.findFillPoint(exitPoint, entryPoint);
+        this.findFillPoint(
+          this.vertices[0],
+          this.vertices[this.vertices.length - 1]
+        );
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
         this.freeze();
@@ -205,10 +208,56 @@ export default class Ship {
     }
   }
 
-  findFillPoint(exitPoint, entryPoint) {
-    console.log('in the findFillPoint method', exitPoint, entryPoint);
-    let fillPoint;
-    // this.floodFillArea(fillPoint);
+  findFillPoint() {
+    // This will take the point at which the ship exited the harbor, get all the surrounding squares, and loop through until it finds one that is enclosed in the path and select that as the fillPoint.
+    console.group('findFillPoint');
+
+    let potentialFillPoints = [];
+    for (let j = 0; j < this.vertices.length; j++) {
+      const vertex = this.vertices[j];
+      let vertexTile = this.scene.foregroundLayer.getTileAt(
+        vertex[0],
+        vertex[1]
+      );
+      console.log('vertexTile', vertexTile);
+      potentialFillPoints = potentialFillPoints.concat(
+        this.getSurroundingTiles(vertexTile, true)
+      );
+      console.log('potentialFillPoints ', potentialFillPoints);
+      for (let i = 0; i < potentialFillPoints.length; i++) {
+        // once we find a point inside the path we can stop.
+        if (this.insidePoly(potentialFillPoints[i], this.vertices)) {
+          let fillPoint = potentialFillPoints[i];
+          console.log('fillPoint', fillPoint);
+          this.floodFillArea(fillPoint);
+          return;
+        }
+      }
+    }
+    console.log('congrats you broke the game');
+    console.groupEnd('findFillPoint');
+  }
+
+  insidePoly(point, corners) {
+    // ray-casting algorithm based on
+    // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+
+    let x = point.x,
+      y = point.y;
+
+    let inside = false;
+    for (let i = 0, j = corners.length - 1; i < corners.length; j = i++) {
+      let xi = corners[i][0],
+        yi = corners[i][1];
+      let xj = corners[j][0],
+        yj = corners[j][1];
+
+      let intersect =
+        yi > y !== yj > y && x < (xj - xi) * (y - yi) / (yj - yi) + xi;
+      if (intersect) inside = !inside;
+    }
+
+    return inside;
   }
 
   floodFillArea(startTile) {
@@ -232,7 +281,7 @@ export default class Ship {
     }
   }
 
-  getSurroundingTiles(currTile) {
+  getSurroundingTiles(currTile, findingFillPoint = false) {
     // this takes a phase tile object
     //get range of the surrounding square coordinates
     // if the value of the tile is 0 then get all
@@ -264,10 +313,17 @@ export default class Ship {
       for (let j = ymin; j <= ymax; j++) {
         let neighborTile = this.scene.foregroundLayer.getTileAt(i, j);
         if (
-          currTile.index === this.scene.tileValues.regularTile ||
-          (currTile.index === this.scene.tileValues.pathTile &&
-            neighborTile.index === this.scene.tileValues.pathTile)
+          findingFillPoint &&
+          neighborTile.index === this.scene.tileValues.regularTile
         ) {
+          tiles.push(neighborTile);
+        } else if (
+          !findingFillPoint &&
+          (currTile.index === this.scene.tileValues.regularTile ||
+            (currTile.index === this.scene.tileValues.pathTile &&
+              neighborTile.index === this.scene.tileValues.pathTile))
+        ) {
+          // if we're floodfilling, use separate logic
           tiles.push(neighborTile);
         }
       }
