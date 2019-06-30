@@ -219,6 +219,11 @@ export default function gameReducer(state = initialState, action) {
     case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
+      let playerInd = XYToInd(
+        state.playerXY.present.x,
+        state.playerXY.present.y,
+        state.tileMapRowLength
+      );
       return {
         ...state,
         tileMap: {
@@ -232,6 +237,14 @@ export default function gameReducer(state = initialState, action) {
               return x;
             }
           })
+        },
+        currentTileIdx: {
+          previous:
+            ind === playerInd
+              ? {...state.currentTileIdx}.present
+              : state.currentTileIdx.previous,
+          present:
+            ind === playerInd ? action.tileIndex : state.currentTileIdx.present
         }
       };
     case SET_TILES:

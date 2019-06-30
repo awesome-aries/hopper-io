@@ -17,10 +17,6 @@ export default class Ship {
 
     let tileXY = this.scene.map.worldToTileXY(x, y);
 
-    clientStore.dispatch(
-      clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y, this.facingDir)
-    );
-
     this.sprite = scene.physics.add
       .sprite(x, y, 'ship', 0)
       // .setDrag(1000, 0)
@@ -40,6 +36,10 @@ export default class Ship {
         type: 'tile'
       });
     });
+
+    clientStore.dispatch(
+      clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y, this.facingDir)
+    );
 
     // **************************************
     // create animation

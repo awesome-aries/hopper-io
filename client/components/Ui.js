@@ -43,6 +43,7 @@ class Ui extends React.Component {
             <p>Loading...</p>
           )}
         </div>
+        <div>currentTileIdx: {this.props.currentTileIndex}</div>
       </div>
     );
   }
@@ -55,7 +56,8 @@ const mapStateToProps = state => ({
     state.game.playerXY.present.x,
     state.game.playerXY.present.y,
     state.game.tileMapRowLength
-  )
+  ),
+  currentTileIndex: state.game.currentTileIdx.present
 });
 
 export default connect(mapStateToProps)(Ui);
