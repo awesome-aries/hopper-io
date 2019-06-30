@@ -19,3 +19,16 @@ form div {
   margin: 1em;
   display: inline-block;
 }
+
+span.tile0 {
+  background-color: grey;
+}
+span.tile1 {
+  background-color: purple;
+}
+span.tile2 {
+  background-color: rgb(49, 49, 49);
+}
+span.tile3 {
+  background-color: pink;
+}

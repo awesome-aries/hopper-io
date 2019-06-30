@@ -4,7 +4,7 @@ import clientStore, {clientActionTypes} from '../store';
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.absVelocity = 100;
+    this.absVelocity = 200;
     this.direction = 1; //positive is down and right, negative is up and left
 
     // ********* Set the Ship's starting location *********

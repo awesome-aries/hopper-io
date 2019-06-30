@@ -1,4 +1,5 @@
 import React from 'react';
+import {connect} from 'react-redux';
 
 class Ui extends React.Component {
   constructor() {
@@ -16,9 +17,37 @@ class Ui extends React.Component {
           move ship, hit space to stop/restart moving
         </p>
         {this.props.children}
+        <h3>Quick n Dirty view of the store tilemap</h3>
+        <div>
+          {this.props.rowLength ? (
+            this.props.tileMap.map((tile, ind) => {
+              if ((ind + 1) % this.props.rowLength === 0) {
+                return (
+                  <span key={ind} className={'tile' + tile}>
+                    <span>{tile}</span>
+                    <br />
+                  </span>
+                );
+              } else {
+                return (
+                  <span key={ind} className={'tile' + tile}>
+                    {tile}
+                  </span>
+                );
+              }
+            })
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
       </div>
     );
   }
 }
 
-export default Ui;
+const mapStateToProps = state => ({
+  tileMap: state.game.tileMap.present,
+  rowLength: state.game.tileMapRowLength
+});
+
+export default connect(mapStateToProps)(Ui);

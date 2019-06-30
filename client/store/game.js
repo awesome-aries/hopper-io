@@ -126,10 +126,6 @@ export default function gameReducer(state = initialState, action) {
         }
       };
     case gameActionTypes.MOVE_PLAYER:
-      console.group('MOVE_PLAYER');
-      console.log('action:', action);
-      console.log('currentTileIdx', state.currentTileIdx);
-      console.groupEnd('MOVE_PLAYER');
       return {
         ...state,
         playerXY: {
