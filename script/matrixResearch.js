@@ -1,4 +1,39 @@
-export const createTileMatrix = (x, y) => {
+//const inside = require('point-in-polygon');
+
+function insidePoly(point, corners) {
+  // ray-casting algorithm based on
+  // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+
+  let x = point.x,
+    y = point.y;
+
+  let inside = false;
+  for (let i = 0, j = corners.length - 1; i < corners.length; j = i++) {
+    let xi = corners[i][0],
+      yi = corners[i][1];
+    let xj = corners[j][0],
+      yj = corners[j][1];
+
+    let intersect =
+      yi > y !== yj > y && x < (xj - xi) * (y - yi) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+
+  return inside;
+}
+
+let isInside = insidePoly({x: 7, y: 2}, [
+  [8, 3],
+  [8, 1],
+  [3, 1],
+  [3, 4],
+  [5, 4],
+  [5, 6],
+  [7, 5]
+]);
+console.log('is INSIDE?', isInside);
+
+const createTileMatrix = (x, y) => {
   // generates the matrix representation of our plane
 
   // 0 = unowned tile
@@ -11,7 +46,7 @@ export const createTileMatrix = (x, y) => {
     });
 };
 
-export const transformPxToCoords = (
+const transformPxToCoords = (
   userPos,
   boardDimensionsPx,
   boardDimensionsCoords
@@ -23,7 +58,7 @@ export const transformPxToCoords = (
   // TODO
 };
 
-export const setPath = (
+const setPath = (
   prevCartPos,
   nextCartPos,
   tileMatrix,
@@ -53,7 +88,7 @@ export const setPath = (
   tileMatrix[nextCartPos.x][nextCartPos.y] = 1;
 };
 
-export const findFillPoint = (tileMatrix, entryPoint, exitPoint) => {
+const findFillPoint = (tileMatrix, entryPoint, exitPoint) => {
   // tileMatrix, an array of arrays representing the plane
   // entry point, {x, y} the point at which the cart reentered the harbor
   // exit point, {x, y} the point at which the cart exited the harbor
@@ -67,7 +102,7 @@ export const findFillPoint = (tileMatrix, entryPoint, exitPoint) => {
 };
 
 // eslint-disable-next-line complexity
-export const getSurroundingSquares = (tile, tileMatrix) => {
+const getSurroundingSquares = (tile, tileMatrix) => {
   // tileMatrix, an array of arrays representing the plane
   // tile = {x, y}
 
@@ -101,7 +136,7 @@ export const getSurroundingSquares = (tile, tileMatrix) => {
   return tiles;
 };
 
-export const floodFillArea = (tileMatrix, startPoint) => {
+const floodFillArea = (tileMatrix, startPoint) => {
   // tileMatrix, an array of arrays
   // startPoint = {x, y}
 

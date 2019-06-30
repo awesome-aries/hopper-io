@@ -193,27 +193,21 @@ export default class Ship {
     // startTile is a phaser tile object
     //Fill an area enclosed by path (including the tiles in the path itself)
     //stack of tiles to examine
-    console.group('In floodFill');
-    console.log('startTile', startTile);
-
     let toExplore = [];
     toExplore.push(startTile);
     let currentTile;
-    console.log('toExplore', toExplore.length > 0);
     while (toExplore.length > 0) {
       //look at next tile in the stack and the surrounding tiles
-      console.log('toExplore', toExplore);
       currentTile = toExplore.shift();
-      console.log('currentTile', currentTile);
       let neighbors = this.getSurroundingTiles(currentTile);
       toExplore = toExplore.concat(neighbors);
-      console.log('adding neighbors!');
-      console.log('toExplore', toExplore);
       // whether the tile is part of the path, or not fill it and make it part of the harbor
-      currentTile.index = this.scene.tileValues.harborTile;
+      this.scene.setTileIndex(this.scene.tileValues.harborTile, {
+        x: currentTile.x,
+        y: currentTile.y,
+        type: 'tile'
+      });
     }
-    console.log('floodFIll end!!');
-    console.groupEnd('floodFill');
   }
 
   getSurroundingTiles(currTile) {
@@ -222,7 +216,6 @@ export default class Ship {
     // if the value of the tile is 0 then get all
     // but if the value is a path tile, then we only want to grab
     // surrounding squares that are also path tiles
-    console.group('getNeighbors');
 
     let xmin = currTile.x - 1 < 0 ? 0 : currTile.x - 1;
     let ymin = currTile.y - 1 < 0 ? 0 : currTile.y - 1;
@@ -243,18 +236,11 @@ export default class Ship {
         : currTile.y + 1;
 
     let range = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
-    console.log('range', range);
     let tiles = [];
-    console.log(
-      'foreground ',
-      this.scene.foregroundLayer,
-      'map ',
-      this.scene.map
-    );
+
     for (let i = xmin; i <= xmax; i++) {
       for (let j = ymin; j <= ymax; j++) {
         let neighborTile = this.scene.foregroundLayer.getTileAt(i, j);
-        console.log('neighborTile', neighborTile);
         if (
           currTile.index === this.scene.tileValues.regularTile ||
           (currTile.index === this.scene.tileValues.pathTile &&
@@ -264,8 +250,6 @@ export default class Ship {
         }
       }
     }
-    console.log('returning tiles', tiles);
-    console.groupEnd('getNeighbors');
     return tiles;
   }
 }
