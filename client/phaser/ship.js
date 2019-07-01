@@ -1,6 +1,7 @@
 /* eslint-disable complexity */
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
+import {XYToInd} from '../../util/tileMapConversions';
 
 export default class Ship {
   constructor(scene, x, y) {
@@ -197,10 +198,7 @@ export default class Ship {
 
       if (entryPoint && exitPoint) {
         // when both have been set then we want to clear them and call the findFillPoint method
-        this.findFillPoint(
-          this.vertices[0],
-          this.vertices[this.vertices.length - 1]
-        );
+        this.findFillPoint();
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
       }
@@ -223,6 +221,8 @@ export default class Ship {
     // This will take the point at which the ship exited the harbor, get all the surrounding squares, and loop through until it finds one that is enclosed in the path and select that as the fillPoint.
 
     let potentialFillPoints = [];
+
+    // for each vertex
     for (let j = 0; j < this.vertices.length; j++) {
       const vertex = this.vertices[j];
       let vertexTile = this.scene.foregroundLayer.getTileAt(
@@ -293,17 +293,26 @@ export default class Ship {
   }
 
   floodFillArea(startTile) {
-    // startTile is a phaser tile object
+    //startTile is a phaser tile object
     //Fill an area enclosed by path (including the tiles in the path itself)
     //stack of tiles to examine
-    let toExplore = [];
-    toExplore.push(startTile);
+    let toExplore = [startTile];
     let currentTile;
+
+    // keep track of which tile we've gotten the neighbors
+    let visited = {};
+
+    // initialize the visited hash table with the start tile
+    visited[`${startTile.x},${startTile.y}`] = true;
+
     while (toExplore.length > 0) {
       //look at next tile in the stack and the surrounding tiles
       currentTile = toExplore.shift();
-      let neighbors = this.getSurroundingTiles(currentTile);
+      // let key = `${currentTile.x},${currentTile.y}`;
+
+      let neighbors = this.getSurroundingTiles(currentTile, false, visited);
       toExplore = toExplore.concat(neighbors);
+
       // whether the tile is part of the path, or not fill it and make it part of the harbor
       this.scene.setTileIndex(this.scene.tileValues.harbor, {
         x: currentTile.x,
@@ -313,37 +322,40 @@ export default class Ship {
     }
   }
 
-  getSurroundingTiles(currTile, findingFillPoint = false) {
+  getSurroundingTiles(currTile, findingFillPoint = false, visited = {}) {
     // this takes a phase tile object
     //get range of the surrounding square coordinates
     // if the value of the tile is 0 then get all
     // but if the value is a path tile, then we only want to grab
     // surrounding squares that are also path tiles
 
+    // if provided with a visited object, it will check to see if the neighboring tiles' coordinates are keys in it, and if so exclude them.
+    // if the neighbor tiles arent in the visited object, it will add them as keys
+
     let xmin = currTile.x - 1 < 0 ? 0 : currTile.x - 1;
     let ymin = currTile.y - 1 < 0 ? 0 : currTile.y - 1;
 
-    // get the max possible values of the plane
-    let planeDimensions = this.scene.map.worldToTileXY(
-      this.scene.foregroundLayer.width,
-      this.scene.foregroundLayer.height
-    );
-
     let xmax =
-      currTile.x + 1 >= planeDimensions.x
-        ? planeDimensions.x - 1
+      currTile.x + 1 >= this.scene.planeDimensions.x
+        ? this.scene.planeDimensions.x - 1
         : currTile.x + 1;
     let ymax =
-      currTile.y + 1 >= planeDimensions.y
-        ? planeDimensions.y - 1
+      currTile.y + 1 >= this.scene.planeDimensions.y
+        ? this.scene.planeDimensions.y - 1
         : currTile.y + 1;
 
-    let range = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
+    // let range = {xmin: xmin, xmax: xmax, ymin: ymin, ymax: ymax};
     let tiles = [];
 
     for (let i = xmin; i <= xmax; i++) {
       for (let j = ymin; j <= ymax; j++) {
-        let neighborTile = this.scene.foregroundLayer.getTileAt(i, j);
+        // checks to see if the current tile exists in the visited object
+        if (visited[`${i},${j}`]) continue;
+
+        let neighborTile;
+        neighborTile = this.scene.foregroundLayer.getTileAt(i, j);
+
+        // if this function is being called to find the fillpoint at which we want to begin floodfilling, then use this logic
         if (
           findingFillPoint &&
           neighborTile.index === this.scene.tileValues.regular
@@ -351,15 +363,38 @@ export default class Ship {
           tiles.push(neighborTile);
         } else if (
           !findingFillPoint &&
-          (currTile.index === this.scene.tileValues.regular ||
-            (currTile.index === this.scene.tileValues.path &&
-              neighborTile.index === this.scene.tileValues.path))
+          // determines if the neighborTile is paintable
+          this.tileIsPaintable(currTile, neighborTile)
         ) {
+          // if this is being called by floodFill
           // if we're floodfilling, use separate logic
           tiles.push(neighborTile);
+          // and add to visited
+          visited[`${i},${j}`] = true;
         }
       }
     }
     return tiles;
+  }
+
+  tileIsPaintable(currentTile, neighborTile) {
+    // determines if a neighbor tile should be included in floodFill
+
+    // If a tile is regular tile, only fill it's neighbor, if the neighbor is also a regular tile or a path tile
+    if (
+      currentTile.index === this.scene.tileValues.regular &&
+      (neighborTile.index === this.scene.tileValues.regular ||
+        neighborTile.index === this.scene.tileValues.path)
+    ) {
+      return true;
+    } else if (
+      currentTile.index === this.scene.tileValues.path &&
+      neighborTile.index === this.scene.tileValues.path
+    ) {
+      // if a tile is a path tile, only fill it's neighbor if it is also a path tile
+      return true;
+    } else {
+      return false;
+    }
   }
 }
