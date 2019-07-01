@@ -28,7 +28,7 @@ export default class Ship {
     // this.sprite.body.collideWorldBounds = true;
     const startPos = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
     const harbor = this.getSurroundingTiles(startPos);
-    console.log('start: ', startPos);
+
     harbor.forEach(tile => {
       this.scene.setTileIndex(this.scene.tileValues.harborTile, {
         x: tile.x,
@@ -83,7 +83,7 @@ export default class Ship {
     this.sprite.body.moves = !this.sprite.body.moves;
   }
 
-  update() {
+  update(game) {
     const {keys, sprite} = this;
 
     // ******************Movement Logic******************
@@ -115,19 +115,23 @@ export default class Ship {
     // // ******************Path Logic******************
     // // get the tile at the location of the ship
 
-    this.setPath();
+    this.setPath(game);
 
     // *************************************************
   }
 
   // eslint-disable-next-line complexity
-  setPath() {
+  setPath(game) {
+    // get the current state of the store from playScene update
     // ******************Path Logic******************
 
-    // get the current state of the store
     const {
-      game: {playerPhaserXY, currentTileIdx, entryPoint, exitPoint, direction}
-    } = clientStore.getState();
+      playerPhaserXY,
+      currentTileIdx,
+      entryPoint,
+      exitPoint,
+      direction
+    } = game;
 
     let currTileXY = `${playerPhaserXY.present.x},${playerPhaserXY.present.y}`;
 
@@ -244,6 +248,9 @@ export default class Ship {
         }
       }
     }
+    // here we want to fill all the path tiles instead
+    // track maxX minX, maxY, minY
+    // this.scene.foregroundLayer.replaceByIndex(this.scene.tileValues.pathTile, this.scene.tileValues.harborTile, )
     console.log('congrats you broke the game');
     console.groupEnd('findFillPoint');
   }

@@ -133,9 +133,9 @@ export default class PlayScene extends Phaser.Scene {
     // the game loop which runs constantly
 
     // get the state from the clientStore
-    const {tiles, players} = clientStore.getState();
+    const {game} = clientStore.getState();
 
-    this.ship.update(tiles, players);
+    this.ship.update(game);
     this.manuallyMakeHarbor();
   }
 
