@@ -30,7 +30,7 @@ export default class Ship {
     const harbor = this.getSurroundingTiles(startPos);
 
     harbor.forEach(tile => {
-      this.scene.setTileIndex(this.scene.tileValues.harborTile, {
+      this.scene.setTileIndex(this.scene.tileValues.harbor, {
         x: tile.x,
         y: tile.y,
         type: 'tile'
@@ -162,8 +162,8 @@ export default class Ship {
 
       // If the user is moving from harbor to a different kind of tile, then we must set the exit point
       if (
-        currentTileIdx.previous === this.scene.tileValues.harborTile &&
-        currentTileIdx.present !== this.scene.tileValues.harborTile
+        currentTileIdx.previous === this.scene.tileValues.harbor &&
+        currentTileIdx.present !== this.scene.tileValues.harbor
       ) {
         clientStore.dispatch(
           clientActionCreators.game.setExitPoint(
@@ -177,8 +177,8 @@ export default class Ship {
           playerPhaserXY.present.y
         ]);
       } else if (
-        currentTileIdx.previous !== this.scene.tileValues.harborTile &&
-        currentTileIdx.present === this.scene.tileValues.harborTile
+        currentTileIdx.previous !== this.scene.tileValues.harbor &&
+        currentTileIdx.present === this.scene.tileValues.harbor
       ) {
         // If the user is moving from sea to harbor, then we must set the entry point
 
@@ -206,9 +206,9 @@ export default class Ship {
       }
 
       // get the tile at the location of the ship and make it a path tile if on a regular tile
-      if (currentTileIdx.present === this.scene.tileValues.regularTile) {
+      if (currentTileIdx.present === this.scene.tileValues.regular) {
         this.scene.setTileIndex(
-          this.scene.tileValues.pathTile, //type of tile to set it to
+          this.scene.tileValues.path, //type of tile to set it to
           {
             type: 'tile', //must indicate format of xy
             x: playerPhaserXY.present.x,
@@ -260,8 +260,8 @@ export default class Ship {
     // here we want to fill all the path tiles instead
     // track maxX minX, maxY, minY
     this.scene.foregroundLayer.replaceByIndex(
-      this.scene.tileValues.pathTile,
-      this.scene.tileValues.harborTile,
+      this.scene.tileValues.path,
+      this.scene.tileValues.harbor,
       minX,
       minY,
       maxX - minX + 1,
@@ -305,7 +305,7 @@ export default class Ship {
       let neighbors = this.getSurroundingTiles(currentTile);
       toExplore = toExplore.concat(neighbors);
       // whether the tile is part of the path, or not fill it and make it part of the harbor
-      this.scene.setTileIndex(this.scene.tileValues.harborTile, {
+      this.scene.setTileIndex(this.scene.tileValues.harbor, {
         x: currentTile.x,
         y: currentTile.y,
         type: 'tile'
@@ -346,14 +346,14 @@ export default class Ship {
         let neighborTile = this.scene.foregroundLayer.getTileAt(i, j);
         if (
           findingFillPoint &&
-          neighborTile.index === this.scene.tileValues.regularTile
+          neighborTile.index === this.scene.tileValues.regular
         ) {
           tiles.push(neighborTile);
         } else if (
           !findingFillPoint &&
-          (currTile.index === this.scene.tileValues.regularTile ||
-            (currTile.index === this.scene.tileValues.pathTile &&
-              neighborTile.index === this.scene.tileValues.pathTile))
+          (currTile.index === this.scene.tileValues.regular ||
+            (currTile.index === this.scene.tileValues.path &&
+              neighborTile.index === this.scene.tileValues.path))
         ) {
           // if we're floodfilling, use separate logic
           tiles.push(neighborTile);
