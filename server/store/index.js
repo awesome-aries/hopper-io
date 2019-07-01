@@ -1,10 +1,11 @@
 const {createStore, combineReducers, applyMiddleware} = require('redux');
 const {createLogger} = require('redux-logger');
-const thunkMiddleware = require('redux-thunk');
+const thunkMiddleware = require('redux-thunk').default;
 const {composeWithDevTools} = require('redux-devtools-extension');
-const {tilesReducer, tilesActionTypes} = require('./tilesLocation');
+const {tilesReducer, tilesActionCreators} = require('./tilesLocation');
+const {playersReducer, playersActionCreators} = require('./player');
 
-const reducer = combineReducers({tilesReducer});
+const reducer = combineReducers({tilesReducer, playersReducer});
 const composeEnhancers = composeWithDevTools({
   trace: true
 });
@@ -17,7 +18,8 @@ const serverStore = createStore(
 );
 
 const serverActionTypes = {
-  tiles: tilesActionTypes
+  tiles: tilesActionCreators,
+  players: playersActionCreators
 };
 
 module.exports = {
