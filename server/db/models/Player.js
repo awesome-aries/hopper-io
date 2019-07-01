@@ -4,7 +4,10 @@ const db = require('../db');
 const Player = db.define('player', {
   name: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: false,
+    validate: {
+      notEmpty: true
+    }
   }
 });
 
