@@ -143,7 +143,6 @@ export default class Ship {
 
     // check to see if the cart has moved to a new tile or not.
     if (newTileXY !== currTileXY) {
-      console.log('vertices', this.vertices);
       // If we've reached a new tile, then set that as the new present tile
       clientStore.dispatch(
         clientActionCreators.game.movePlayer(
@@ -197,7 +196,6 @@ export default class Ship {
       }
 
       if (entryPoint && exitPoint) {
-        console.log('set both!! exit:', exitPoint, 'entry', entryPoint);
         // when both have been set then we want to clear them and call the findFillPoint method
         this.findFillPoint(
           this.vertices[0],
@@ -205,7 +203,6 @@ export default class Ship {
         );
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
-        this.freeze();
       }
 
       // get the tile at the location of the ship and make it a path tile if on a regular tile
@@ -224,7 +221,6 @@ export default class Ship {
 
   findFillPoint() {
     // This will take the point at which the ship exited the harbor, get all the surrounding squares, and loop through until it finds one that is enclosed in the path and select that as the fillPoint.
-    console.group('findFillPoint');
 
     let potentialFillPoints = [];
     for (let j = 0; j < this.vertices.length; j++) {
@@ -233,26 +229,45 @@ export default class Ship {
         vertex[0],
         vertex[1]
       );
-      console.log('vertexTile', vertexTile);
       potentialFillPoints = potentialFillPoints.concat(
         this.getSurroundingTiles(vertexTile, true)
       );
-      console.log('potentialFillPoints ', potentialFillPoints);
       for (let i = 0; i < potentialFillPoints.length; i++) {
         // once we find a point inside the path we can stop.
         if (this.insidePoly(potentialFillPoints[i], this.vertices)) {
           let fillPoint = potentialFillPoints[i];
-          console.log('fillPoint', fillPoint);
           this.floodFillArea(fillPoint);
           return;
         }
       }
     }
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = 0;
+    let maxY = 0;
+    this.vertices.forEach(el => {
+      if (el[0] < minX) {
+        minX = el[0];
+      } else if (el[0] > maxX) {
+        maxX = el[0];
+      }
+      if (el[1] < minY) {
+        minY = el[1];
+      } else if (el[1] > maxY) {
+        maxY = el[1];
+      }
+    });
     // here we want to fill all the path tiles instead
     // track maxX minX, maxY, minY
-    // this.scene.foregroundLayer.replaceByIndex(this.scene.tileValues.pathTile, this.scene.tileValues.harborTile, )
-    console.log('congrats you broke the game');
-    console.groupEnd('findFillPoint');
+    this.scene.foregroundLayer.replaceByIndex(
+      this.scene.tileValues.pathTile,
+      this.scene.tileValues.harborTile,
+      minX,
+      minY,
+      maxX - minX + 1,
+      maxY - minY + 1
+    );
+    this.vertices = [];
   }
 
   insidePoly(point, corners) {
