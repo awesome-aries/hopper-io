@@ -2,8 +2,6 @@
  * ACTION TYPES
  */
 
-const tilesActionTypes = {};
-
 /**
  * INITIAL STATE
  */
@@ -19,7 +17,7 @@ const initialState = {
 /**
  * ACTION CREATORS
  */
-
+const tilesActionCreators = {};
 /**
  * THUNK CREATORS
  */
@@ -36,5 +34,5 @@ function tilesReducer(state = initialState, action) {
 
 module.exports = {
   tilesReducer,
-  tilesActionTypes
+  tilesActionCreators
 };
