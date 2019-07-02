@@ -111,6 +111,7 @@ export const gameActionCreators = {
  * REDUCER
  */
 export default function gameReducer(state = initialState, action) {
+  let playerInd;
   switch (action.type) {
     case SET_PLAYER_XY:
       // for player position we keep them in phaser order so as to not mess up other calculations, but calculate current tile using javascript conventions
@@ -219,7 +220,7 @@ export default function gameReducer(state = initialState, action) {
     case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
-      let playerInd = XYToInd(
+      playerInd = XYToInd(
         state.playerXY.present.x,
         state.playerXY.present.y,
         state.tileMapRowLength
@@ -252,6 +253,11 @@ export default function gameReducer(state = initialState, action) {
       let inds = action.XYArray.map(coords => {
         return XYToInd(coords.x, coords.y, state.tileMapRowLength);
       });
+      playerInd = XYToInd(
+        state.playerXY.present.x,
+        state.playerXY.present.y,
+        state.tileMapRowLength
+      );
       // make copy of the present tileMap and set new index value (tile type) for each tile specified
       let presentCopy = [...state.tileMap.present];
       inds.forEach(i => {
@@ -262,6 +268,14 @@ export default function gameReducer(state = initialState, action) {
         tileMap: {
           previous: [...state.tileMap.present],
           present: presentCopy
+        },
+        currentTileIdx: {
+          previous: inds.includes(playerInd)
+            ? {...state.currentTileIdx}.present
+            : state.currentTileIdx.previous,
+          present: inds.includes(playerInd)
+            ? action.tileIndex
+            : state.currentTileIdx.present
         }
       };
     default:

@@ -20,11 +20,11 @@ export default class PlayScene extends Phaser.Scene {
 
     // the indicies for the different kinds of tiles
     this.tileValues = {
-      regularTile: 0,
-      borderTile: 2,
-      harborTile: 1,
-      // harborTile: 3,
-      pathTile: 3
+      regular: 0,
+      border: 2,
+      harbor: 1,
+      empty: -1,
+      path: 3
     };
 
     // this.shipSpawnX =
@@ -72,7 +72,7 @@ export default class PlayScene extends Phaser.Scene {
     this.map = this.make.tilemap({
       key: 'map',
       tileWidth: this.tileWidth,
-      tileHeight: 50
+      tileHeight: this.tileHeight
     });
     const tileset = this.map.addTilesetImage(this.TILE_SET_NAME);
 
@@ -80,8 +80,10 @@ export default class PlayScene extends Phaser.Scene {
     // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
     this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
 
-    this.tileMapWidth = this.foregroundLayer.tilemap.width;
-    this.tileMapHeight = this.foregroundLayer.tilemap.height;
+    this.planeDimensions = this.map.worldToTileXY(
+      this.foregroundLayer.width,
+      this.foregroundLayer.height
+    );
 
     // **************************************************
 
@@ -133,9 +135,9 @@ export default class PlayScene extends Phaser.Scene {
     // the game loop which runs constantly
 
     // get the state from the clientStore
-    const {tiles, players} = clientStore.getState();
+    const {game} = clientStore.getState();
 
-    this.ship.update(tiles, players);
+    this.ship.update(game);
     this.manuallyMakeHarbor();
   }
 
@@ -158,13 +160,27 @@ export default class PlayScene extends Phaser.Scene {
     if (newTile.index !== tileIndex) {
       // set the tile in phaser
       newTile.index = tileIndex;
-
       // also change the tile in the store
       clientStore.dispatch(
         clientActionCreators.game.setTile(newTile.x, newTile.y, tileIndex)
       );
     }
   }
+
+  // setTileIndexMultiple(tileIndex, locations) {
+  //   // sets the tile index for multiple tiles in phaser and in the store at once
+  //   // location argument takes a type and then a coords arg that is an array of points:
+  //   // location: {
+  //   //   type:  'world'/'tile',
+  //   //   coords: [{x,y}]
+  //   // }
+  //   // type indicates what format x and y are in, world means x and y are in pixels and tile means they are according to the tileMap coords
+  //   if (location.type === "world") {
+
+  //   }
+  //   else {
+  //   }
+  // }
 
   manuallyMakeHarbor() {
     // draw harbor tiles with mouse
@@ -184,9 +200,9 @@ export default class PlayScene extends Phaser.Scene {
       console.log('clicked tile', clickedTile);
 
       if (this.keys.shift.isDown) {
-        this.ship.floodFillArea(clickedTile);
-      } else if (clickedTile.index !== this.tileValues.harborTile) {
-        this.setTileIndex(this.tileValues.harborTile, {
+        this.ship.fillArea(clickedTile);
+      } else if (clickedTile.index !== this.tileValues.harbor) {
+        this.setTileIndex(this.tileValues.harbor, {
           type: 'world', //must indicate format of xy
           x: snappedWorldPoint.x,
           y: snappedWorldPoint.y
