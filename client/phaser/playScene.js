@@ -2,7 +2,6 @@ import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
 
-// import TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import Opponent from './Opponent';
 
