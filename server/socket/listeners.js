@@ -1,7 +1,7 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
 
-function initListeners(io, socket) {
+function initServerListeners(io, socket) {
   // set up all our socket listeners
 
   // if a new user connects
@@ -38,4 +38,4 @@ function onDisconnect(socket) {
   socket.broadcast.emit('removedPlayer', players);
 }
 
-module.exports = initListeners;
+module.exports = initServerListeners;

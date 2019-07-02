@@ -40,9 +40,10 @@ function playersReducer(state = initialState, action) {
       };
     case REMOVE_PLAYER:
       let copyOfState = Object.assign({}, state);
+      // remove the player from the object
+      delete copyOfState[action.playerId];
       return {
-        ...copyOfState,
-        [action.playerId]: null
+        ...copyOfState
       };
     default:
       return state;
