@@ -10,7 +10,6 @@ class Ui extends React.Component {
   render() {
     return (
       <div id="ui">
-        <h1>Hopper.io</h1>
         <h3>Testing Info</h3>
         <p>regular: 0, border: 2, harbor: 1, path: 3</p>
         <p>
