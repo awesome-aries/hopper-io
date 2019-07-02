@@ -20,7 +20,7 @@ const playersActionCreators = {
   }),
   removePlayer: socketId => ({
     type: REMOVE_PLAYER,
-    socketId
+    playerId: socketId
   })
 };
 
@@ -38,7 +38,12 @@ function playersReducer(state = initialState, action) {
         ...state,
         [action.playerId]: {playerId: action.playerId}
       };
-
+    case REMOVE_PLAYER:
+      let copyOfState = Object.assign({}, state);
+      return {
+        ...copyOfState,
+        [action.playerId]: null
+      };
     default:
       return state;
   }
