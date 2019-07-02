@@ -1,5 +1,6 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
+const {Player} = require('../db/models');
 
 function initServerListeners(io, socket) {
   // set up all our socket listeners
@@ -13,10 +14,9 @@ function initServerListeners(io, socket) {
 
 function onConnect(socket) {
   console.log(`A socket connection to the server has been made: ${socket.id}`);
-  //before this takes place we want to take socketId, use it to randmoize XY position, save it to store and emit to client side store and then when saving the player save the position with it(?)
 
-  //adding player to the server side player reducer
-  serverStore.dispatch(serverActionCreators.players.addPlayer(socket.id));
+  // create a player
+  createNewPlayer(socket.id);
 
   // send the players object to the new player
   const {players} = serverStore.getState();
@@ -32,10 +32,48 @@ function onDisconnect(socket) {
   // When a player disconnects, remove that player from our store
   serverStore.dispatch(serverActionCreators.players.removePlayer(socket.id));
 
+  // and remove them from our database
+  Player.destroy({
+    where: {
+      socketId: socket.id
+    }
+  });
+
   // get the new state
   const {players} = serverStore.getState();
   // and send it to all the other players
   socket.broadcast.emit('removedPlayer', players);
+}
+
+function createNewPlayer(socketID) {
+  //before this takes place we want to take socketId, use it to randmoize XY position, save it to store and emit to client side store and then when saving the player save the position with it(?)
+
+  // Randomize spawn location
+
+  // initialize player with starting info
+  let player = {
+    socketID: socketID,
+    name: 'grace',
+    phaserX: 0, //need to randomize these
+    phaserY: 0,
+    x: 0,
+    y: 0,
+    direction: 'north'
+  };
+
+  //adding player to the server side player reducer
+  serverStore.dispatch(serverActionCreators.players.addPlayer(player));
+
+  // add the player to our database
+  Player.create({
+    socketId: player.socketID,
+    name: player.name,
+    phaserX: player.phaserX,
+    phaserY: player.phaserY,
+    x: player.x,
+    y: player.y,
+    direction: player.direction
+  });
 }
 
 module.exports = initServerListeners;

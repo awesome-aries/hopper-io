@@ -5,9 +5,31 @@ const Player = db.define('player', {
   name: {
     type: Sequelize.STRING,
     allowNull: false,
-    validate: {
-      notEmpty: true
-    }
+    defaultValue: 'grace'
+  },
+  socketId: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  phaserX: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  phaserY: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  x: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  y: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  direction: {
+    type: Sequelize.STRING,
+    defaultValue: 'north'
   }
 });
 

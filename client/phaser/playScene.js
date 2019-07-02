@@ -1,8 +1,10 @@
 import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
+
 // import TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
+import Opponent from './Opponent';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -30,6 +32,10 @@ export default class PlayScene extends Phaser.Scene {
     };
 
     // this.shipSpawnX =
+
+    // store the opponents
+    // an array of objects with socketId and instance of Opponent class
+    this.opponents = [];
   }
   init() {
     // used to prepare data
@@ -211,5 +217,15 @@ export default class PlayScene extends Phaser.Scene {
         });
       }
     }
+  }
+
+  makeOponnent(x, y, direction) {
+    let newOpponnent = new Opponent(this, x, y, direction);
+
+    // add the opponent to our list of opponents
+    this.opponents.push({
+      socketId: '',
+      opponent: newOpponnent
+    });
   }
 }
