@@ -157,7 +157,8 @@ export default class Ship {
       if (direction.previous !== direction.present) {
         this.vertices.push([
           playerPhaserXY.previous.x,
-          playerPhaserXY.previous.y
+          playerPhaserXY.previous.y,
+          currentTileIdx.previous
         ]);
       }
 
@@ -175,7 +176,8 @@ export default class Ship {
         //save the exit point in our vertices
         this.vertices.push([
           playerPhaserXY.present.x,
-          playerPhaserXY.present.y
+          playerPhaserXY.present.y,
+          currentTileIdx.previous
         ]);
       } else if (
         currentTileIdx.previous !== this.scene.tileValues.harbor &&
@@ -192,7 +194,8 @@ export default class Ship {
         //save the entry point in our vertices
         this.vertices.push([
           playerPhaserXY.present.x,
-          playerPhaserXY.present.y
+          playerPhaserXY.present.y,
+          currentTileIdx.previous
         ]);
       }
 
@@ -225,10 +228,14 @@ export default class Ship {
     // for each vertex
     for (let j = 0; j < this.vertices.length; j++) {
       const vertex = this.vertices[j];
-      let vertexTile = this.scene.foregroundLayer.getTileAt(
-        vertex[0],
-        vertex[1]
-      );
+
+      // turn the vertex into vertex tile format
+      let vertexTile = {
+        x: vertex[0],
+        y: vertex[1],
+        index: vertex[2]
+      };
+
       potentialFillPoints = potentialFillPoints.concat(
         this.getSurroundingTiles(vertexTile, true)
       );
