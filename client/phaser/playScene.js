@@ -138,7 +138,7 @@ export default class PlayScene extends Phaser.Scene {
     const {game} = clientStore.getState();
 
     this.ship.update(game);
-    this.manuallyMakeHarbor();
+    // this.manuallyMakeHarbor();
   }
 
   setTileIndex(tileIndex, location) {

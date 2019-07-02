@@ -1,4 +1,5 @@
 import React from 'react';
+import Container from '@material-ui/core/Container';
 import {connect} from 'react-redux';
 import {XYToInd} from '../../util/tileMapConversions';
 
@@ -9,14 +10,14 @@ class Ui extends React.Component {
   }
   render() {
     return (
-      <div id="ui">
+      <Container id="ui">
         <h3>Testing Info</h3>
         <p>regular: 0, border: 2, harbor: 1, path: 3</p>
         <p>
           click tile to set harbor, shift + click to floodfill, arrow keys to
           move ship, hit space to stop/restart moving
         </p>
-        {this.props.children}
+        <div>{this.props.children}</div>
         <h3>Quick n Dirty view of the store tilemap</h3>
         <div>
           {this.props.rowLength ? (
@@ -43,7 +44,7 @@ class Ui extends React.Component {
           )}
         </div>
         <div>currentTileIdx: {this.props.currentTileIndex}</div>
-      </div>
+      </Container>
     );
   }
 }
