@@ -1,7 +1,6 @@
 import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
-
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import Opponent from './Opponent';
 
@@ -218,7 +217,7 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  makeOponnent(x, y, direction) {
+  makeOpponent(x, y, direction) {
     let newOpponnent = new Opponent(this, x, y, direction);
 
     // add the opponent to our list of opponents

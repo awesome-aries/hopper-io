@@ -1,8 +1,18 @@
+// get the map width and height from the tilemap
+const TileMapJS = require('../../public/assets/hopperio-tilemap.json');
+
+let tileWidth = TileMapJS.tileWidth;
+let tileHeight = TileMapJS.tileHeight;
+// map width in pixels
+let mapWidth = TileMapJS.width * TileMapJS.tileWidth;
+// map height in pixels
+let mapHeight = TileMapJS.height * TileMapJS.tileHeight;
+
 // Here we will have the randomly spawn function
 //the function will take a mapWidth, tileWidth, mapHeight, tileHeight
 //will randomly spawn making sure not to land on a current player
 
-function randomizeXY(mapWidth, mapHeight, tileWidth, tileHeight) {
+function randomizeXY() {
   const maxX = mapWidth / tileWidth;
   const maxY = mapHeight / tileHeight;
   //5 represents 3 as the min, so that the ship always spawns 3 tiles from the min border
@@ -18,6 +28,15 @@ function randomizeXY(mapWidth, mapHeight, tileWidth, tileHeight) {
   startPosition.y =
     Math.floor(Math.random() * (maxY - minY) + borderOffset) * tileHeight;
   return startPosition;
+}
+
+function worldXYToTileXY(worldX, worldY) {
+  let x = worldX;
+  let y = worldY;
+  return {
+    x,
+    y
+  };
 }
 
 /* 
@@ -63,5 +82,6 @@ function IndToXY(Ind, rowLength) {
 module.exports = {
   XYToInd,
   IndToXY,
-  randomizeXY
+  randomizeXY,
+  worldXYToTileXY
 };

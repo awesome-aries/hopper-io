@@ -11,14 +11,6 @@ const Player = db.define('player', {
     type: Sequelize.STRING,
     allowNull: false
   },
-  phaserX: {
-    type: Sequelize.INTEGER,
-    allowNull: false
-  },
-  phaserY: {
-    type: Sequelize.INTEGER,
-    allowNull: false
-  },
   x: {
     type: Sequelize.INTEGER,
     allowNull: false
@@ -27,9 +19,21 @@ const Player = db.define('player', {
     type: Sequelize.INTEGER,
     allowNull: false
   },
+  worldX: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  worldY: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
   direction: {
     type: Sequelize.STRING,
     defaultValue: 'north'
+  },
+  isPlaying: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
   }
 });
 

@@ -1,6 +1,7 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
-const {Player} = require('../db/models');
+
+const {addPlayer, removePlayer} = require('../store/player');
 
 function initServerListeners(io, socket) {
   // set up all our socket listeners
@@ -15,7 +16,9 @@ function initServerListeners(io, socket) {
 function onConnect(socket) {
   console.log(`A socket connection to the server has been made: ${socket.id}`);
 
-  // create a player
+  // The user has hit the homepage, but we dont want to do anything else yet
+
+  // create a player, but not adding them to the game yet
   createNewPlayer(socket.id);
 
   // send the players object to the new player
@@ -26,54 +29,35 @@ function onConnect(socket) {
   socket.broadcast.emit('newPlayer', players[socket.id]);
 }
 
-function onDisconnect(socket) {
-  console.log(`Connection ${socket.id} has left the building`);
-
-  // When a player disconnects, remove that player from our store
-  serverStore.dispatch(serverActionCreators.players.removePlayer(socket.id));
-
-  // and remove them from our database
-  Player.destroy({
-    where: {
-      socketId: socket.id
-    }
-  });
-
-  // get the new state
-  const {players} = serverStore.getState();
-  // and send it to all the other players
-  socket.broadcast.emit('removedPlayer', players);
-}
-
-function createNewPlayer(socketID) {
+function createNewPlayer(socketId) {
   //before this takes place we want to take socketId, use it to randmoize XY position, save it to store and emit to client side store and then when saving the player save the position with it(?)
-
-  // Randomize spawn location
 
   // initialize player with starting info
   let player = {
-    socketID: socketID,
+    socketId: socketId,
     name: 'grace',
-    phaserX: 0, //need to randomize these
-    phaserY: 0,
+    worldX: 0, //initialize to 0 and update with actual coords once they start
+    worldY: 0,
     x: 0,
     y: 0,
     direction: 'north'
   };
 
-  //adding player to the server side player reducer
-  serverStore.dispatch(serverActionCreators.players.addPlayer(player));
+  //adding player to our store and database, but not playing yet
+  serverStore.dispatch(addPlayer(player));
+}
 
-  // add the player to our database
-  Player.create({
-    socketId: player.socketID,
-    name: player.name,
-    phaserX: player.phaserX,
-    phaserY: player.phaserY,
-    x: player.x,
-    y: player.y,
-    direction: player.direction
-  });
+async function onDisconnect(socket) {
+  console.log(`Connection ${socket.id} has left the building`);
+
+  // When a player disconnects, remove that player from our store and database
+  await serverStore.dispatch(removePlayer(socket.id));
+
+  // get the new state
+  const {players} = serverStore.getState();
+
+  // and send the new list of all the players to the players
+  socket.broadcast.emit('removedPlayer', players);
 }
 
 module.exports = initServerListeners;
