@@ -104,7 +104,7 @@ export default class PlayScene extends Phaser.Scene {
 
     // make the ship not able to leave the world
     // for some reason adds weird borders in the middle of the map
-    // this.ship.sprite.body.setCollideWorldBounds(true);
+    this.ship.sprite.body.setCollideWorldBounds(true);
 
     // **************************************************
 
@@ -112,13 +112,20 @@ export default class PlayScene extends Phaser.Scene {
 
     // have the camera follow the sprite
     this.cameras.main.startFollow(this.ship.sprite);
-    // make sure camera cant leave the world
-    this.cameras.main.setBounds(
+    this.physics.world.setBounds(
       0,
       0,
       this.map.widthInPixels,
       this.map.heightInPixels
     );
+
+    // make sure camera cant leave the world
+    // this.cameras.main.setBounds(
+    //   0,
+    //   0,
+    //   this.map.widthInPixels,
+    //   this.map.heightInPixels
+    // );
 
     // **************************************************
 
