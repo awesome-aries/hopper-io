@@ -35,7 +35,7 @@ form div {
 
 /* Testing styles */
 span.tile0 {
-  background-color: grey;
+  background-color: rgba(128, 128, 128, 0.55);
   padding: 0 5px;
 }
 span.tile1 {
