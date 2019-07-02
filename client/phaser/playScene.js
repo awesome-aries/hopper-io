@@ -1,30 +1,32 @@
 import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
-// import TileMapJS from '../../public/assets/small-test-map.js';
-import * as TileMapJS from '../../public/assets/testtilemap.json';
+// import TileMapJS from '../../public/assets/hopperio-tilemap.json';
+import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
     // passing 'play' as a parameter that will serve as the identifier for this scene
     super('play');
 
-    this.TILE_MAP_PATH = 'assets/testtilemap.csv';
-    this.TILE_SET_PATH = 'assets/test-tile-set50x50tiles.png';
+    this.TILE_MAP_PATH = 'assets/hopperio-tilemap.json';
+    this.TILE_SET_PATH = 'assets/tile-set50x50tiles.png';
     this.SHIP_SPRITE_PATH = 'assets/shipspritealpha.png';
 
-    this.TILE_SET_NAME = 'colors';
+    this.TILE_SET_NAME = '8colors50x50Tileset';
 
     this.tileWidth = 50;
     this.tileHeight = 50;
 
     // the indicies for the different kinds of tiles
     this.tileValues = {
-      regular: 0,
-      border: 2,
-      harbor: 1,
+      regular: 5,
+      border: 7,
+      harbor: 6,
       empty: -1,
-      path: 3
+      path: 8,
+      opponentHarbor: [4, 2],
+      opponentPath: [3, 1]
     };
 
     // this.shipSpawnX =
@@ -48,7 +50,7 @@ export default class PlayScene extends Phaser.Scene {
       frameHeight: 50
     });
 
-    this.load.tilemapCSV('map', this.TILE_MAP_PATH);
+    this.load.tilemapTiledJSON('map', this.TILE_MAP_PATH);
     this.load.image(this.TILE_SET_NAME, this.TILE_SET_PATH);
   }
 
