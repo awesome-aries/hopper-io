@@ -27,16 +27,19 @@ export default class Ship {
     this.sprite.body.setAllowGravity(false);
     // ** doesnt seem to do anything T_T
     // this.sprite.body.collideWorldBounds = true;
+
+    //Gets all the surrounding tiles of the start pos
     const startPos = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
     const harbor = this.getSurroundingTiles(startPos);
 
-    harbor.forEach(tile => {
-      this.scene.setTileIndex(this.scene.tileValues.harbor, {
-        x: tile.x,
-        y: tile.y,
-        type: 'tile'
-      });
-    });
+    //setting all the surrounding tiles of the start position as harbor tiles
+
+    harbor.forEach(tile => (tile.index = this.scene.tileValues.harbor));
+
+    //updating store with harbor
+    clientStore.dispatch(
+      clientActionCreators.game.setTiles(harbor, this.scene.tileValues.harbor)
+    );
 
     clientStore.dispatch(
       clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y, this.facingDir)
@@ -274,10 +277,18 @@ export default class Ship {
       maxX - minX + 1,
       maxY - minY + 1
     );
+    clientStore.dispatch(
+      clientActionCreators.game.changePathToHarbor(
+        this.scene.tileValues.path,
+        this.scene.tileValues.harbor
+      )
+    );
+
     this.vertices = [];
   }
 
   insidePoly(point, corners) {
+    //from MIT module point-inside-polygon
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
@@ -308,6 +319,7 @@ export default class Ship {
 
     // keep track of which tile we've gotten the neighbors
     let visited = {};
+    let tilesToFlood = [];
 
     // initialize the visited hash table with the start tile
     visited[`${startTile.x},${startTile.y}`] = true;
@@ -316,17 +328,18 @@ export default class Ship {
       //look at next tile in the stack and the surrounding tiles
       currentTile = toExplore.shift();
       // let key = `${currentTile.x},${currentTile.y}`;
+      tilesToFlood.push(currentTile);
 
       let neighbors = this.getSurroundingTiles(currentTile, false, visited);
       toExplore = toExplore.concat(neighbors);
-
-      // whether the tile is part of the path, or not fill it and make it part of the harbor
-      this.scene.setTileIndex(this.scene.tileValues.harbor, {
-        x: currentTile.x,
-        y: currentTile.y,
-        type: 'tile'
-      });
     }
+    tilesToFlood.forEach(tile => (tile.index = this.scene.tileValues.harbor));
+    clientStore.dispatch(
+      clientActionCreators.game.setTiles(
+        tilesToFlood,
+        this.scene.tileValues.harbor
+      )
+    );
   }
 
   getSurroundingTiles(currTile, findingFillPoint = false, visited = {}) {
