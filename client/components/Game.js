@@ -16,7 +16,7 @@ class Game extends React.Component {
           debug: true
         }
       },
-      scene: [StartingScene, PlayScene]
+      scene: [StartingScene, PlayScene, LoseEndScene, WinEndScene]
     };
     let game = new Phaser.Game(config);
   }

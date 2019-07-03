@@ -2,6 +2,9 @@
  * ACTION TYPES
  */
 
+const INIT_TILEMAP = 'INIT_TILEMAP';
+const UPDATE_TILEMAP = 'UPDATE_TILEMAP';
+
 /**
  * INITIAL STATE
  */

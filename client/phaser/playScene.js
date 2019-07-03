@@ -1,33 +1,35 @@
 import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
-// import TileMapJS from '../../public/assets/small-test-map.js';
-import * as TileMapJS from '../../public/assets/testtilemap.json';
+import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
+import getTileIndices from '../../util/getTileIndices';
+import Opponent from './Opponent';
+import tileXYToWorldXY from '../../util/tileMapConversions';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
     // passing 'play' as a parameter that will serve as the identifier for this scene
     super('play');
 
-    this.TILE_MAP_PATH = 'assets/testtilemap.csv';
-    this.TILE_SET_PATH = 'assets/test-tile-set50x50tiles.png';
+    this.TILE_MAP_PATH = 'assets/hopperio-tilemap.json';
+    this.TILE_SET_PATH = 'assets/tile-set50x50tiles.png';
     this.SHIP_SPRITE_PATH = 'assets/shipspritealpha.png';
 
-    this.TILE_SET_NAME = 'colors';
+    this.TILE_SET_NAME = '8colors50x50Tileset';
 
     this.tileWidth = 50;
     this.tileHeight = 50;
 
+    this.alive = true;
+
     // the indicies for the different kinds of tiles
-    this.tileValues = {
-      regular: 0,
-      border: 2,
-      harbor: 1,
-      empty: -1,
-      path: 3
-    };
+    this.tileValues = getTileIndices();
 
     // this.shipSpawnX =
+
+    // store the opponents
+    // an array of objects with socketId and instance of Opponent class
+    this.opponents = [];
   }
   init() {
     // used to prepare data
@@ -48,7 +50,7 @@ export default class PlayScene extends Phaser.Scene {
       frameHeight: 50
     });
 
-    this.load.tilemapCSV('map', this.TILE_MAP_PATH);
+    this.load.tilemapTiledJSON('map', this.TILE_MAP_PATH);
     this.load.image(this.TILE_SET_NAME, this.TILE_SET_PATH);
   }
 
@@ -95,6 +97,18 @@ export default class PlayScene extends Phaser.Scene {
       this.map.tileWidth,
       this.map.tileHeight
     );
+
+    // TODO
+    // get the players location from store that was sent from the server
+    // const {game: {playerPhaserXY}} = clientStore.getState();
+
+    // // conver to world coords
+    // const {x, y} = tileXYToWorldXY(
+    //   playerPhaserXY.x,
+    //   playerPhaserXY.y,
+    //   this.tileWidth,
+    //   this.tileHeight
+    // );
 
     this.ship = new Ship(
       this,
@@ -145,6 +159,10 @@ export default class PlayScene extends Phaser.Scene {
     const {game} = clientStore.getState();
 
     this.ship.update(game);
+
+    if (!this.alive) {
+      this.gameOver();
+    }
     // this.manuallyMakeHarbor();
   }
 
@@ -174,20 +192,21 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  // setTileIndexMultiple(tileIndex, locations) {
-  //   // sets the tile index for multiple tiles in phaser and in the store at once
-  //   // location argument takes a type and then a coords arg that is an array of points:
-  //   // location: {
-  //   //   type:  'world'/'tile',
-  //   //   coords: [{x,y}]
-  //   // }
-  //   // type indicates what format x and y are in, world means x and y are in pixels and tile means they are according to the tileMap coords
-  //   if (location.type === "world") {
+  getOpponents() {
+    // get all the opponents in the game when the user starts the game
+  }
 
-  //   }
-  //   else {
-  //   }
-  // }
+  clearPlayerTiles(playerIndex) {
+    // clear a players harbor and path tiles when the die or they disconnect from the game
+  }
+
+  gameOver() {
+    //this.ship.sprite.body.velocity.setTo(0, 0);
+    console.log('game over loser');
+    this.scene.start('losing');
+    // introText.text = 'Game Over!';
+    // introText.visible = true;
+  }
 
   manuallyMakeHarbor() {
     // draw harbor tiles with mouse
@@ -216,5 +235,15 @@ export default class PlayScene extends Phaser.Scene {
         });
       }
     }
+  }
+
+  makeOpponent(x, y, direction) {
+    let newOpponnent = new Opponent(this, x, y, direction);
+
+    // add the opponent to our list of opponents
+    this.opponents.push({
+      socketId: '',
+      opponent: newOpponnent
+    });
   }
 }

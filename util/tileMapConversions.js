@@ -40,3 +40,11 @@ export function IndToXY(Ind, rowLength) {
 
 // b[1][1] = 5
 // a[x] = 5
+export function tileXYToWorldXY(tileX, tileY, tileWidth, tileHeight) {
+  let x = tileX * tileWidth + tileWidth / 2;
+  let y = tileY * tileHeight + tileHeight / 2;
+  return {
+    x,
+    y
+  };
+}

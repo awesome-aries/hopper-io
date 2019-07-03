@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 /* eslint-disable no-case-declarations */
 // IndToXY returns obj {x,y}
-import {XYToInd} from '../../util/tileMapConversions';
+import {XYToInd, tileXYToWorldXY} from '../../util/tileMapConversions';
 
 /**
  * INITIAL STATE
@@ -9,7 +9,10 @@ import {XYToInd} from '../../util/tileMapConversions';
 
 const initialState = {
   // maybe dont need this, and just calc in phaser
-  // shipWorldXY: {}, //{x, y} (in pixels)
+  playerWorldXY: {
+    previous: {},
+    present: {}
+  }, //{x, y} (in pixels)
   playerXY: {
     previous: {}, //{x, y} (coords in javascript order)
     present: {}
@@ -213,7 +216,7 @@ export default function gameReducer(state = initialState, action) {
         ...state,
         tileMap: {
           // we want to track the previous state of the tile map, so store the present version in previous when updating the present one
-          previous: [...action.tileMap],
+          previous: [...state.tileMap.present],
           present: [...action.tileMap]
         },
         tileMapRowLength: action.tileMapRowLength
