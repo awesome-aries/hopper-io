@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Link} from 'react-router-dom';
 import {logout} from '../store';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import TypoGraphy from '@material-ui/core/Typography';
+// import AppBar from '@material-ui/core/AppBar';
+// import Toolbar from '@material-ui/core/Toolbar';
+// import TypoGraphy from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/styles';
+import {textAlign} from '@material-ui/system';
 
 const useStyles = makeStyles({
   playButton: {
@@ -19,42 +20,19 @@ const useStyles = makeStyles({
     padding: '0 30px'
   },
   gameTitle: {
-    fontSize: '50px',
+    fontSize: '10vh',
+    textAlign: 'center',
+
     // fontFamily: '"Monoton", cursive',
     // fontFamily: '"Coiny", cursive'
-    fontFamily: '"Audiowide", cursive'
+    fontFamily: '"Audiowide", cursive',
+    color: 'white'
   }
 });
 
 const Navbar = ({handleClick, isLoggedIn}) => {
   const classes = useStyles();
-  return (
-    <AppBar color="default" position="static">
-      <Toolbar>
-        <TypoGraphy align="center" className={classes.gameTitle}>
-          Hopper.io
-        </TypoGraphy>
-
-        {isLoggedIn ? (
-          <div>
-            {/* The navbar will show these links after you log in */}
-            <Link to="/home">Home</Link>
-            <a href="#" onClick={handleClick}>
-              Logout
-            </a>
-          </div>
-        ) : (
-          <div>
-            {/* The navbar will show these links before you log in */}
-            {/* <Link to="/login">Login</Link>
-          <Link to="/signup">Sign Up</Link> */}
-          </div>
-        )}
-
-        <hr />
-      </Toolbar>
-    </AppBar>
-  );
+  return <h1 className={classes.gameTitle}>Hopper.io</h1>;
 };
 
 /**

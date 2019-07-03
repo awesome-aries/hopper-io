@@ -13,6 +13,7 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 0;
+  background-image: url('./assets/Galaxy-Photo.jpg');
 }
 
 a {
@@ -35,7 +36,7 @@ form div {
 
 /* Testing styles */
 span.tile0 {
-  background-color: rgba(128, 128, 128, 0.55);
+  background-color: white;
   padding: 0 5px;
 }
 span.tile1 {
@@ -49,4 +50,11 @@ span.tile2 {
 span.tile3 {
   background-color: pink;
   padding: 0 5px;
+}
+
+.hopper-header {
+  color: white;
+}
+#phaser-game {
+  text-align: center;
 }
