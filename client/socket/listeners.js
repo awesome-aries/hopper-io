@@ -37,13 +37,13 @@ async function onStart(players, thisPlayer) {
   // TODO
 
   // set this players starting position in tile coords
-  await clientStore.dispatch(
-    clientActionCreators.game.setPlayerXY(
-      thisPlayer.x,
-      thisPlayer.y,
-      thisPlayer.direction
-    )
-  );
+  // await clientStore.dispatch(
+  //   clientActionCreators.game.setPlayerXY(
+  //     thisPlayer.x,
+  //     thisPlayer.y,
+  //     thisPlayer.direction
+  //   )
+  // );
 }
 
 function onNewPlayer(player) {

@@ -41,6 +41,7 @@ export default class Ship {
       clientActionCreators.game.setTiles(harbor, this.scene.tileValues.harbor)
     );
 
+    //will need to remove this once getting location from the store from server
     clientStore.dispatch(
       clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y, this.facingDir)
     );
