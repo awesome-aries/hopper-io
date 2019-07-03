@@ -34,17 +34,20 @@ const Footer = props => {
         </Typography>
         <div className={classes.linkContainer}>
           <List subheader={<ListSubheader>Allison Geismar</ListSubheader>}>
-            <ListItem component="a" href="https://github.com/">
+            <ListItem component="a" href="https://github.com/ageismar">
               <ListItemIcon className={classes.listItemIcon}>
                 <i className="fab fa-github" />
               </ListItemIcon>
-              <ListItemText secondary="Github" />
+              <ListItemText secondary="ageismar" />
             </ListItem>
-            <ListItem component="a" href="https://www.linkedin.com/">
+            <ListItem
+              component="a"
+              href="https://www.linkedin.com/in/allison-geismar/"
+            >
               <ListItemIcon className={classes.listItemIcon}>
                 <i className="fab fa-linkedin-in" />
               </ListItemIcon>
-              <ListItemText secondary="LinkedIn" />
+              <ListItemText secondary="allison-geismar" />
             </ListItem>
           </List>
           <List subheader={<ListSubheader>Cara Takemoto</ListSubheader>}>
@@ -65,31 +68,37 @@ const Footer = props => {
             </ListItem>
           </List>
           <List subheader={<ListSubheader>Katie Guest</ListSubheader>}>
-            <ListItem component="a" href="https://github.com/">
+            <ListItem component="a" href="https://github.com/KatieGuest">
               <ListItemIcon className={classes.listItemIcon}>
                 <i className="fab fa-github" />
               </ListItemIcon>
-              <ListItemText secondary="Github" />
+              <ListItemText secondary="KatieGuest" />
             </ListItem>
-            <ListItem component="a" href="https://www.linkedin.com/">
+            <ListItem
+              component="a"
+              href="https://www.linkedin.com/in/katieguest11/"
+            >
               <ListItemIcon className={classes.listItemIcon}>
                 <i className="fab fa-linkedin-in" />
               </ListItemIcon>
-              <ListItemText secondary="LinkedIn" />
+              <ListItemText secondary="katieguest11" />
             </ListItem>
           </List>
           <List subheader={<ListSubheader>Nida Jabbar</ListSubheader>}>
-            <ListItem component="a" href="https://github.com/">
+            <ListItem component="a" href="https://github.com/nj2296">
               <ListItemIcon className={classes.listItemIcon}>
                 <i className="fab fa-github" />
               </ListItemIcon>
-              <ListItemText secondary="Github" />
+              <ListItemText secondary="nj2296" />
             </ListItem>
-            <ListItem component="a" href="https://www.linkedin.com/">
+            <ListItem
+              component="a"
+              href="https://www.linkedin.com/in/nidajabbar/"
+            >
               <ListItemIcon className={classes.listItemIcon}>
                 <i className="fab fa-linkedin-in" />
               </ListItemIcon>
-              <ListItemText secondary="LinkedIn" />
+              <ListItemText secondary="nidajabbar" />
             </ListItem>
           </List>
         </div>
