@@ -18,6 +18,8 @@ export default class PlayScene extends Phaser.Scene {
     this.tileWidth = 50;
     this.tileHeight = 50;
 
+    this.alive = true;
+
     // the indicies for the different kinds of tiles
     this.tileValues = {
       regular: 0,
@@ -145,6 +147,10 @@ export default class PlayScene extends Phaser.Scene {
     const {game} = clientStore.getState();
 
     this.ship.update(game);
+
+    if (!this.alive) {
+      this.gameOver();
+    }
     // this.manuallyMakeHarbor();
   }
 
@@ -188,6 +194,14 @@ export default class PlayScene extends Phaser.Scene {
   //   else {
   //   }
   // }
+
+  gameOver() {
+    //this.ship.sprite.body.velocity.setTo(0, 0);
+    console.log('game over loser');
+    this.scene.start('losing');
+    // introText.text = 'Game Over!';
+    // introText.visible = true;
+  }
 
   manuallyMakeHarbor() {
     // draw harbor tiles with mouse

@@ -209,7 +209,7 @@ export default class Ship {
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
       }
       if (this.isPath(newTile)) {
-        this.freeze();
+        this.scene.alive = false;
       }
       // get the tile at the location of the ship and make it a path tile if on a regular tile
       if (currentTileIdx.present === this.scene.tileValues.regular) {
