@@ -34,19 +34,19 @@ form div {
 }
 
 /* Testing styles */
-span.tile0 {
-  background-color: rgba(128, 128, 128, 0.55);
+span.tile5 {
+  background-color: grey;
   padding: 0 5px;
 }
-span.tile1 {
+span.tile6 {
   background-color: purple;
   padding: 0 5px;
 }
-span.tile2 {
+span.tile7 {
   background-color: rgb(49, 49, 49);
   padding: 0 5px;
 }
-span.tile3 {
+span.tile8 {
   background-color: pink;
   padding: 0 5px;
 }

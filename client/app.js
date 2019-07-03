@@ -1,7 +1,10 @@
 import React from 'react';
+import {connect} from 'react-redux';
 
+import Welcome from './components/Welcome';
+import GameView from './components/GameView';
 import {Navbar} from './components';
-import Routes from './routes';
+// import Routes from './routes';
 import {makeStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Footer from './components/Footer';
@@ -18,16 +21,25 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const App = () => {
+const App = props => {
   const classes = useStyles();
+  const {isPlaying} = props;
   return (
     <div id="app" className={classes.app}>
       <CssBaseline />
       <Navbar />
-      <Routes className={classes.main} />
+      {/* <Routes className={classes.main} /> */}
+      <div className={classes.main}>
+        {!isPlaying && <Welcome />}
+        {isPlaying && <GameView />}
+      </div>
       <Footer />
     </div>
   );
 };
 
-export default App;
+const mapStateToProps = state => ({
+  isPlaying: state.gameState.isPlaying
+});
+
+export default connect(mapStateToProps)(App);

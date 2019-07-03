@@ -1,12 +1,12 @@
 const Sequelize = require('sequelize');
-const db = require('../_db');
+const db = require('../db');
 
 const Event = db.define('event', {
   harborVolume: {
     type: Sequelize.INTEGER,
     field: 'harbor_volume'
   },
-  playersKilled: {
+  playerKilled: {
     type: Sequelize.INTEGER,
     field: 'players_killed'
   },

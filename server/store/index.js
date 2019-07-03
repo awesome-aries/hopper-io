@@ -5,7 +5,7 @@ const {composeWithDevTools} = require('redux-devtools-extension');
 const {tilesReducer, tilesActionCreators} = require('./tilesLocation');
 const {playersReducer, playersActionCreators} = require('./player');
 
-const reducer = combineReducers({tilesReducer, playersReducer});
+const reducer = combineReducers({tiles: tilesReducer, players: playersReducer});
 const composeEnhancers = composeWithDevTools({
   trace: true
 });
@@ -17,12 +17,12 @@ const serverStore = createStore(
   )
 );
 
-const serverActionTypes = {
+const serverActionCreators = {
   tiles: tilesActionCreators,
   players: playersActionCreators
 };
 
 module.exports = {
   serverStore,
-  serverActionTypes
+  serverActionCreators
 };

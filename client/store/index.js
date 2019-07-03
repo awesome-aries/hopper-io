@@ -6,10 +6,14 @@ import user from './user';
 import axios from 'axios';
 // import tilesReducer, {tilesActionTypes} from './tilesLocation';
 import gameReducer, {gameActionCreators} from './game';
+import gameStateReducer, {gameStateActionCreators} from './gameState';
+import opponentReducer, {opponentActionCreators} from './opponents';
 
 const reducer = combineReducers({
   user,
-  game: gameReducer
+  game: gameReducer,
+  gameState: gameStateReducer,
+  opponent: opponentReducer
 });
 
 const composeEnhancers = composeWithDevTools({
@@ -29,7 +33,9 @@ const clientStore = createStore(
 
 // this has all our action creator methods
 export const clientActionCreators = {
-  game: gameActionCreators
+  game: gameActionCreators,
+  gameState: gameStateActionCreators,
+  opponent: opponentActionCreators
 };
 
 export default clientStore;
