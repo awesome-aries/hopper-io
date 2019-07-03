@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import socket from '../socket';
 import clientStore, {clientActionCreators} from '../store';
-import FormControl from '@material-ui/core/FormControl';
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
@@ -15,7 +14,6 @@ class Welcome extends Component {
   }
 
   onChange = e => {
-    console.log('this', this);
     this.setState({
       [e.target.name]: e.target.value
     });
@@ -23,6 +21,7 @@ class Welcome extends Component {
 
   onSubmit = e => {
     e.preventDefault();
+    console.log('onSubmit');
 
     // we want to change the game state to isPlaying and set their name
     // this should then make the view change from the welcome component to gameView
@@ -41,7 +40,7 @@ class Welcome extends Component {
   render() {
     return (
       <Container className="welcome" align="center">
-        <FormControl onSubmit={this.onSubmit}>
+        <form onSubmit={this.onSubmit}>
           <Input
             id="name"
             name="name"
@@ -53,7 +52,7 @@ class Welcome extends Component {
           />
 
           <Button type="submit">Play</Button>
-        </FormControl>
+        </form>
       </Container>
 
       // need an onChange handler function for input field that will update the playerName
