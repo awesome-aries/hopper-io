@@ -1,7 +1,6 @@
 /**
  * INITIAL STATE
  */
-
 const initialState = {
   isPlaying: false,
   playerName: ''
@@ -10,7 +9,6 @@ const initialState = {
 /**
  * ACTION TYPES
  */
-
 const START_GAME = 'START_GAME';
 const STOP_GAME = 'STOP_GAME';
 const SET_PLAYER_NAME = 'SET_PLAYER_NAME';
@@ -30,3 +28,24 @@ export const gameStateActionCreators = {
     name
   })
 };
+
+/**
+ * THUNK CREATOR
+ */
+// Need to write a thunk for getting name of players associated with/using socket id
+
+/**
+ * REDUCER
+ */
+export default function gameStateReducer(state = initialState, action) {
+  switch (action.type) {
+    case START_GAME:
+      return Object.assign({}, state, {isPlaying: true});
+    case STOP_GAME:
+      return Object.assign({}, state, {isPlaying: false});
+    case SET_PLAYER_NAME:
+      return Object.assign({}, state, {playerName: action.name});
+    default:
+      return state;
+  }
+}
