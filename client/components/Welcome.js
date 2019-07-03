@@ -1,20 +1,26 @@
-import React from 'react';
+import React, {Component} from 'react';
 
-const Welcome = props => {
-  return (
-    <div className="welcome">
-      {/* eventually put stuff here */}
-      <div>
-        <form>
-          <label htmlFor="name">Player Name</label>
-          <input name="name" />
-        </form>
+class Welcome extends Component {
+  render() {
+    return (
+      <div className="welcome">
+        <div id="title">Hopper.io</div>
+        <div>
+          <input name="name" type="text" />
+
+          <button type="submit">Play</button>
+        </div>
       </div>
-      <div>
-        <button type="submit">PLAY</button>
-      </div>
-    </div>
-  );
-};
+
+      // need an onChange handler function for input field that will update the playerName
+
+      // need onClick handler function for button that will trigger game start => playScene
+    );
+  }
+}
+
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch => ({});
 
 export default Welcome;
