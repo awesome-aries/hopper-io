@@ -1,4 +1,4 @@
-import clientStore from '../store/index';
+import clientStore, {clientActionCreators} from '../store/index';
 
 function initClientListeners(io, socket) {
   //  set up all our clientside listeners
@@ -10,7 +10,9 @@ function initClientListeners(io, socket) {
   console.log(tileMap.present);
 
   //
-  socket.on('otherPlayers', players => onOtherPlayers(players));
+  socket.on('startingInfo', (players, thisPlayer) =>
+    onStart(players, thisPlayer)
+  );
 
   socket.on('newPlayer', player => onNewPlayer(player));
 
@@ -28,11 +30,20 @@ function onRemovedPlayer(removedPlayerID) {
   // TODO
 }
 
-function onOtherPlayers(players) {
+async function onStart(players, thisPlayer) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
   // dispatch INIT_OPPONENTS in opponent reducer
   // TODO
+
+  // set this players starting position in tile coords
+  await clientStore.dispatch(
+    clientActionCreators.game.setPlayerXY(
+      thisPlayer.x,
+      thisPlayer.y,
+      thisPlayer.direction
+    )
+  );
 }
 
 function onNewPlayer(player) {

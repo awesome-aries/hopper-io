@@ -4,6 +4,7 @@ import Ship from './ship';
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import getTileIndices from '../../util/getTileIndices';
 import Opponent from './Opponent';
+import tileXYToWorldXY from '../../util/tileMapConversions';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -88,11 +89,22 @@ export default class PlayScene extends Phaser.Scene {
 
     // **************** Set up the Ship **************
 
-    const {x, y} = this.randomizeXY(
-      this.map.widthInPixels,
-      this.map.heightInPixels,
-      this.map.tileWidth,
-      this.map.tileHeight
+    // const {x, y} = this.randomizeXY(
+    //   this.map.widthInPixels,
+    //   this.map.heightInPixels,
+    //   this.map.tileWidth,
+    //   this.map.tileHeight
+    // );
+
+    // get the players location from store that was sent from the server
+    const {game: {playerPhaserXY}} = clientStore.getState();
+
+    // conver to world coords
+    const {x, y} = tileXYToWorldXY(
+      playerPhaserXY.x,
+      playerPhaserXY.y,
+      this.tileWidth,
+      this.tileHeight
     );
 
     this.ship = new Ship(

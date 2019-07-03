@@ -66,13 +66,15 @@ async function onPlayerStartGame(socket, socketId, name) {
     return player.isPlaying && player.socketId !== socket.id;
   });
 
-  console.log('otherPlayers', playersCopy);
-  socket.emit('otherPlayers', playersCopy);
-
-  // send the new player to all other players
+  // get the new player
   let newPlayer = players.find(player => {
     return player.socketId === socket.id;
   });
+
+  console.log('startingInfo', playersCopy, newPlayer);
+  socket.emit('startingInfo', playersCopy, newPlayer);
+
+  // send the newPlayer to the other players
   console.log('newPlayer', newPlayer);
   socket.broadcast.emit('newPlayer', newPlayer);
 }
