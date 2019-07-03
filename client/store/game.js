@@ -47,6 +47,7 @@ const CLEAR_EXIT_ENTRY = 'CLEAR_EXIT_ENTRY';
 const SET_TILEMAP = 'SET_TILEMAP';
 const SET_TILE = 'SET_TILE';
 const SET_TILES = 'SET_TILES';
+const CHANGE_PATH_TO_HARBOR = 'CHANGE_PATH_TO_HARBOR';
 
 /**
  * ACTION CREATORS
@@ -94,12 +95,14 @@ export const gameActionCreators = {
   }),
   setTiles: (XYArray, tileIndex) => ({
     // change the value of the tiles of the corresponding indices
-    type: SET_TILE,
-    XYArray: {
-      y: XYArray.x,
-      x: XYArray.y
-    }, //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
+    type: SET_TILES,
+    XYArray, //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
     tileIndex //the tile index aka the type of tile
+  }),
+  changePathToHarbor: (pathTileIndex, harborTileIndex) => ({
+    type: CHANGE_PATH_TO_HARBOR,
+    pathTileIndex,
+    harborTileIndex
   })
 };
 
@@ -111,7 +114,6 @@ export const gameActionCreators = {
  * REDUCER
  */
 export default function gameReducer(state = initialState, action) {
-  let playerInd;
   switch (action.type) {
     case SET_PLAYER_XY:
       // for player position we keep them in phaser order so as to not mess up other calculations, but calculate current tile using javascript conventions
@@ -211,7 +213,7 @@ export default function gameReducer(state = initialState, action) {
         ...state,
         tileMap: {
           // we want to track the previous state of the tile map, so store the present version in previous when updating the present one
-          previous: [...action.tileMap],
+          previous: [...state.tileMap.present],
           present: [...action.tileMap]
         },
         tileMapRowLength: action.tileMapRowLength
@@ -220,7 +222,7 @@ export default function gameReducer(state = initialState, action) {
     case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
-      playerInd = XYToInd(
+      let playerInd = XYToInd(
         state.playerXY.present.x,
         state.playerXY.present.y,
         state.tileMapRowLength
@@ -251,13 +253,8 @@ export default function gameReducer(state = initialState, action) {
     case SET_TILES:
       // convert all the x y to ind
       let inds = action.XYArray.map(coords => {
-        return XYToInd(coords.x, coords.y, state.tileMapRowLength);
+        return XYToInd(coords.y, coords.x, state.tileMapRowLength);
       });
-      playerInd = XYToInd(
-        state.playerXY.present.x,
-        state.playerXY.present.y,
-        state.tileMapRowLength
-      );
       // make copy of the present tileMap and set new index value (tile type) for each tile specified
       let presentCopy = [...state.tileMap.present];
       inds.forEach(i => {
@@ -268,14 +265,20 @@ export default function gameReducer(state = initialState, action) {
         tileMap: {
           previous: [...state.tileMap.present],
           present: presentCopy
-        },
-        currentTileIdx: {
-          previous: inds.includes(playerInd)
-            ? {...state.currentTileIdx}.present
-            : state.currentTileIdx.previous,
-          present: inds.includes(playerInd)
-            ? action.tileIndex
-            : state.currentTileIdx.present
+        }
+      };
+    case CHANGE_PATH_TO_HARBOR:
+      let newTileMap = state.tileMap.present.map(tile => {
+        if (tile === action.pathTileIndex) {
+          tile = action.harborTileIndex;
+        }
+        return tile;
+      });
+      return {
+        ...state,
+        tileMap: {
+          previous: [...state.tileMap.present],
+          present: newTileMap
         }
       };
     default:

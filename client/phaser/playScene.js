@@ -1,9 +1,8 @@
 import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
-
-// import TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
+import getTileIndices from '../../util/getTileIndices';
 import Opponent from './Opponent';
 
 export default class PlayScene extends Phaser.Scene {
@@ -21,15 +20,7 @@ export default class PlayScene extends Phaser.Scene {
     this.tileHeight = 50;
 
     // the indicies for the different kinds of tiles
-    this.tileValues = {
-      regular: 5,
-      border: 7,
-      harbor: 6,
-      empty: -1,
-      path: 8,
-      opponentHarbor: [4, 2],
-      opponentPath: [3, 1]
-    };
+    this.tileValues = getTileIndices();
 
     // this.shipSpawnX =
 
@@ -112,7 +103,7 @@ export default class PlayScene extends Phaser.Scene {
 
     // make the ship not able to leave the world
     // for some reason adds weird borders in the middle of the map
-    // this.ship.sprite.body.setCollideWorldBounds(true);
+    this.ship.sprite.body.setCollideWorldBounds(true);
 
     // **************************************************
 
@@ -120,13 +111,20 @@ export default class PlayScene extends Phaser.Scene {
 
     // have the camera follow the sprite
     this.cameras.main.startFollow(this.ship.sprite);
-    // make sure camera cant leave the world
-    this.cameras.main.setBounds(
+    this.physics.world.setBounds(
       0,
       0,
       this.map.widthInPixels,
       this.map.heightInPixels
     );
+
+    // make sure camera cant leave the world
+    // this.cameras.main.setBounds(
+    //   0,
+    //   0,
+    //   this.map.widthInPixels,
+    //   this.map.heightInPixels
+    // );
 
     // **************************************************
 
@@ -175,20 +173,13 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  // setTileIndexMultiple(tileIndex, locations) {
-  //   // sets the tile index for multiple tiles in phaser and in the store at once
-  //   // location argument takes a type and then a coords arg that is an array of points:
-  //   // location: {
-  //   //   type:  'world'/'tile',
-  //   //   coords: [{x,y}]
-  //   // }
-  //   // type indicates what format x and y are in, world means x and y are in pixels and tile means they are according to the tileMap coords
-  //   if (location.type === "world") {
+  getOpponents() {
+    // get all the opponents in the game when the user starts the game
+  }
 
-  //   }
-  //   else {
-  //   }
-  // }
+  clearPlayerTiles(playerIndex) {
+    // clear a players harbor and path tiles when the die or they disconnect from the game
+  }
 
   manuallyMakeHarbor() {
     // draw harbor tiles with mouse
@@ -219,7 +210,7 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  makeOponnent(x, y, direction) {
+  makeOpponent(x, y, direction) {
     let newOpponnent = new Opponent(this, x, y, direction);
 
     // add the opponent to our list of opponents
