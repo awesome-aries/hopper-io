@@ -10,7 +10,7 @@ function initClientListeners(io, socket) {
   console.log(tileMap.present);
 
   //
-  socket.on('otherPlayers', players => onCurrentPlayers(players));
+  socket.on('otherPlayers', players => onOtherPlayers(players));
 
   socket.on('newPlayer', player => onNewPlayer(player));
 
@@ -24,16 +24,22 @@ function onRemovedPlayer(removedPlayerID) {
   // here we'll want to remove the player from our list with filter
   // update the state and then in playScene, we'll populate our opponents from state
   console.log(`This is the player that left:`, removedPlayerID);
+  // dispatch removeOpponent in opponent reducer
+  // TODO
 }
 
-function onCurrentPlayers(players) {
+function onOtherPlayers(players) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
+  // dispatch INIT_OPPONENTS in opponent reducer
+  // TODO
 }
 
 function onNewPlayer(player) {
   // here we'll want to add the new player to our list
   console.log('A new player has joined', player);
+  // dispath action addOpponent in opponet reducer
+  // TODO
 }
 
 export default initClientListeners;

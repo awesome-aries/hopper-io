@@ -57,6 +57,9 @@ async function onPlayerStartGame(socket, socketId, name) {
   // get all the players currently in the state
   const {players} = serverStore.getState();
 
+  // also need to send them the current tilemap
+  // TODO
+
   // make a copy of players and remove the current player from the object so the player only gets their opponents
   const playersCopy = players.filter(player => {
     return player.socketId !== socket.id;

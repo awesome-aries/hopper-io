@@ -50,7 +50,7 @@ export const opponentActionCreators = {
 export default function opponentReducer(state = initialState, action) {
   switch (action.type) {
     case INIT_OPPONENTS:
-      return {};
+      return [];
     default:
       return state;
   }
