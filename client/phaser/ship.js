@@ -208,7 +208,9 @@ export default class Ship {
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
       }
-
+      if (this.isPath(newTile)) {
+        this.scene.alive = false;
+      }
       // get the tile at the location of the ship and make it a path tile if on a regular tile
       if (currentTileIdx.present === this.scene.tileValues.regular) {
         this.scene.setTileIndex(
@@ -221,6 +223,13 @@ export default class Ship {
         );
       }
     }
+  }
+
+  isPath(currentTile) {
+    if (currentTile.index === this.scene.tileValues.path) {
+      return true;
+    }
+    return false;
   }
 
   findFillPoint() {
