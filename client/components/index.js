@@ -4,7 +4,5 @@
  * having to figure out which file they belong to!
  */
 export {default as Navbar} from './Navbar';
-export {default as UserHome} from './UserHome';
-export {Login, Signup} from './AuthForm';
 export {default as GameView} from './GameView';
 export {default as Welcome} from './Welcome';

@@ -21,6 +21,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 class App extends Component {
+  constructor() {
+    super();
+    this.classes = useStyles();
+  }
   render() {
     // const classes = useStyles();
     const {isPlaying} = this.props;
@@ -32,7 +36,7 @@ class App extends Component {
           {/* <Routes className={classes.main} /> */}
           <Footer />
         </div>
-        <div>
+        <div className={this.classes.main}>
           {!isPlaying && <Welcome />}
           {isPlaying && <GameView />}
         </div>

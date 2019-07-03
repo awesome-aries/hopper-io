@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import clientStore from './store';
-// import App from './app';
-import App from './components/App';
+import App from './app';
+// import App from './components/App';
 
 // establishes socket connection
 import './socket';

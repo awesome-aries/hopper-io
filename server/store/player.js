@@ -59,7 +59,7 @@ const addPlayer = player => {
 };
 
 // may not need to separate this from add player.... might just be able to create player here
-const playerStartGame = (socket, socketId, name) => {
+const playerStartGame = (socketId, name) => {
   return async (dispatch, getState) => {
     try {
       // update our player to be playing and the starting pos
@@ -85,13 +85,6 @@ const playerStartGame = (socket, socketId, name) => {
       );
       //and update in our store
       dispatch(playersActionCreators.playerStartGame(updatedPlayer));
-      // we have to do this in the onclick handler when they hit play game, inside the callback function there that emits.
-      // want to broadcast to the other players that a new player has joined
-      // socket.broadcast.emit('newPlayer', updatedPlayer);
-      // and broadcast to the new player all the players in the game currently
-      // const { players }
-
-      // socket.emit('currentPlayers', )
     } catch (error) {
       console.error(error);
     }

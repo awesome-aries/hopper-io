@@ -1,7 +1,7 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
 
-const {addPlayer, removePlayer} = require('../store/player');
+const {addPlayer, removePlayer, playerStartGame} = require('../store/player');
 
 function initServerListeners(io, socket) {
   // set up all our socket listeners
@@ -16,6 +16,10 @@ function initServerListeners(io, socket) {
   socket.on('playerMove', (worldX, worldY, direction, tilemap) =>
     onPlayerMove(socket, worldX, worldY, direction, tilemap)
   );
+
+  socket.on('playerStartGame', (socketId, name) =>
+    onPlayerStartGame(socket, socketId, name)
+  );
 }
 
 async function onConnect(socket) {
@@ -25,26 +29,6 @@ async function onConnect(socket) {
 
   // create a player, but not adding them to the game yet
   await createNewPlayer(socket.id);
-
-  // we will need to move the stuff below the the on playgame event
-
-  // get all the players current in the state
-  const {players} = serverStore.getState();
-
-  // make a copy of players and remove the current player from the object so the player only gets their opponents
-  const playersCopy = players.filter(player => {
-    return player.socketId !== socket.id;
-  });
-
-  console.log('otherPlayers', playersCopy);
-  socket.emit('otherPlayers', playersCopy);
-
-  // send the new player to all other players
-  let newPlayer = players.find(player => {
-    return player.socketId === socket.id;
-  });
-  console.log('newPlayer', newPlayer);
-  socket.broadcast.emit('newPlayer', newPlayer);
 }
 
 async function createNewPlayer(socketId) {
@@ -63,6 +47,30 @@ async function createNewPlayer(socketId) {
 
   //adding player to our store and database, but not playing yet
   await serverStore.dispatch(addPlayer(player));
+}
+
+async function onPlayerStartGame(socket, socketId, name) {
+  // this is called when the player hits the play game button and is navigated to the gameview component.
+
+  await playerStartGame(socketId, name);
+
+  // get all the players currently in the state
+  const {players} = serverStore.getState();
+
+  // make a copy of players and remove the current player from the object so the player only gets their opponents
+  const playersCopy = players.filter(player => {
+    return player.socketId !== socket.id;
+  });
+
+  console.log('otherPlayers', playersCopy);
+  socket.emit('otherPlayers', playersCopy);
+
+  // send the new player to all other players
+  let newPlayer = players.find(player => {
+    return player.socketId === socket.id;
+  });
+  console.log('newPlayer', newPlayer);
+  socket.broadcast.emit('newPlayer', newPlayer);
 }
 
 function onPlayerMove(socket, worldX, worldY, direction, tilemap) {
