@@ -32,7 +32,7 @@ async function onConnect(socket) {
 }
 
 async function createNewPlayer(socketId) {
-  //before this takes place we want to take socketId, use it to randmoize XY position, save it to store and emit to client side store and then when saving the player save the position with it(?)
+  // we create the player and save them in the store and
 
   // initialize player with starting info
   let player = {
@@ -61,8 +61,9 @@ async function onPlayerStartGame(socket, socketId, name) {
   // TODO
 
   // make a copy of players and remove the current player from the object so the player only gets their opponents
+  // also make sure not sending any players not yet in the game
   const playersCopy = players.filter(player => {
-    return player.socketId !== socket.id;
+    return player.isPlaying && player.socketId !== socket.id;
   });
 
   console.log('otherPlayers', playersCopy);
@@ -80,6 +81,7 @@ function onPlayerMove(socket, worldX, worldY, direction, tilemap) {
   // when each player moved we want to update their location and new tilemap in the store and the
   // and then broadcast the new state to all the other players
   // socket.broadcast.emit('updateState', *newData*)
+  // TODO
 }
 
 async function onDisconnect(socket) {
