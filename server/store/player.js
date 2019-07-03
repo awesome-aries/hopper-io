@@ -11,7 +11,7 @@ const PLAYER_START_GAME = 'PLAYER_START_GAME';
  * INITIAL STATE
  */
 
-const initialState = {};
+const initialState = [];
 
 /**
  * ACTION CREATORS
@@ -59,7 +59,7 @@ const addPlayer = player => {
 };
 
 // may not need to separate this from add player.... might just be able to create player here
-const playerStartGame = (socket, socketId) => {
+const playerStartGame = (socket, socketId, name) => {
   return async (dispatch, getState) => {
     try {
       // update our player to be playing and the starting pos
@@ -69,6 +69,7 @@ const playerStartGame = (socket, socketId) => {
       const [, [updatedPlayer]] = await Player.update(
         {
           isPlaying: true,
+          name: name,
           worldX: startPos.x,
           worldY: startPos.y,
           x: worldXYToTileXY(startPos.x),
@@ -84,8 +85,9 @@ const playerStartGame = (socket, socketId) => {
       );
       //and update in our store
       dispatch(playersActionCreators.playerStartGame(updatedPlayer));
+      // we have to do this in the onclick handler when they hit play game, inside the callback function there that emits.
       // want to broadcast to the other players that a new player has joined
-      socket.broadcast.emit('newPlayer', updatedPlayer);
+      // socket.broadcast.emit('newPlayer', updatedPlayer);
       // and broadcast to the new player all the players in the game currently
       // const { players }
 
@@ -119,9 +121,9 @@ const removePlayer = socketId => {
 function playersReducer(state = initialState, action) {
   switch (action.type) {
     case ADDED_PLAYER:
-      return {
+      return [
         ...state,
-        [action.player.socketId]: {
+        {
           socketId: action.player.socketId,
           name: action.player.name,
           phaserX: action.player.phaserX,
@@ -130,27 +132,27 @@ function playersReducer(state = initialState, action) {
           y: action.player.y,
           isPlaying: action.player.isPlaying
         }
-      };
+      ];
     case REMOVED_PLAYER:
-      // eslint-disable-next-line no-case-declarations
-      let copyOfState = Object.assign({}, state);
-      // remove the player from the object
-      delete copyOfState[action.socketId];
-      return {
-        ...copyOfState
-      };
+      return state.filter(player => {
+        return player.socketId !== action.socketId;
+      });
     case PLAYER_START_GAME:
-      return {
-        ...state,
-        [action.updatedPlayer.socketId]: {
-          ...state[action.updatedPlayer.socketId],
-          isPlaying: true,
-          phaserX: action.updatedPlayer.phaserX,
-          phaserY: action.updatedPlayer.phaserY,
-          x: action.updatedPlayer.x,
-          y: action.updatedPlayer.y
+      // update the player with new
+      return state.map(player => {
+        if (player.socketId === action.updatedPlayer.socketId) {
+          return {
+            ...player,
+            isPlaying: true,
+            phaserX: action.updatedPlayer.phaserX,
+            phaserY: action.updatedPlayer.phaserY,
+            x: action.updatedPlayer.x,
+            y: action.updatedPlayer.y
+          };
+        } else {
+          return player;
         }
-      };
+      });
     default:
       return state;
   }

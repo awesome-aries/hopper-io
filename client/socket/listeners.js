@@ -10,7 +10,7 @@ function initClientListeners(io, socket) {
   console.log(tileMap.present);
 
   //
-  socket.on('currentPlayers', players => onCurrentPlayers(players));
+  socket.on('otherPlayers', players => onCurrentPlayers(players));
 
   socket.on('newPlayer', player => onNewPlayer(player));
 
@@ -22,6 +22,7 @@ function initClientListeners(io, socket) {
 
 function onRemovedPlayer(removedPlayerID) {
   // here we'll want to remove the player from our list with filter
+  // update the state and then in playScene, we'll populate our opponents from state
   console.log(`This is the player that left:`, removedPlayerID);
 }
 

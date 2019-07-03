@@ -18,23 +18,36 @@ function initServerListeners(io, socket) {
   );
 }
 
-function onConnect(socket) {
+async function onConnect(socket) {
   console.log(`A socket connection to the server has been made: ${socket.id}`);
 
   // The user has hit the homepage, but we dont want to do anything else yet
 
   // create a player, but not adding them to the game yet
-  createNewPlayer(socket.id);
+  await createNewPlayer(socket.id);
 
-  // send the players object to the new player
+  // we will need to move the stuff below the the on playgame event
+
+  // get all the players current in the state
   const {players} = serverStore.getState();
-  console.log(players);
-  socket.emit('currentPlayers', players);
-  // update all other players of the new player
-  socket.broadcast.emit('newPlayer', players[socket.id]);
+
+  // make a copy of players and remove the current player from the object so the player only gets their opponents
+  const playersCopy = players.filter(player => {
+    return player.socketId !== socket.id;
+  });
+
+  console.log('otherPlayers', playersCopy);
+  socket.emit('otherPlayers', playersCopy);
+
+  // send the new player to all other players
+  let newPlayer = players.find(player => {
+    return player.socketId === socket.id;
+  });
+  console.log('newPlayer', newPlayer);
+  socket.broadcast.emit('newPlayer', newPlayer);
 }
 
-function createNewPlayer(socketId) {
+async function createNewPlayer(socketId) {
   //before this takes place we want to take socketId, use it to randmoize XY position, save it to store and emit to client side store and then when saving the player save the position with it(?)
 
   // initialize player with starting info
@@ -49,11 +62,13 @@ function createNewPlayer(socketId) {
   };
 
   //adding player to our store and database, but not playing yet
-  serverStore.dispatch(addPlayer(player));
+  await serverStore.dispatch(addPlayer(player));
 }
 
 function onPlayerMove(socket, worldX, worldY, direction, tilemap) {
   // when each player moved we want to update their location and new tilemap in the store and the
+  // and then broadcast the new state to all the other players
+  // socket.broadcast.emit('updateState', *newData*)
 }
 
 async function onDisconnect(socket) {
