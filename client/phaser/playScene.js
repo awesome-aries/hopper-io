@@ -2,6 +2,7 @@ import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
+import getTileIndices from '../../util/getTileIndices';
 import Opponent from './Opponent';
 
 export default class PlayScene extends Phaser.Scene {
@@ -19,15 +20,7 @@ export default class PlayScene extends Phaser.Scene {
     this.tileHeight = 50;
 
     // the indicies for the different kinds of tiles
-    this.tileValues = {
-      regular: 5,
-      border: 7,
-      harbor: 6,
-      empty: -1,
-      path: 8,
-      opponentHarbor: [4, 2],
-      opponentPath: [3, 1]
-    };
+    this.tileValues = getTileIndices();
 
     // this.shipSpawnX =
 
