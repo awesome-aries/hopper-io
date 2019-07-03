@@ -31,14 +31,25 @@ function randomizeXY() {
 }
 
 function worldXYToTileXY(worldX, worldY) {
-  let x = worldX;
-  let y = worldY;
+  // Converts the players coordinates in pixel coordinates to their location in tile coordinates
+
+  let x = Math.floor(worldX / tileWidth);
+  let y = Math.floor(worldY / tileHeight);
+
   return {
     x,
     y
   };
 }
 
+function tileXYToWorldXY(tileX, tileY) {
+  let x = tileX * tileWidth + tileWidth / 2;
+  let y = tileY * tileHeight + tileHeight / 2;
+  return {
+    x,
+    y
+  };
+}
 /* 
 The tileMap exported by Tiled and that we use to represent the tileMap in the redux store is a flat array, so we must transform the grid style indicies as in the b array below (b[x][y]) into a single index as in a array (a[ind]) such that a[ind] === b[x][y]
 
@@ -83,5 +94,6 @@ module.exports = {
   XYToInd,
   IndToXY,
   randomizeXY,
-  worldXYToTileXY
+  worldXYToTileXY,
+  tileXYToWorldXY
 };

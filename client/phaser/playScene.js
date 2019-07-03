@@ -180,20 +180,13 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  // setTileIndexMultiple(tileIndex, locations) {
-  //   // sets the tile index for multiple tiles in phaser and in the store at once
-  //   // location argument takes a type and then a coords arg that is an array of points:
-  //   // location: {
-  //   //   type:  'world'/'tile',
-  //   //   coords: [{x,y}]
-  //   // }
-  //   // type indicates what format x and y are in, world means x and y are in pixels and tile means they are according to the tileMap coords
-  //   if (location.type === "world") {
+  getOpponents() {
+    // get all the opponents in the game when the user starts the game
+  }
 
-  //   }
-  //   else {
-  //   }
-  // }
+  clearPlayerTiles(playerIndex) {
+    // clear a players harbor and path tiles when the die or they disconnect from the game
+  }
 
   manuallyMakeHarbor() {
     // draw harbor tiles with mouse

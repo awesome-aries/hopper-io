@@ -11,6 +11,11 @@ function initServerListeners(io, socket) {
 
   // if a user disconnects
   socket.on('disconnect', () => onDisconnect(socket));
+
+  // When the player has moved we want to update their location in store and the new tilemap
+  socket.on('playerMove', (worldX, worldY, direction, tilemap) =>
+    onPlayerMove(socket, worldX, worldY, direction, tilemap)
+  );
 }
 
 function onConnect(socket) {
@@ -47,17 +52,18 @@ function createNewPlayer(socketId) {
   serverStore.dispatch(addPlayer(player));
 }
 
+function onPlayerMove(socket, worldX, worldY, direction, tilemap) {
+  // when each player moved we want to update their location and new tilemap in the store and the
+}
+
 async function onDisconnect(socket) {
   console.log(`Connection ${socket.id} has left the building`);
 
   // When a player disconnects, remove that player from our store and database
   await serverStore.dispatch(removePlayer(socket.id));
 
-  // get the new state
-  const {players} = serverStore.getState();
-
-  // and send the new list of all the players to the players
-  socket.broadcast.emit('removedPlayer', players);
+  // and send the id of player to remove to the other players
+  socket.broadcast.emit('removedPlayer', socket.id);
 }
 
 module.exports = initServerListeners;

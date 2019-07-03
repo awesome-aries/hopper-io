@@ -84,6 +84,12 @@ const playerStartGame = (socket, socketId) => {
       );
       //and update in our store
       dispatch(playersActionCreators.playerStartGame(updatedPlayer));
+      // want to broadcast to the other players that a new player has joined
+      socket.broadcast.emit('newPlayer', updatedPlayer);
+      // and broadcast to the new player all the players in the game currently
+      // const { players }
+
+      // socket.emit('currentPlayers', )
     } catch (error) {
       console.error(error);
     }
