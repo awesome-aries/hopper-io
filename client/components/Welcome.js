@@ -4,7 +4,6 @@ class Welcome extends Component {
   render() {
     return (
       <div className="welcome">
-        <div id="title">Hopper.io</div>
         <div>
           <input name="name" type="text" />
 
@@ -19,8 +18,8 @@ class Welcome extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+// const mapStateToProps = state => ({});
 
-const mapDispatchToProps = dispatch => ({});
+// const mapDispatchToProps = dispatch => ({});
 
 export default Welcome;
