@@ -176,10 +176,7 @@ export default class Ship {
           playerPhaserXY.present.y,
           currentTileIdx.previous
         ]);
-      } else if (
-        currentTileIdx.previous !== this.scene.tileValues.harbor &&
-        currentTileIdx.present === this.scene.tileValues.harbor
-      ) {
+      } else if (this.shouldSetEntryPoint(currentTileIdx, exitPoint)) {
         // If the user is moving from sea to harbor, then we must set the entry point
 
         clientStore.dispatch(
@@ -217,6 +214,16 @@ export default class Ship {
         );
       }
     }
+  }
+
+  shouldSetEntryPoint(currentTileIdx, exitPoint) {
+    // should set entry point if exitpoint has already been set and
+    // If the user is moving from sea to harbor
+    return (
+      exitPoint &&
+      currentTileIdx.previous !== this.scene.tileValues.harbor &&
+      currentTileIdx.present === this.scene.tileValues.harbor
+    );
   }
 
   isPath(currentTile) {

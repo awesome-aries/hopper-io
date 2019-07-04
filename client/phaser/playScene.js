@@ -1,10 +1,8 @@
 import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
-import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
-import {IndToXY} from '../util/tileMapConversions';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -54,18 +52,6 @@ export default class PlayScene extends Phaser.Scene {
     this.load.image(this.TILE_SET_NAME, this.TILE_SET_PATH);
   }
 
-  randomizeXY(mapWidth, mapHeight, tileWidth, tileHeight) {
-    const maxX = mapWidth / tileWidth;
-    const maxY = mapHeight / tileHeight;
-    let startPosition = {};
-    //5 represents 3 as the min, so that the ship always spawns 3 tiles from the min border
-    //and 2 so that the ship always spawns 3 away from the max (its exclusive so its really -3 + 1)
-    //if we ever want to change the harbor size(right now were assuming 3x3) we would change these values!
-    startPosition.x = Math.floor(Math.random() * (maxX - 5) + 3) * tileWidth;
-    startPosition.y = Math.floor(Math.random() * (maxY - 5) + 3) * tileHeight;
-    return startPosition;
-  }
-
   create() {
     // adds objects to the game
 
@@ -75,29 +61,7 @@ export default class PlayScene extends Phaser.Scene {
 
     // **************** Set up the tilemap **************
 
-    this.map = this.make.tilemap({
-      key: 'map',
-      tileWidth: this.tileWidth,
-      tileHeight: this.tileHeight
-    });
-    const tileset = this.map.addTilesetImage(this.TILE_SET_NAME);
-
-    // might want to set up a static background layer
-    // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
-    this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
-
-    this.planeDimensions = this.map.worldToTileXY(
-      this.foregroundLayer.width,
-      this.foregroundLayer.height
-    );
-
-    // set the tiles in phaser to match the store
-    // tileMap.present.forEach((tileIndex, ind) => {
-    //   let { x, y} = IndToXY(ind);
-
-    // })
-    // not sure if it'll take a flat array
-    this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
+    this.createTileMap(tileMap);
 
     // **************************************************
 
@@ -209,6 +173,32 @@ export default class PlayScene extends Phaser.Scene {
 
     // make the ship not able to leave the world
     this.ship.sprite.body.setCollideWorldBounds(true);
+  }
+
+  createTileMap(tileMap) {
+    this.map = this.make.tilemap({
+      key: 'map',
+      tileWidth: this.tileWidth,
+      tileHeight: this.tileHeight
+    });
+    const tileset = this.map.addTilesetImage(this.TILE_SET_NAME);
+
+    // might want to set up a static background layer
+    // this.backgroundLayer = this.map.createStaticLayer(0, tileset, 0, 0);
+    this.foregroundLayer = this.map.createDynamicLayer(0, tileset, 0, 0);
+
+    this.planeDimensions = this.map.worldToTileXY(
+      this.foregroundLayer.width,
+      this.foregroundLayer.height
+    );
+
+    // set the tiles in phaser to match the store
+    // tileMap.present.forEach((tileIndex, ind) => {
+    //   let { x, y} = IndToXY(ind);
+
+    // })
+    // not sure if it'll take a flat array
+    this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
   }
 
   manuallyMakeHarbor() {

@@ -2,7 +2,8 @@
 /* eslint-disable no-case-declarations */
 // IndToXY returns obj {x,y}
 import {XYToInd, tileXYToWorldXY} from '../util/tileMapConversions';
-
+import getTileIndices from '../util/getTileIndices';
+let harborIndex = getTileIndices().harbor;
 /**
  * INITIAL STATE
  */
@@ -25,8 +26,8 @@ const initialState = {
     present: ''
   },
   currentTileIdx: {
-    previous: null,
-    present: null
+    previous: harborIndex,
+    present: harborIndex //initialize to harbor because player should always start on a harbor
   },
   entryPoint: null,
   exitPoint: null,
@@ -257,6 +258,7 @@ export default function gameReducer(state = initialState, action) {
             }
           })
         },
+        // only update if the tile the player is on is being changed
         currentTileIdx: {
           previous:
             ind === playerInd
@@ -286,13 +288,30 @@ export default function gameReducer(state = initialState, action) {
         // and also record the changes
         newChanges.push({tileInd: i, tileIndex: action.tileIndex});
       });
+      // check to see if a player is on a tile being changed
+      let playerOnTile = inds.includes(
+        XYToInd(
+          state.playerXY.present.x,
+          state.playerXY.present.y,
+          state.tileMapRowLength
+        )
+      );
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
           present: presentCopy
         },
-        tileMapDiff: newChanges
+        tileMapDiff: newChanges,
+        // only update if the tile the player is on is being changed
+        currentTileIdx: {
+          previous: playerOnTile
+            ? {...state.currentTileIdx}.present
+            : state.currentTileIdx.previous,
+          present: playerOnTile
+            ? action.tileIndex
+            : state.currentTileIdx.present
+        }
       };
     case CHANGE_PATH_TO_HARBOR:
       // make copy of tileMapDiff
