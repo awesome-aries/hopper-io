@@ -90,10 +90,6 @@ const playerStartGame = (socket, socketId, name) => {
         phaserY: tileStartPos.x
       });
 
-      console.log('****************************');
-      // console.log('numberOfAffectedRows', numberOfAffectedRows);
-      console.log('updatedPlayer', player);
-      console.log('****************************');
       //and update in our store
       dispatch(playersActionCreators.playerStartGame(player));
       // get all the players currently in the state
