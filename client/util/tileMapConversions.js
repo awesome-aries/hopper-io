@@ -38,9 +38,18 @@ export function IndToXY(Ind, rowLength) {
   };
 }
 
-// b[1][1] = 5
-// a[x] = 5
-export function tileXYToWorldXY(tileX, tileY, tileWidth, tileHeight) {
+// get the map width and height from the tilemap
+import tileMap from '../../public/assets/hopperio-tilemap.json';
+
+let [tileset] = tileMap.tilesets;
+let tileWidth = tileset.tilewidth;
+let tileHeight = tileset.tileheight;
+// // map width in pixels
+// let mapWidth = tileMap.width * tileWidth;
+// // map height in pixels
+// let mapHeight = tileMap.height * tileHeight;
+
+export function tileXYToWorldXY(tileX, tileY) {
   let x = tileX * tileWidth + tileWidth / 2;
   let y = tileY * tileHeight + tileHeight / 2;
   return {

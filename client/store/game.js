@@ -1,16 +1,15 @@
 /* eslint-disable complexity */
 /* eslint-disable no-case-declarations */
 // IndToXY returns obj {x,y}
-import {XYToInd, tileXYToWorldXY} from '../../util/tileMapConversions';
+import {XYToInd, tileXYToWorldXY} from '../util/tileMapConversions';
 
 /**
  * INITIAL STATE
  */
 
 const initialState = {
-  // maybe dont need this, and just calc in phaser
   playerWorldXY: {
-    previous: {},
+    previous: {}, //in phaser order
     present: {}
   }, //{x, y} (in pixels)
   playerXY: {
@@ -59,27 +58,27 @@ const CHANGE_PATH_TO_HARBOR = 'CHANGE_PATH_TO_HARBOR';
 export const gameActionCreators = {
   movePlayer: (x, y, direction) => ({
     type: MOVE_PLAYER,
-    x: x,
-    y: y,
+    x,
+    y,
     direction
   }),
   setPlayerXY: (x, y, direction) => ({
     type: SET_PLAYER_XY,
-    x: x,
-    y: y,
+    x,
+    y,
     direction
   }),
   setExitPoint: (x, y) => ({
     //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
     type: SET_EXIT_POINT,
-    x: y,
-    y: x
+    x,
+    y
   }),
   setEntryPoint: (x, y) => ({
     //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
     type: SET_ENTRY_POINT,
-    x: y,
-    y: x
+    x,
+    y
   }),
   clearExitEntry: () => ({
     type: CLEAR_EXIT_ENTRY
@@ -92,8 +91,8 @@ export const gameActionCreators = {
   setTile: (tileX, tileY, tileIndex) => ({
     // change the value of the tile index at the specified location
     type: SET_TILE,
-    y: tileX, //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
-    x: tileY,
+    y: tileY,
+    x: tileX,
     tileIndex //the tile index aka the type of tile
   }),
   setTiles: (XYArray, tileIndex) => ({
@@ -119,27 +118,29 @@ export const gameActionCreators = {
 export default function gameReducer(state = initialState, action) {
   switch (action.type) {
     case SET_PLAYER_XY:
-      // for player position we keep them in phaser order so as to not mess up other calculations, but calculate current tile using javascript conventions
+      // this expects that the coords are passed in in phaser order
+      let worldCoords = tileXYToWorldXY(action.x, action.y);
       return {
         ...state,
         playerXY: {
-          previous: {
-            x: action.y,
-            y: action.x
-          },
+          previous: {...state.playerXY.present},
           present: {
             x: action.y,
             y: action.x
           }
         },
         playerPhaserXY: {
-          previous: {
-            x: action.x,
-            y: action.y
-          },
+          previous: {...state.playerPhaserXY.present},
           present: {
             x: action.x,
             y: action.y
+          }
+        },
+        playerWorldXY: {
+          previous: {...state.playerWorldXY.present},
+          present: {
+            x: worldCoords.x,
+            y: worldCoords.y
           }
         },
         direction: {
@@ -160,6 +161,7 @@ export default function gameReducer(state = initialState, action) {
       };
     case MOVE_PLAYER:
       // for player position we keep them in phaser order so as to not mess up other calculations, but calculate current tile using javascript conventions
+      let newWorldCoords = tileXYToWorldXY(action.x, action.y);
       return {
         ...state,
         playerXY: {
@@ -174,6 +176,13 @@ export default function gameReducer(state = initialState, action) {
           present: {
             x: action.x,
             y: action.y
+          }
+        },
+        playerWorldXY: {
+          previous: {...state.playerWorldXY.present},
+          present: {
+            x: newWorldCoords.x,
+            y: newWorldCoords.y
           }
         },
         direction: {
@@ -193,16 +202,16 @@ export default function gameReducer(state = initialState, action) {
       return {
         ...state,
         entryPoint: {
-          x: action.x,
-          y: action.y
+          x: action.y,
+          y: action.x
         }
       };
     case SET_EXIT_POINT:
       return {
         ...state,
         exitPoint: {
-          x: action.x,
-          y: action.y
+          x: action.y,
+          y: action.x
         }
       };
     case CLEAR_EXIT_ENTRY:
@@ -224,10 +233,10 @@ export default function gameReducer(state = initialState, action) {
 
     case SET_TILE:
       // corresponding index in tileMap
-      let ind = XYToInd(+action.x, +action.y, state.tileMapRowLength);
+      let ind = XYToInd(+action.y, +action.x, state.tileMapRowLength);
       let playerInd = XYToInd(
-        state.playerXY.present.x,
         state.playerXY.present.y,
+        state.playerXY.present.x,
         state.tileMapRowLength
       );
       return {

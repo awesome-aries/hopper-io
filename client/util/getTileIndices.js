@@ -1,4 +1,4 @@
-import tileMap from '../public/assets/hopperio-tilemap.json';
+import tileMap from '../../public/assets/hopperio-tilemap.json';
 // const tileMap = require('../public/assets/hopperio-tilemap.json');
 export default function() {
   let tileValues = {};

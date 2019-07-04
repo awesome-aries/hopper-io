@@ -23,12 +23,6 @@ class Welcome extends Component {
     e.preventDefault();
     console.log('onSubmit');
 
-    // we want to change the game state to isPlaying and set their name
-    // this should then make the view change from the welcome component to gameView
-    clientStore.dispatch(
-      clientActionCreators.gameState.startGame(this.state.name)
-    );
-
     // when a user hits play, we want to send a message to the server that they are starting the game
     socket.emit('playerStartGame', socket.id, this.state.name);
 

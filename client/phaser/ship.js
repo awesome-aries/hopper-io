@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
-import {XYToInd} from '../../util/tileMapConversions';
+import {XYToInd} from '../util/tileMapConversions';
 
 export default class Ship {
   constructor(scene, x, y) {

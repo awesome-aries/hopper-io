@@ -40,6 +40,8 @@ async function createNewPlayer(socketId) {
     name: 'grace',
     worldX: 0, //initialize to 0 and update with actual coords once they start
     worldY: 0,
+    phaserX: 0,
+    phaserY: 0,
     x: 0,
     y: 0,
     direction: 'north'
@@ -52,7 +54,7 @@ async function createNewPlayer(socketId) {
 async function onPlayerStartGame(socket, socketId, name) {
   // this is called when the player hits the play game button and is navigated to the gameview component.
 
-  await playerStartGame(socketId, name);
+  await serverStore.dispatch(playerStartGame(socket, socketId, name));
 
   // get all the players currently in the state
   const {players} = serverStore.getState();
@@ -71,7 +73,7 @@ async function onPlayerStartGame(socket, socketId, name) {
     return player.socketId === socket.id;
   });
 
-  console.log('startingInfo', playersCopy, newPlayer);
+  console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
   socket.emit('startingInfo', playersCopy, newPlayer);
 
   // send the newPlayer to the other players
