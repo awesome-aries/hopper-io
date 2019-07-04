@@ -1,12 +1,15 @@
 // get the map width and height from the tilemap
-const TileMapJS = require('../../public/assets/hopperio-tilemap.json');
+const tileMap = require('../../public/assets/hopperio-tilemap.json');
 
-let tileWidth = TileMapJS.tileWidth;
-let tileHeight = TileMapJS.tileHeight;
+console.log('tileMap', tileMap);
+
+let [tileset] = tileMap.tilesets;
+let tileWidth = tileset.tilewidth;
+let tileHeight = tileset.tileheight;
 // map width in pixels
-let mapWidth = TileMapJS.width * TileMapJS.tileWidth;
+let mapWidth = tileMap.width * tileWidth;
 // map height in pixels
-let mapHeight = TileMapJS.height * TileMapJS.tileHeight;
+let mapHeight = tileMap.height * tileHeight;
 
 // Here we will have the randomly spawn function
 //the function will take a mapWidth, tileWidth, mapHeight, tileHeight
@@ -92,8 +95,6 @@ function IndToXY(Ind, rowLength) {
 
 function getTileIndices() {
   let tileValues = {};
-  // right now only have one tileset
-  let [tileset] = TileMapJS.tilesets;
 
   // tileset is an array of the different tile indices and types
   tileset.tiles.forEach(tile => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import Container from '@material-ui/core/Container';
 import {connect} from 'react-redux';
-import {XYToInd} from '../../util/tileMapConversions';
+import {XYToInd} from '../util/tileMapConversions';
 
 class Ui extends React.Component {
   constructor() {

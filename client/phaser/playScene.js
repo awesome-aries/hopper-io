@@ -2,9 +2,8 @@ import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 import Ship from './ship';
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
-import getTileIndices from '../../util/getTileIndices';
+import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
-import tileXYToWorldXY from '../../util/tileMapConversions';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -91,34 +90,7 @@ export default class PlayScene extends Phaser.Scene {
 
     // **************** Set up the Ship **************
 
-    const {x, y} = this.randomizeXY(
-      this.map.widthInPixels,
-      this.map.heightInPixels,
-      this.map.tileWidth,
-      this.map.tileHeight
-    );
-
-    // TODO
-    // get the players location from store that was sent from the server
-    // const {game: {playerPhaserXY}} = clientStore.getState();
-
-    // // conver to world coords
-    // const {x, y} = tileXYToWorldXY(
-    //   playerPhaserXY.x,
-    //   playerPhaserXY.y,
-    //   this.tileWidth,
-    //   this.tileHeight
-    // );
-
-    this.ship = new Ship(
-      this,
-      x + this.map.tileWidth / 2,
-      y + this.map.tileHeight / 2
-    );
-
-    // make the ship not able to leave the world
-    // for some reason adds weird borders in the middle of the map
-    this.ship.sprite.body.setCollideWorldBounds(true);
+    this.createShip();
 
     // **************************************************
 
@@ -206,6 +178,36 @@ export default class PlayScene extends Phaser.Scene {
     this.scene.start('losing');
     // introText.text = 'Game Over!';
     // introText.visible = true;
+  }
+
+  createShip() {
+    // get the players location from store that was sent from the server
+    const {game: {playerWorldXY}} = clientStore.getState();
+
+    console.log('playerWorldXY', playerWorldXY);
+
+    this.ship = new Ship(
+      this,
+      playerWorldXY.present.x,
+      playerWorldXY.present.y
+    );
+
+    // const {x, y} = this.randomizeXY(
+    //   this.map.widthInPixels,
+    //   this.map.heightInPixels,
+    //   this.map.tileWidth,
+    //   this.map.tileHeight
+    // );
+
+    // this.ship = new Ship(
+    //   this,
+    //   x + this.map.tileWidth / 2,
+    //   y + this.map.tileHeight / 2
+    // );
+
+    // make the ship not able to leave the world
+    // for some reason adds weird borders in the middle of the map
+    this.ship.sprite.body.setCollideWorldBounds(true);
   }
 
   manuallyMakeHarbor() {

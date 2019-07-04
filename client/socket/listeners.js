@@ -5,9 +5,9 @@ function initClientListeners(io, socket) {
   console.log('Connected!');
   console.log(`You are ${socket.id}`);
 
-  let {game: tileMap} = clientStore.getState();
+  // let {game: tileMap} = clientStore.getState();
 
-  console.log(tileMap.present);
+  // console.log(tileMap.present);
 
   //
   socket.on('startingInfo', (players, thisPlayer) =>
@@ -36,14 +36,21 @@ async function onStart(players, thisPlayer) {
   // dispatch INIT_OPPONENTS in opponent reducer
   // TODO
 
+  console.log('This is the new player, you!', thisPlayer);
   // set this players starting position in tile coords
-  // await clientStore.dispatch(
-  //   clientActionCreators.game.setPlayerXY(
-  //     thisPlayer.x,
-  //     thisPlayer.y,
-  //     thisPlayer.direction
-  //   )
-  // );
+  await clientStore.dispatch(
+    clientActionCreators.game.setPlayerXY(
+      thisPlayer.x,
+      thisPlayer.y,
+      thisPlayer.direction
+    )
+  );
+
+  // we want to change the game state to isPlaying and set their name
+  // this should then make the view change from the welcome component to gameView
+  await clientStore.dispatch(
+    clientActionCreators.gameState.startGame(thisPlayer.name)
+  );
 }
 
 function onNewPlayer(player) {

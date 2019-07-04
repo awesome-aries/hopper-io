@@ -35,23 +35,27 @@ const playersActionCreators = {
  * THUNK CREATORS
  */
 
-const addPlayer = player => {
+const addPlayer = playerInfo => {
   return async (dispatch, getState) => {
     try {
       // add the player to our database
-      await Player.create({
-        socketId: player.socketId,
-        name: player.name,
-        worldX: player.worldX,
-        worldY: player.worldY,
-        x: player.x,
-        y: player.y,
-        direction: player.direction,
+      const player = await Player.create({
+        socketId: playerInfo.socketId,
+        name: playerInfo.name,
+        worldX: playerInfo.worldX,
+        worldY: playerInfo.worldY,
+        phaserX: playerInfo.phaserX,
+        phaserY: playerInfo.phaserY,
+        x: playerInfo.x,
+        y: playerInfo.y,
+        direction: playerInfo.direction,
         isPlaying: false //defaults to false
       });
 
+      let playerObj = await player.get({plain: true});
+
       //add player to our store
-      dispatch(playersActionCreators.addedPlayer(player));
+      dispatch(playersActionCreators.addedPlayer(playerObj));
     } catch (error) {
       console.error(error);
     }
@@ -59,21 +63,26 @@ const addPlayer = player => {
 };
 
 // may not need to separate this from add player.... might just be able to create player here
-const playerStartGame = (socketId, name) => {
+const playerStartGame = (socket, socketId, name) => {
+  console.log('hello?????????');
   return async (dispatch, getState) => {
     try {
+      console.log('were in playerStartGame thunk2');
       // update our player to be playing and the starting pos
       // Randomize spawn location
-      let startPos = randomizeXY();
+      let worldStartPos = randomizeXY();
+      let tileStartPos = worldXYToTileXY(worldStartPos.x, worldStartPos.y);
 
       const [, [updatedPlayer]] = await Player.update(
         {
           isPlaying: true,
           name: name,
-          worldX: startPos.x,
-          worldY: startPos.y,
-          x: worldXYToTileXY(startPos.x),
-          y: worldXYToTileXY(startPos.y)
+          worldX: worldStartPos.x,
+          worldY: worldStartPos.y,
+          x: tileStartPos.x,
+          y: tileStartPos.y,
+          phaserX: tileStartPos.y,
+          phaserY: tileStartPos.x
         },
         {
           where: {
@@ -83,8 +92,34 @@ const playerStartGame = (socketId, name) => {
           plain: true // makes sure that the returned instances are just plain objects
         }
       );
+      console.log('****************************');
+      console.log('updatedPlayer', updatedPlayer);
+      console.log('****************************');
       //and update in our store
       dispatch(playersActionCreators.playerStartGame(updatedPlayer));
+      // get all the players currently in the state
+      const {players} = getState();
+
+      // also need to send them the current tilemap
+      // TODO
+
+      // make a copy of players and remove the current player from the object so the player only gets their opponents
+      // also make sure not sending any players not yet in the game
+      const playersCopy = players.filter(player => {
+        return player.isPlaying && player.socketId !== socket.id;
+      });
+
+      // get the new player
+      let newPlayer = players.find(player => {
+        return player.socketId === socket.id;
+      });
+
+      console.log('startingInfo', playersCopy, newPlayer);
+      socket.emit('startingInfo', playersCopy, newPlayer);
+
+      // send the newPlayer to the other players
+      console.log('newPlayer', newPlayer);
+      socket.broadcast.emit('newPlayer', newPlayer);
     } catch (error) {
       console.error(error);
     }
@@ -121,8 +156,10 @@ function playersReducer(state = initialState, action) {
           name: action.player.name,
           phaserX: action.player.phaserX,
           phaserY: action.player.phaserY,
-          x: action.player.x,
-          y: action.player.y,
+          worldX: action.player.worldX,
+          worldY: action.player.worldY,
+          x: action.player.y,
+          y: action.player.x,
           isPlaying: action.player.isPlaying
         }
       ];
@@ -139,8 +176,10 @@ function playersReducer(state = initialState, action) {
             isPlaying: true,
             phaserX: action.updatedPlayer.phaserX,
             phaserY: action.updatedPlayer.phaserY,
-            x: action.updatedPlayer.x,
-            y: action.updatedPlayer.y
+            worldX: action.updatedPlayer.worldX,
+            worldY: action.updatedPlayer.worldY,
+            x: action.updatedPlayer.y,
+            y: action.updatedPlayer.x
           };
         } else {
           return player;

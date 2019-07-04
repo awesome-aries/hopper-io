@@ -19,6 +19,14 @@ const Player = db.define('player', {
     type: Sequelize.INTEGER,
     allowNull: false
   },
+  phaserX: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  phaserY: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
   worldX: {
     type: Sequelize.INTEGER,
     allowNull: false
