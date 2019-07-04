@@ -64,10 +64,8 @@ const addPlayer = playerInfo => {
 
 // may not need to separate this from add player.... might just be able to create player here
 const playerStartGame = (socket, socketId, name) => {
-  console.log('hello?????????');
   return async (dispatch, getState) => {
     try {
-      console.log('were in playerStartGame thunk2');
       // update our player to be playing and the starting pos
       // Randomize spawn location
       let worldStartPos = randomizeXY();
