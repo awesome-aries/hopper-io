@@ -35,9 +35,8 @@ form div {
 }
 
 /* Testing styles */
-span.tile0 {
+span.tile5 {
   background-color: white;
-
   padding: 0 5px;
 }
 span.tile6 {
@@ -58,4 +57,12 @@ span.tile8 {
 }
 #phaser-game {
   text-align: center;
+}
+
+.welcome-box {
+  background-color: white;
+  opacity: 0.5;
+  margin-left: 40vw;
+  margin-right: 40vw;
+  border-radius: 15px;
 }
