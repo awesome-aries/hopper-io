@@ -14,6 +14,7 @@ body {
   margin: 0;
   padding: 0;
   background-image: url('./assets/Galaxy-Photo.jpg');
+  background-size: cover;
 }
 
 a {
@@ -65,4 +66,5 @@ span.tile8 {
   margin-left: 40vw;
   margin-right: 40vw;
   border-radius: 15px;
+  min-width: 240px;
 }
