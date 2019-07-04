@@ -62,7 +62,7 @@ async function onPlayerStartGame(socket, socketId, name) {
   await serverStore.dispatch(playerStartGame(socket, socketId, name));
 
   // get all the players currently in the state
-  const {players, tiles} = serverStore.getState();
+  const {players: {players}, tiles} = serverStore.getState();
 
   // make a copy of players and remove the current player from the object so the player only gets their opponents
   // also make sure not sending any players not yet in the game
@@ -111,7 +111,7 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
   await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
 
   // get the new state
-  const {players, tiles} = serverStore.getState();
+  const {players: {players}, tiles} = serverStore.getState();
 
   // make a copy of players and remove the current player from the object so the player only gets their opponents
   // also make sure not sending any players not yet in the game

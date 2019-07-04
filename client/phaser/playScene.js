@@ -240,6 +240,7 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   makeOpponent(x, y, direction) {
+    // TODO this is not implemented anywhere yet
     let newOpponnent = new Opponent(this, x, y, direction);
 
     // add the opponent to our list of opponents

@@ -1,5 +1,6 @@
 const {Player} = require('../db/models');
 const {randomizeXY, worldXYToTileXY} = require('../game/utils');
+const {getTileIndices} = require('../game/utils');
 /**
  * ACTION TYPES
  */
@@ -12,7 +13,9 @@ const MOVE_PLAYER = 'MOVE_PLAYER';
  * INITIAL STATE
  */
 
-const initialState = [];
+const initialState = {
+  players: []
+};
 
 /**
  * ACTION CREATORS
@@ -154,59 +157,71 @@ const movePlayer = (socketId, worldXY, direction) => {
 function playersReducer(state = initialState, action) {
   switch (action.type) {
     case ADDED_PLAYER:
-      return [
+      return {
         ...state,
-        {
-          socketId: action.player.socketId,
-          name: action.player.name,
-          phaserX: action.player.phaserX,
-          phaserY: action.player.phaserY,
-          worldX: action.player.worldX,
-          worldY: action.player.worldY,
-          x: action.player.x,
-          y: action.player.y,
-          isPlaying: action.player.isPlaying
-        }
-      ];
+        players: [
+          ...state.players,
+          {
+            socketId: action.player.socketId,
+            name: action.player.name,
+            phaserX: action.player.phaserX,
+            phaserY: action.player.phaserY,
+            worldX: action.player.worldX,
+            worldY: action.player.worldY,
+            x: action.player.x,
+            y: action.player.y,
+            isPlaying: action.player.isPlaying
+          }
+        ]
+      };
     case REMOVED_PLAYER:
-      return state.filter(player => {
-        return player.socketId !== action.socketId;
-      });
+      return {
+        ...state,
+        players: state.players.filter(player => {
+          return player.socketId !== action.socketId;
+        })
+      };
     case PLAYER_START_GAME:
       // update the player with new coords
-      return state.map(player => {
-        if (player.socketId === action.updatedPlayer.socketId) {
-          return {
-            ...player,
-            isPlaying: true,
-            phaserX: action.updatedPlayer.phaserX,
-            phaserY: action.updatedPlayer.phaserY,
-            worldX: action.updatedPlayer.worldX,
-            worldY: action.updatedPlayer.worldY,
-            x: action.updatedPlayer.x,
-            y: action.updatedPlayer.y
-          };
-        } else {
-          return player;
-        }
-      });
+      return {
+        ...state,
+        players: state.players.map(player => {
+          if (player.socketId === action.updatedPlayer.socketId) {
+            return {
+              ...player,
+              isPlaying: true,
+              phaserX: action.updatedPlayer.phaserX,
+              phaserY: action.updatedPlayer.phaserY,
+              worldX: action.updatedPlayer.worldX,
+              worldY: action.updatedPlayer.worldY,
+              x: action.updatedPlayer.x,
+              y: action.updatedPlayer.y
+            };
+          } else {
+            return player;
+          }
+        })
+      };
     case MOVE_PLAYER:
-      return state.map(player => {
-        if (player.socketId === action.updatedPlayer.socketId) {
-          return {
-            ...player,
-            phaserX: action.updatedPlayer.phaserX,
-            phaserY: action.updatedPlayer.phaserY,
-            worldX: action.updatedPlayer.worldX,
-            worldY: action.updatedPlayer.worldY,
-            x: action.updatedPlayer.x,
-            y: action.updatedPlayer.y,
-            direction: action.updatedPlayer.direction
-          };
-        } else {
-          return player;
-        }
-      });
+      return {
+        ...state,
+        players: state.players.map(player => {
+          if (player.socketId === action.updatedPlayer.socketId) {
+            return {
+              ...player,
+              phaserX: action.updatedPlayer.phaserX,
+              phaserY: action.updatedPlayer.phaserY,
+              worldX: action.updatedPlayer.worldX,
+              worldY: action.updatedPlayer.worldY,
+              x: action.updatedPlayer.x,
+              y: action.updatedPlayer.y,
+              direction: action.updatedPlayer.direction
+            };
+          } else {
+            return player;
+          }
+        })
+      };
     default:
       return state;
   }
