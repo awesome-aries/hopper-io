@@ -34,6 +34,8 @@ const initialState = {
     previous: [], //need to keep track of the previous state of the tileMap
     present: []
   },
+  tileMapDiff: [], //here we just need to track all the tiles that have changed since last receving the tilemap from the server
+  // tileMapDiff is an arry holding objects {tileInd, tileIndex}
   tileMapRowLength: null //number
 };
 
@@ -221,6 +223,7 @@ export default function gameReducer(state = initialState, action) {
         exitPoint: null
       };
     case SET_TILEMAP:
+      // this is only called when we're receiving a new tilemap from the server, so we must set the tilemap and then clear the diff array
       return {
         ...state,
         tileMap: {
@@ -228,9 +231,10 @@ export default function gameReducer(state = initialState, action) {
           previous: [...state.tileMap.present],
           present: [...action.tileMap]
         },
+        // reinitialize to be an empty array
+        tileMapDiff: [],
         tileMapRowLength: action.tileMapRowLength
       };
-
     case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.y, +action.x, state.tileMapRowLength);
@@ -260,38 +264,56 @@ export default function gameReducer(state = initialState, action) {
               : state.currentTileIdx.previous,
           present:
             ind === playerInd ? action.tileIndex : state.currentTileIdx.present
-        }
+        },
+        // mark the tile being set in the tilemap as a change
+        tileMapDiff: [
+          ...state.tileMapDiff,
+          {tileInd: ind, tileIndex: action.tileIndex}
+        ]
       };
     case SET_TILES:
       // convert all the x y to ind
       let inds = action.XYArray.map(coords => {
         return XYToInd(coords.y, coords.x, state.tileMapRowLength);
       });
-      // make copy of the present tileMap and set new index value (tile type) for each tile specified
+      // make copy of tileMapDiff
+      let newChanges = [...state.tileMapDiff];
+      // make copy of the present tileMap
       let presentCopy = [...state.tileMap.present];
       inds.forEach(i => {
+        // set new index value (tile type) for each tile specified in the copy
         presentCopy[i] = action.tileIndex;
+        // and also record the changes
+        newChanges.push({tileInd: i, tileIndex: action.tileIndex});
       });
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
           present: presentCopy
-        }
+        },
+        tileMapDiff: newChanges
       };
     case CHANGE_PATH_TO_HARBOR:
-      let newTileMap = state.tileMap.present.map(tile => {
-        if (tile === action.pathTileIndex) {
-          tile = action.harborTileIndex;
+      // make copy of tileMapDiff
+      let newTileMapDiff = [...state.tileMapDiff];
+      // make copy of the current tilemap
+      let newTileMap = [...state.tileMap.present];
+      newTileMap.forEach((tileVal, i) => {
+        if (tileVal === action.pathTileIndex) {
+          // change the value from path to harbor
+          newTileMap[i] = action.harborTileIndex;
+          // record the change
+          newTileMapDiff.push({tileInd: i, tileIndex: action.harborTileIndex});
         }
-        return tile;
       });
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
           present: newTileMap
-        }
+        },
+        tileMapDiff: newTileMapDiff
       };
     default:
       return state;
