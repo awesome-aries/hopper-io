@@ -8,7 +8,10 @@ const reducer = combineReducers({tiles: tilesReducer, players: playersReducer});
 
 const serverStore = createStore(
   reducer,
-  applyMiddleware(thunkMiddleware, createLogger({collapsed: true}))
+  applyMiddleware(
+    thunkMiddleware
+    // createLogger({collapsed: true})
+  )
 );
 
 const serverActionCreators = {

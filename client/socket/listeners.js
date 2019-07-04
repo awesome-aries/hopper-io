@@ -20,6 +20,11 @@ function initClientListeners(io, socket) {
   socket.on('removedPlayer', removedPlayerID =>
     onRemovedPlayer(removedPlayerID)
   );
+
+  // The onUpdateState listener must be in playScene so that it can manipulate phaser objects
+  // socket.on('updateState', (players, newTileMap) => {
+  //   onUpdateState(players, newTileMap);
+  // });
 }
 
 function onRemovedPlayer(removedPlayerID) {
@@ -65,5 +70,11 @@ function onNewPlayer(player) {
   // dispath action addOpponent in opponet reducer
   // TODO
 }
+
+// function onUpdateState(players, newTileMap) {
+//   // when we get updates from the server we need to update the tilemap in our store and in phaser...
+//   // also update opponents
+//   // TODO
+// }
 
 export default initClientListeners;

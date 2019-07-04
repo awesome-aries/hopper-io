@@ -1,12 +1,12 @@
 const {Player} = require('../db/models');
 const {randomizeXY, worldXYToTileXY} = require('../game/utils');
-console.log('require(../game/utils);', require('../game/utils.js'));
 /**
  * ACTION TYPES
  */
 const ADDED_PLAYER = 'ADDED_PLAYER';
 const REMOVED_PLAYER = 'REMOVED_PLAYER';
 const PLAYER_START_GAME = 'PLAYER_START_GAME';
+const MOVE_PLAYER = 'MOVE_PLAYER';
 
 /**
  * INITIAL STATE
@@ -28,6 +28,10 @@ const playersActionCreators = {
   }),
   playerStartGame: updatedPlayer => ({
     type: PLAYER_START_GAME,
+    updatedPlayer
+  }),
+  movePlayer: updatedPlayer => ({
+    type: MOVE_PLAYER,
     updatedPlayer
   })
 };
@@ -65,12 +69,11 @@ const addPlayer = playerInfo => {
 
 // may not need to separate this from add player.... might just be able to create player here
 const playerStartGame = (socket, socketId, name) => {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     try {
       // update our player to be playing and the starting pos
       // Randomize spawn location
       let worldStartPos = randomizeXY();
-      console.log('type randomizeXY', typeof randomizeXY);
       let tileStartPos = worldXYToTileXY(worldStartPos.x, worldStartPos.y);
 
       const player = await Player.findOne({
@@ -84,10 +87,11 @@ const playerStartGame = (socket, socketId, name) => {
         name: name,
         worldX: worldStartPos.x,
         worldY: worldStartPos.y,
-        x: tileStartPos.x,
-        y: tileStartPos.y,
-        phaserX: tileStartPos.y,
-        phaserY: tileStartPos.x
+        // need to invert for store
+        x: tileStartPos.y,
+        y: tileStartPos.x,
+        phaserX: tileStartPos.x,
+        phaserY: tileStartPos.y
       });
 
       //and update in our store
@@ -115,6 +119,35 @@ const removePlayer = socketId => {
   };
 };
 
+const movePlayer = (socketId, worldXY, direction) => {
+  return async dispatch => {
+    try {
+      const player = await Player.findOne({
+        where: {
+          socketId: socketId
+        }
+      });
+
+      let tilePos = worldXYToTileXY(worldXY.x, worldXY.y);
+
+      await player.update({
+        isPlaying: true,
+        worldX: worldXY.x,
+        worldY: worldXY.y,
+        // need to invert for store
+        x: tilePos.y,
+        y: tilePos.x,
+        phaserX: tilePos.x,
+        phaserY: tilePos.y,
+        direction: direction
+      });
+      dispatch(playersActionCreators.movePlayer(player.dataValues));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+
 /**
  * REDUCER
  */
@@ -130,8 +163,8 @@ function playersReducer(state = initialState, action) {
           phaserY: action.player.phaserY,
           worldX: action.player.worldX,
           worldY: action.player.worldY,
-          x: action.player.y,
-          y: action.player.x,
+          x: action.player.x,
+          y: action.player.y,
           isPlaying: action.player.isPlaying
         }
       ];
@@ -140,7 +173,7 @@ function playersReducer(state = initialState, action) {
         return player.socketId !== action.socketId;
       });
     case PLAYER_START_GAME:
-      // update the player with new
+      // update the player with new coords
       return state.map(player => {
         if (player.socketId === action.updatedPlayer.socketId) {
           return {
@@ -150,8 +183,25 @@ function playersReducer(state = initialState, action) {
             phaserY: action.updatedPlayer.phaserY,
             worldX: action.updatedPlayer.worldX,
             worldY: action.updatedPlayer.worldY,
-            x: action.updatedPlayer.y,
-            y: action.updatedPlayer.x
+            x: action.updatedPlayer.x,
+            y: action.updatedPlayer.y
+          };
+        } else {
+          return player;
+        }
+      });
+    case MOVE_PLAYER:
+      return state.map(player => {
+        if (player.socketId === action.updatedPlayer.socketId) {
+          return {
+            ...player,
+            phaserX: action.updatedPlayer.phaserX,
+            phaserY: action.updatedPlayer.phaserY,
+            worldX: action.updatedPlayer.worldX,
+            worldY: action.updatedPlayer.worldY,
+            x: action.updatedPlayer.x,
+            y: action.updatedPlayer.y,
+            direction: action.updatedPlayer.direction
           };
         } else {
           return player;
@@ -167,5 +217,6 @@ module.exports = {
   playersActionCreators,
   addPlayer,
   removePlayer,
-  playerStartGame
+  playerStartGame,
+  movePlayer
 };

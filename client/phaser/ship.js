@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
-import {XYToInd} from '../util/tileMapConversions';
+import emitState from '../socket/emitState';
 
 export default class Ship {
   constructor(scene, x, y) {
@@ -116,6 +116,15 @@ export default class Ship {
     this.setPath(game);
 
     // *************************************************
+
+    // get the updated state and emit it to the server
+    // we want to tell the server everytime we move
+    // if this overloading the server then we may want to move it into the setPath if clause at the end
+    let {
+      game: {playerWorldXY, direction, tileMapDiff}
+    } = clientStore.getState();
+
+    emitState(playerWorldXY.present, direction.present, tileMapDiff);
   }
 
   // eslint-disable-next-line complexity

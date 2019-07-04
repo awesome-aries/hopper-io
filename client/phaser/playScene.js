@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import Ship from './ship';
 import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
+import socket from '../socket';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -89,6 +90,14 @@ export default class PlayScene extends Phaser.Scene {
     const {SHIFT} = Phaser.Input.Keyboard.KeyCodes;
     this.keys = this.input.keyboard.addKeys({
       shift: SHIFT
+    });
+    // **************************************************
+
+    // ***************** Set up Socket ******************
+
+    // Set up our socket listener for updates from the server
+    socket.on('updateState', (players, newTileMap, newTileMapRowLength) => {
+      this.onUpdateState(players, newTileMap, newTileMapRowLength);
     });
     // **************************************************
   }
@@ -238,5 +247,17 @@ export default class PlayScene extends Phaser.Scene {
       socketId: '',
       opponent: newOpponnent
     });
+  }
+  // this is called in our listeners file whenever
+  onUpdateState(players, newTileMap, newTileMapRowLength) {
+    // when we get updates from the server we need to update the tilemap in phaser...
+    this.foregroundLayer.putTilesAt(newTileMap, 0, 0);
+    // and in our store
+    clientStore.dispatch(
+      clientActionCreators.game.setTilemap(newTileMap, newTileMapRowLength)
+    );
+
+    // also update opponents
+    // TODO
   }
 }
