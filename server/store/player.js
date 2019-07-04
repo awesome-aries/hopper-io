@@ -73,30 +73,29 @@ const playerStartGame = (socket, socketId, name) => {
       let worldStartPos = randomizeXY();
       let tileStartPos = worldXYToTileXY(worldStartPos.x, worldStartPos.y);
 
-      const [, [updatedPlayer]] = await Player.update(
-        {
-          isPlaying: true,
-          name: name,
-          worldX: worldStartPos.x,
-          worldY: worldStartPos.y,
-          x: tileStartPos.x,
-          y: tileStartPos.y,
-          phaserX: tileStartPos.y,
-          phaserY: tileStartPos.x
-        },
-        {
-          where: {
-            socketId: socketId
-          },
-          returning: true,
-          plain: true // makes sure that the returned instances are just plain objects
+      const player = await Player.findOne({
+        where: {
+          socketId: socketId
         }
-      );
+      });
+
+      await player.update({
+        isPlaying: true,
+        name: name,
+        worldX: worldStartPos.x,
+        worldY: worldStartPos.y,
+        x: tileStartPos.x,
+        y: tileStartPos.y,
+        phaserX: tileStartPos.y,
+        phaserY: tileStartPos.x
+      });
+
       console.log('****************************');
-      console.log('updatedPlayer', updatedPlayer);
+      // console.log('numberOfAffectedRows', numberOfAffectedRows);
+      console.log('updatedPlayer', player);
       console.log('****************************');
       //and update in our store
-      dispatch(playersActionCreators.playerStartGame(updatedPlayer));
+      dispatch(playersActionCreators.playerStartGame(player));
       // get all the players currently in the state
       const {players} = getState();
 

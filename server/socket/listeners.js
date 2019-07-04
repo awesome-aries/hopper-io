@@ -54,9 +54,8 @@ async function createNewPlayer(socketId) {
 async function onPlayerStartGame(socket, socketId, name) {
   // this is called when the player hits the play game button and is navigated to the gameview component.
 
-  console.log('were in onPlayerStartGame');
   await serverStore.dispatch(playerStartGame(socket, socketId, name));
-  console.log('after the thunkkkkk********');
+
   // get all the players currently in the state
   const {players} = serverStore.getState();
 
@@ -74,7 +73,7 @@ async function onPlayerStartGame(socket, socketId, name) {
     return player.socketId === socket.id;
   });
 
-  console.log('startingInfo', playersCopy, newPlayer);
+  console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
   socket.emit('startingInfo', playersCopy, newPlayer);
 
   // send the newPlayer to the other players
