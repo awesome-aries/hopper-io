@@ -11,15 +11,6 @@ class Ui extends React.Component {
   render() {
     return (
       <Container id="ui">
-        <h3>Testing Info</h3>
-        <p>
-          regular: 4, border: 6, harbor: 5, empty: -1, path: 7, opponentHarbor:
-          [3, 1], opponentPath: [2, 0]
-        </p>
-        <p>
-          click tile to set harbor, shift + click to floodfill, arrow keys to
-          move ship, hit space to stop/restart moving
-        </p>
         <div>{this.props.children}</div>
         <h3>Quick n Dirty view of the store tilemap</h3>
         <div>

@@ -50,7 +50,15 @@ export const opponentActionCreators = {
 export default function opponentReducer(state = initialState, action) {
   switch (action.type) {
     case INIT_OPPONENTS:
-      return [];
+      return [...state, action.opponents];
+    case ADD_OPPONENT:
+      return [...state, action.opponent];
+    case UPDATE_OPPONENTS_POS:
+      return [...state, action.opponents];
+    case REMOVE_OPPONENT:
+      return state.filter(opponent => {
+        return opponent.Id !== action.opponentId;
+      });
     default:
       return state;
   }

@@ -33,21 +33,23 @@ class Welcome extends Component {
   };
   render() {
     return (
-      <Container className="welcome" align="center">
-        <form onSubmit={this.onSubmit}>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            value={this.state.name}
-            onChange={this.onChange}
-            aria-describedby="name"
-            placeholder="Enter your name"
-          />
+      <div className="welcome-box">
+        <Container className="welcome" align="center">
+          <form onSubmit={this.onSubmit}>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              value={this.state.name}
+              onChange={this.onChange}
+              aria-describedby="name"
+              placeholder="Enter your name"
+            />
 
-          <Button type="submit">Play</Button>
-        </form>
-      </Container>
+            <Button type="submit">Play</Button>
+          </form>
+        </Container>
+      </div>
 
       // need an onChange handler function for input field that will update the playerName
 
