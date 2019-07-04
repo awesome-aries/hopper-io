@@ -4,6 +4,7 @@ import Ship from './ship';
 import * as TileMapJS from '../../public/assets/hopperio-tilemap.json';
 import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
+import {IndToXY} from '../util/tileMapConversions';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -32,15 +33,14 @@ export default class PlayScene extends Phaser.Scene {
   }
   init() {
     // used to prepare data
-
     // get the tilemap array data and send it to our clientStore
-    // now dont set it here, set it in listener from server
-    clientStore.dispatch(
-      clientActionCreators.game.setTilemap(
-        TileMapJS.layers[0].data,
-        TileMapJS.layers[0].width
-      )
-    );
+    // now dont set the tile map in store here, since its being set in the onStart listener with the tilemap from the server
+    // clientStore.dispatch(
+    //   clientActionCreators.game.setTilemap(
+    //     TileMapJS.layers[0].data,
+    //     TileMapJS.layers[0].width
+    //   )
+    // );
   }
   preload() {
     // loading in data
@@ -69,6 +69,10 @@ export default class PlayScene extends Phaser.Scene {
   create() {
     // adds objects to the game
 
+    // get the current state from store
+    // get the players location from store that was sent from the server
+    const {game: {playerWorldXY, tileMap}} = clientStore.getState();
+
     // **************** Set up the tilemap **************
 
     this.map = this.make.tilemap({
@@ -87,11 +91,19 @@ export default class PlayScene extends Phaser.Scene {
       this.foregroundLayer.height
     );
 
+    // set the tiles in phaser to match the store
+    // tileMap.present.forEach((tileIndex, ind) => {
+    //   let { x, y} = IndToXY(ind);
+
+    // })
+    // not sure if it'll take a flat array
+    this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
+
     // **************************************************
 
     // **************** Set up the Ship **************
 
-    this.createShip();
+    this.createShip(playerWorldXY);
 
     // **************************************************
 
@@ -105,14 +117,6 @@ export default class PlayScene extends Phaser.Scene {
       this.map.widthInPixels,
       this.map.heightInPixels
     );
-
-    // make sure camera cant leave the world
-    // this.cameras.main.setBounds(
-    //   0,
-    //   0,
-    //   this.map.widthInPixels,
-    //   this.map.heightInPixels
-    // );
 
     // **************************************************
 
@@ -181,10 +185,7 @@ export default class PlayScene extends Phaser.Scene {
     // introText.visible = true;
   }
 
-  createShip() {
-    // get the players location from store that was sent from the server
-    const {game: {playerWorldXY}} = clientStore.getState();
-
+  createShip(playerWorldXY) {
     console.log('playerWorldXY', playerWorldXY);
 
     this.ship = new Ship(
@@ -207,7 +208,6 @@ export default class PlayScene extends Phaser.Scene {
     // );
 
     // make the ship not able to leave the world
-    // for some reason adds weird borders in the middle of the map
     this.ship.sprite.body.setCollideWorldBounds(true);
   }
 

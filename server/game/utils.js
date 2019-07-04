@@ -1,8 +1,6 @@
 // get the map width and height from the tilemap
 const tileMap = require('../../public/assets/hopperio-tilemap.json');
 
-console.log('tileMap', tileMap);
-
 let [tileset] = tileMap.tilesets;
 let tileWidth = tileset.tilewidth;
 let tileHeight = tileset.tileheight;
@@ -121,11 +119,22 @@ function getTileIndices() {
   return tileValues;
 }
 
+function initTileMap(serverStore, serverActionCreators) {
+  // set the tilemap in the server store when the server starts up
+  serverStore.dispatch(
+    serverActionCreators.tiles.initTileMap(
+      tileMap.layers[0].data,
+      tileMap.layers[0].width
+    )
+  );
+}
+
 module.exports = {
   XYToInd,
   IndToXY,
   randomizeXY,
   worldXYToTileXY,
   tileXYToWorldXY,
-  getTileIndices
+  getTileIndices,
+  initTileMap
 };

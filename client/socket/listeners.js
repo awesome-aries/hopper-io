@@ -10,8 +10,8 @@ function initClientListeners(io, socket) {
   // console.log(tileMap.present);
 
   //
-  socket.on('startingInfo', (players, thisPlayer) =>
-    onStart(players, thisPlayer)
+  socket.on('startingInfo', (players, thisPlayer, tileMap, tileMapRowLength) =>
+    onStart(players, thisPlayer, tileMap, tileMapRowLength)
   );
 
   socket.on('newPlayer', player => onNewPlayer(player));
@@ -30,13 +30,19 @@ function onRemovedPlayer(removedPlayerID) {
   // TODO
 }
 
-async function onStart(players, thisPlayer) {
+async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
   // dispatch INIT_OPPONENTS in opponent reducer
   // TODO
 
   console.log('This is the new player, you!', thisPlayer);
+  console.log('tileMap', tileMap);
+  // set the client's tilemap
+  await clientStore.dispatch(
+    clientActionCreators.game.setTilemap(tileMap, tileMapRowLength)
+  );
+
   // set this players starting position in tile coords
   await clientStore.dispatch(
     clientActionCreators.game.setPlayerXY(

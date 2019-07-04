@@ -57,10 +57,7 @@ async function onPlayerStartGame(socket, socketId, name) {
   await serverStore.dispatch(playerStartGame(socket, socketId, name));
 
   // get all the players currently in the state
-  const {players} = serverStore.getState();
-
-  // also need to send them the current tilemap
-  // TODO
+  const {players, tiles} = serverStore.getState();
 
   // make a copy of players and remove the current player from the object so the player only gets their opponents
   // also make sure not sending any players not yet in the game
@@ -73,8 +70,22 @@ async function onPlayerStartGame(socket, socketId, name) {
     return player.socketId === socket.id;
   });
 
-  console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
-  socket.emit('startingInfo', playersCopy, newPlayer);
+  // also need to send them the current tilemap to the new player
+  console.log(
+    'startingInfo',
+    playersCopy,
+    'newPlayer',
+    newPlayer,
+    'tileMap',
+    tiles.tileMap
+  );
+  socket.emit(
+    'startingInfo',
+    playersCopy,
+    newPlayer,
+    tiles.tileMap.present,
+    tiles.tileMapRowLength
+  );
 
   // send the newPlayer to the other players
   console.log('newPlayer', newPlayer);

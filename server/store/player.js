@@ -1,5 +1,6 @@
 const {Player} = require('../db/models');
 const {randomizeXY, worldXYToTileXY} = require('../game/utils');
+console.log('require(../game/utils);', require('../game/utils.js'));
 /**
  * ACTION TYPES
  */
@@ -69,6 +70,7 @@ const playerStartGame = (socket, socketId, name) => {
       // update our player to be playing and the starting pos
       // Randomize spawn location
       let worldStartPos = randomizeXY();
+      console.log('type randomizeXY', typeof randomizeXY);
       let tileStartPos = worldXYToTileXY(worldStartPos.x, worldStartPos.y);
 
       const player = await Player.findOne({
@@ -89,30 +91,7 @@ const playerStartGame = (socket, socketId, name) => {
       });
 
       //and update in our store
-      dispatch(playersActionCreators.playerStartGame(player));
-      // get all the players currently in the state
-      const {players} = getState();
-
-      // also need to send them the current tilemap
-      // TODO
-
-      // make a copy of players and remove the current player from the object so the player only gets their opponents
-      // also make sure not sending any players not yet in the game
-      const playersCopy = players.filter(player => {
-        return player.isPlaying && player.socketId !== socket.id;
-      });
-
-      // get the new player
-      let newPlayer = players.find(player => {
-        return player.socketId === socket.id;
-      });
-
-      console.log('startingInfo', playersCopy, newPlayer);
-      socket.emit('startingInfo', playersCopy, newPlayer);
-
-      // send the newPlayer to the other players
-      console.log('newPlayer', newPlayer);
-      socket.broadcast.emit('newPlayer', newPlayer);
+      dispatch(playersActionCreators.playerStartGame(player.dataValues));
     } catch (error) {
       console.error(error);
     }

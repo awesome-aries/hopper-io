@@ -16,8 +16,6 @@ export default class Ship {
 
     // ********* Set the Ship's starting location *********
 
-    let tileXY = this.scene.map.worldToTileXY(x, y);
-
     this.sprite = scene.physics.add
       .sprite(x, y, 'ship', 0)
       // .setDrag(1000, 0)
@@ -39,11 +37,6 @@ export default class Ship {
     //updating store with harbor
     clientStore.dispatch(
       clientActionCreators.game.setTiles(harbor, this.scene.tileValues.harbor)
-    );
-
-    //will need to remove this once getting location from the store from server
-    clientStore.dispatch(
-      clientActionCreators.game.setPlayerXY(tileXY.x, tileXY.y, this.facingDir)
     );
 
     // **************************************
