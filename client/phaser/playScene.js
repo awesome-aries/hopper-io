@@ -4,6 +4,7 @@ import Ship from './ship';
 import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
 import socket from '../socket';
+import {IndToXY} from '../util/tileMapConversions';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -164,8 +165,6 @@ export default class PlayScene extends Phaser.Scene {
     //this.ship.sprite.body.velocity.setTo(0, 0);
     console.log('game over loser');
     this.scene.start('losing');
-    // introText.text = 'Game Over!';
-    // introText.visible = true;
   }
 
   createShip(playerWorldXY) {
@@ -176,19 +175,6 @@ export default class PlayScene extends Phaser.Scene {
       playerWorldXY.present.x,
       playerWorldXY.present.y
     );
-
-    // const {x, y} = this.randomizeXY(
-    //   this.map.widthInPixels,
-    //   this.map.heightInPixels,
-    //   this.map.tileWidth,
-    //   this.map.tileHeight
-    // );
-
-    // this.ship = new Ship(
-    //   this,
-    //   x + this.map.tileWidth / 2,
-    //   y + this.map.tileHeight / 2
-    // );
 
     // make the ship not able to leave the world
     this.ship.sprite.body.setCollideWorldBounds(true);
@@ -212,12 +198,12 @@ export default class PlayScene extends Phaser.Scene {
     );
 
     // set the tiles in phaser to match the store
-    // tileMap.present.forEach((tileIndex, ind) => {
-    //   let { x, y} = IndToXY(ind);
-
-    // })
+    tileMap.present.forEach((tileIndex, ind) => {
+      let {x, y} = IndToXY(ind);
+      this.foregroundLayer.putTileAt(tileIndex, x, y);
+    });
     // not sure if it'll take a flat array
-    this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
+    // this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
   }
 
   manuallyMakeHarbor() {
@@ -268,7 +254,11 @@ export default class PlayScene extends Phaser.Scene {
       'newTileMap.length',
       newTileMap.length
     );
-    this.foregroundLayer.putTilesAt(newTileMap, 0, 0);
+    newTileMap.forEach((tileIndex, ind) => {
+      let {x, y} = IndToXY(ind);
+      this.foregroundLayer.putTileAt(tileIndex, x, y);
+    });
+    // this.foregroundLayer.putTilesAt(newTileMap, 0, 0);
     // and in our store
     clientStore.dispatch(
       clientActionCreators.game.setTilemap(newTileMap, newTileMapRowLength)
