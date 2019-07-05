@@ -119,7 +119,11 @@ export default class PlayScene extends Phaser.Scene {
     if (!this.alive) {
       this.gameOver();
     }
-    // this.manuallyMakeHarbor();
+    //
+    this.opponents.forEach(opponent => {
+      console.log('opponent', opponent);
+      return new Ship(this, opponent.x, opponent.y);
+    });
   }
 
   setTileIndex(tileIndex, location) {
@@ -254,6 +258,12 @@ export default class PlayScene extends Phaser.Scene {
       socketId: '',
       opponent: newOpponnent
     });
+    clientStore.dispatch(
+      clientActionCreators.opponent.addOpponent({
+        socketId: '',
+        opponent: newOpponnent
+      })
+    );
   }
   // this is called in our listeners file whenever
   onUpdateState(players, newTileMap, newTileMapRowLength) {
