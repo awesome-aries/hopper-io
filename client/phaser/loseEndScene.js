@@ -13,9 +13,16 @@ export default class LoseEndScene extends Phaser.Scene {
     // used to load assest like images and audio into memory
   }
   create() {
-    this.add.text(0, 0, 'Grace Hopper says: GAME OVER LOSER', {
-      fontFamily: '"Roboto Condensed"'
-    });
+    this.gameOverText = this.add.text(
+      400,
+      300,
+      'Grace Hopper says: GAME OVER LOSER',
+      {
+        fontFamily: '"Audiowide", cursive',
+        fontSize: '32px'
+      }
+    );
+    this.gameOverText.setOrigin(0.5);
     // adds objects to the game
     // you can navigate to the next scene like this
     //this.scene.start('play');

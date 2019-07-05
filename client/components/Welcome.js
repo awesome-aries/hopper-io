@@ -50,16 +50,8 @@ class Welcome extends Component {
           </form>
         </Container>
       </div>
-
-      // need an onChange handler function for input field that will update the playerName
-
-      // need onClick handler function for button that will trigger game start => playScene
     );
   }
 }
-
-// const mapStateToProps = state => ({});
-
-// const mapDispatchToProps = dispatch => ({});
 
 export default Welcome;
