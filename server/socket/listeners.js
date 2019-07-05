@@ -5,7 +5,8 @@ const {
   addPlayer,
   removePlayer,
   playerStartGame,
-  movePlayer
+  movePlayer,
+  playerKilled
 } = require('../store/player');
 
 function initServerListeners(io, socket) {
@@ -25,6 +26,10 @@ function initServerListeners(io, socket) {
   socket.on('playerStartGame', (socketId, name) =>
     onPlayerStartGame(socket, socketId, name)
   );
+
+  socket.on('playerKilled', (harborIndex, pathIndex, regularIndex) => {
+    onPlayerKilled(socket, harborIndex, pathIndex, regularIndex);
+  });
 }
 
 async function onConnect(socket) {
@@ -128,17 +133,53 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
   );
 }
 
+async function onPlayerKilled(socket, harborIndex, pathIndex, regularIndex) {
+  console.log(`Player ${socket.id} was killed`);
+
+  // update the player in db and store
+  await serverStore.dispatch(playerKilled(socket.id));
+
+  // and remove their tiles from the tileMap
+  await serverStore.dispatch(
+    serverActionCreators.tiles.removePlayersTiles(
+      pathIndex,
+      harborIndex,
+      regularIndex
+    )
+  );
+  // get the new state
+  const {tiles: {tileMap}} = serverStore.getState();
+
+  // send back to the other player the id of the player who left and the new tilemap
+  socket.broadcast.emit('removePlayer', socket.id, tileMap.present);
+}
+
 async function onDisconnect(socket) {
   console.log(`Connection ${socket.id} has left the building`);
+
+  let oldState = serverStore.getState();
+  // get the player that left
+  let oldPlayer = oldState.players.players.find(player => {
+    return player.socketId === socket.id;
+  });
 
   // When a player disconnects, remove that player from our store and database
   await serverStore.dispatch(removePlayer(socket.id));
 
   // clear that players path and harbor tiles from the tilemap
-  // TODO
+  await serverStore.dispatch(
+    serverActionCreators.tiles.removePlayersTiles(
+      oldPlayer.pathIndex,
+      oldPlayer.harborIndex,
+      oldState.players.tileValues.regular
+    )
+  );
+
+  // get the new state
+  const {tiles: {tileMap}} = serverStore.getState();
 
   // and send the id of player to remove to the other players
-  socket.broadcast.emit('removedPlayer', socket.id);
+  socket.broadcast.emit('removePlayer', socket.id, tileMap);
 }
 
 module.exports = initServerListeners;

@@ -16,8 +16,8 @@ function initClientListeners(io, socket) {
 
   socket.on('newPlayer', player => onNewPlayer(player));
 
-  // when another player leaves the game, we want to listen for the server to tell us that the player that left
-  socket.on('removedPlayer', removedPlayerID =>
+  // // when another player leaves the game, we want to listen for the server to tell us that the player that left
+  socket.on('removePlayer', removedPlayerID =>
     onRemovedPlayer(removedPlayerID)
   );
 

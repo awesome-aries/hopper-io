@@ -9,6 +9,7 @@ const ADDED_PLAYER = 'ADDED_PLAYER';
 const REMOVED_PLAYER = 'REMOVED_PLAYER';
 const PLAYER_START_GAME = 'PLAYER_START_GAME';
 const MOVE_PLAYER = 'MOVE_PLAYER';
+const PLAYER_KILLED = 'PLAYER_KILLED';
 
 /**
  * INITIAL STATE
@@ -49,6 +50,12 @@ const playersActionCreators = {
   movePlayer: updatedPlayer => ({
     type: MOVE_PLAYER,
     updatedPlayer
+  }),
+  playerKilled: (killedPlayer, harborIndex, pathIndex) => ({
+    type: PLAYER_KILLED,
+    killedPlayer,
+    harborIndex,
+    pathIndex
   })
 };
 
@@ -148,6 +155,42 @@ const removePlayer = socketId => {
   };
 };
 
+const playerKilled = socketId => {
+  return async dispatch => {
+    try {
+      const player = await Player.findOne({
+        where: {
+          socketId: socketId
+        }
+      });
+      let harborIndex = player.harborIndex;
+      let pathIndex = player.pathIndex;
+      // revert to initial state
+      await player.update({
+        isPlaying: false,
+        tileIndex: null,
+        harborIndex: null,
+        worldY: 0,
+        x: 0,
+        y: 0,
+        phaserX: 0,
+        phaserY: 0,
+        direction: 'north'
+      });
+
+      dispatch(
+        playersActionCreators.playerKilled(
+          player.dataValues,
+          harborIndex,
+          pathIndex
+        )
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+
 const movePlayer = (socketId, worldXY, direction) => {
   return async dispatch => {
     try {
@@ -211,7 +254,22 @@ function playersReducer(state = initialState, action) {
           return player.socketId !== action.socketId;
         }),
         tileValues: tileValuesCopy
-        // TODO remove players tiles from the tileMap
+      };
+    case PLAYER_KILLED:
+      // need to readd their tile values to the avaiable ones
+      let newTileValues = {...state.tileValues};
+      newTileValues.harbor.push(action.harborIndex);
+      newTileValues.path.push(action.pathIndex);
+      return {
+        ...state,
+        players: state.players.map(player => {
+          if (player.socketId === action.killedPlayer.socketId) {
+            return action.killedPlayer;
+          } else {
+            return player;
+          }
+        }),
+        tileValues: newTileValues
       };
     case PLAYER_START_GAME:
       // update the player with game info
@@ -269,5 +327,6 @@ module.exports = {
   addPlayer,
   removePlayer,
   playerStartGame,
-  movePlayer
+  movePlayer,
+  playerKilled
 };
