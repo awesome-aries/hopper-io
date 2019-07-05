@@ -97,6 +97,8 @@ export default class PlayScene extends Phaser.Scene {
     this.keys = this.input.keyboard.addKeys({
       shift: SHIFT
     });
+
+    this.createScore(playerWorldXY);
     // **************************************************
 
     // ***************** Set up Socket ******************
@@ -188,6 +190,21 @@ export default class PlayScene extends Phaser.Scene {
 
     // make the ship not able to leave the world
     this.ship.sprite.body.setCollideWorldBounds(true);
+  }
+
+  createScore(playerWorldXY) {
+    //keeping track of score
+    this.scoreString = 'Score : ';
+    this.score = 0;
+    this.scoreText = this.add.text(
+      playerWorldXY.present.x + 240,
+      playerWorldXY.present.y - 300,
+      this.scoreString + this.score,
+      {
+        font: '34px Arial',
+        fill: 'black'
+      }
+    );
   }
 
   createTileMap(tileMap) {

@@ -38,7 +38,8 @@ const initialState = {
   },
   tileMapDiff: [], //here we just need to track all the tiles that have changed since last receving the tilemap from the server
   // tileMapDiff is an arry holding objects {tileInd, tileIndex}
-  tileMapRowLength: null //number
+  tileMapRowLength: null, //number
+  score: 0
 };
 
 /**
