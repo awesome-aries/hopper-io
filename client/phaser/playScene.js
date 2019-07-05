@@ -57,7 +57,8 @@ export default class PlayScene extends Phaser.Scene {
     // get the current state from store
     // get the players location from store that was sent from the server
     const {
-      game: {playerWorldXY, tileMap, pathIndex, harborIndex}
+      game: {playerWorldXY, tileMap, pathIndex, harborIndex},
+      opponent
     } = clientStore.getState();
 
     // the indicies for the different kinds of tiles
@@ -99,32 +100,81 @@ export default class PlayScene extends Phaser.Scene {
       shift: SHIFT
     });
     // **************************************************
-
+    this.createOpponents(opponent);
     // ***************** Set up Socket ******************
 
     // Set up our socket listener for updates from the server
     socket.on('updateState', (players, newTileMap, newTileMapRowLength) => {
       this.onUpdateState(players, newTileMap, newTileMapRowLength);
     });
+    socket.on('newPlayer', player => this.onNewPlayer(player));
+
+    // // when another player leaves the game, we want to listen for the server to tell us that the player that left
+    socket.on('removePlayer', removedPlayerID =>
+      this.onRemovedPlayer(removedPlayerID)
+    );
     // **************************************************
+  }
+  onRemovedPlayer(removedPlayerID) {
+    // here we want to remove the player from our list with filter
+    // update the state and then in playScene, we'll populate our opponents from state
+    clientStore.dispatch(
+      clientActionCreators.opponent.removeOpponent(removedPlayerID)
+    );
+    //have to destroy sprite to remove from phaser
+    this.opponent.forEach(phaserOpponent => {
+      if (phaserOpponent.socketId === removedPlayerID) {
+        phaserOpponent.opponent.destroy();
+      }
+    });
+    //remove from our opponent list
+    this.opponent = this.opponent.filter(phaserOpponent => {
+      return phaserOpponent.socketId !== removedPlayerID;
+    });
+    console.log(`This is the player that left:`, removedPlayerID);
+  }
+  onNewPlayer(player) {
+    // here we add the new player to our list
+    clientStore.dispatch(clientActionCreators.opponent.addOpponent(player));
+    this.makeOpponent(this, player.worldX, player.worldY);
+    console.log('A new player has joined', player);
+  }
+  createOpponents(opponent) {
+    //if the opponent from state doesn't exist in phaser opponents array, call makeOpponent to add it and create sprite.
+    opponent.forEach(stateOpponent => {
+      if (!this.opponents.includes(stateOpponent)) {
+        //this creates the opponent sprite and adds it to this.opponents
+        this.makeOpponent(
+          this,
+          opponent.worldX,
+          opponent.worldY,
+          opponent.direction
+        );
+      }
+    });
+  }
+
+  updateOpponents() {
+    const {opponent} = clientStore.getState();
+    opponent.forEach(stateOpponent => {
+      this.opponents.forEach(phaserOpponent => {
+        if (stateOpponent.socketId === phaserOpponent.socketId) {
+          phaserOpponent.opponent.move();
+        }
+      });
+    });
   }
 
   update() {
+    if (!this.alive) {
+      this.gameOver();
+    }
     // the game loop which runs constantly
 
     // get the state from the clientStore
     const {game} = clientStore.getState();
 
     this.ship.update(game);
-
-    if (!this.alive) {
-      this.gameOver();
-    }
-    //
-    this.opponents.forEach(opponent => {
-      console.log('opponent', opponent);
-      return new Ship(this, opponent.x, opponent.y);
-    });
   }
 
   setTileIndex(tileIndex, location) {
@@ -151,10 +201,6 @@ export default class PlayScene extends Phaser.Scene {
         clientActionCreators.game.setTile(newTile.x, newTile.y, tileIndex)
       );
     }
-  }
-
-  getOpponents() {
-    // get all the opponents in the game when the user starts the game
   }
 
   clearPlayerTiles(playerIndex) {
@@ -254,21 +300,14 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  makeOpponent(x, y, direction) {
-    // TODO this is not implemented anywhere yet
+  makeOpponent(x, y, direction, socketId) {
     let newOpponnent = new Opponent(this, x, y, direction);
 
     // add the opponent to our list of opponents
     this.opponents.push({
-      socketId: '',
+      socketId,
       opponent: newOpponnent
     });
-    clientStore.dispatch(
-      clientActionCreators.opponent.addOpponent({
-        socketId: '',
-        opponent: newOpponnent
-      })
-    );
   }
   // this is called in our listeners file whenever
   onUpdateState(players, newTileMap, newTileMapRowLength) {
@@ -286,6 +325,7 @@ export default class PlayScene extends Phaser.Scene {
     );
 
     // also update opponents
-    // TODO
+
+    this.updateOpponents();
   }
 }
