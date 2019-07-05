@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /**
  * ACTION TYPES
  */
@@ -42,6 +43,18 @@ const tilesActionCreators = {
  * THUNK CREATORS
  */
 
+function printTileMap(tileMap, rowLength) {
+  let row = '';
+  tileMap.forEach((tile, i) => {
+    if ((i + 1) % rowLength === 0) {
+      row += ' ' + tile + ' ';
+      console.log(row);
+      row = '';
+    } else {
+      row += ' ' + tile + ' ';
+    }
+  });
+}
 /**
  * REDUCER
  */
@@ -57,13 +70,16 @@ function tilesReducer(state = initialState, action) {
         }
       };
     case UPDATE_TILEMAP:
+      console.log('****current tilemap');
+      printTileMap(state.tileMap.present, state.tileMapRowLength);
       // eslint-disable-next-line no-case-declarations
       let tileMapCopy = [...state.tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
         tileMapCopy[tileInd] = tileIndex;
       });
-
+      console.log('****new tilemap');
+      printTileMap(tileMapCopy, state.tileMapRowLength);
       return {
         ...state,
         tileMap: {
@@ -73,20 +89,30 @@ function tilesReducer(state = initialState, action) {
       };
     case REMOVE_PLAYERS_TILES:
       // when a player is killed or leaves the game we need to revert their tiles
+      console.log(
+        '*******removing*********:',
+        action.harborIndex,
+        '&',
+        action.pathIndex
+      );
+      printTileMap(state.tileMap.present, state.tileMapRowLength);
+      let newTileMap = state.tileMap.present.map(tileIndex => {
+        if (
+          tileIndex === action.harborIndex ||
+          tileIndex === action.pathIndex
+        ) {
+          return action.regularIndex;
+        } else {
+          return tileIndex;
+        }
+      });
+      console.log('vvvvvvvvvvvvremovedvvvvvvvvvvvv');
+      printTileMap(newTileMap, state.tileMapRowLength);
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
-          present: state.tileMap.present.map(tileIndex => {
-            if (
-              tileIndex === action.harborIndex ||
-              tileIndex === action.pathIndex
-            ) {
-              return action.regularIndex;
-            } else {
-              return tileIndex;
-            }
-          })
+          present: newTileMap
         }
       };
     default:
