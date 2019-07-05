@@ -4,6 +4,7 @@
 
 const INIT_TILEMAP = 'INIT_TILEMAP';
 const UPDATE_TILEMAP = 'UPDATE_TILEMAP';
+const REMOVE_PLAYERS_TILES = 'REMOVE_PLAYERS_TILES';
 
 /**
  * INITIAL STATE
@@ -29,6 +30,12 @@ const tilesActionCreators = {
   updateTileMap: tileMapDiff => ({
     type: UPDATE_TILEMAP,
     tileMapDiff
+  }),
+  removePlayersTiles: (pathIndex, harborIndex, regularIndex) => ({
+    type: REMOVE_PLAYERS_TILES,
+    harborIndex,
+    pathIndex,
+    regularIndex
   })
 };
 /**
@@ -62,6 +69,24 @@ function tilesReducer(state = initialState, action) {
         tileMap: {
           previous: [...state.tileMap.present],
           present: tileMapCopy
+        }
+      };
+    case REMOVE_PLAYERS_TILES:
+      // when a player is killed or leaves the game we need to revert their tiles
+      return {
+        ...state,
+        tileMap: {
+          previous: [...state.tileMap.present],
+          present: state.tileMap.present.map(tileIndex => {
+            if (
+              tileIndex === action.harborIndex ||
+              tileIndex === action.pathIndex
+            ) {
+              return action.regularIndex;
+            } else {
+              return tileIndex;
+            }
+          })
         }
       };
     default:

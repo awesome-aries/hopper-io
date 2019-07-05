@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
-import emitState from '../socket/emitState';
+import {emitState} from '../socket/emitEvents';
 
 export default class Ship {
   constructor(scene, x, y) {
