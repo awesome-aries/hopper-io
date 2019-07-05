@@ -4,6 +4,7 @@ import Ship from './ship';
 import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
 import socket from '../socket';
+import {playerKilled} from '../socket/emitEvents';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -154,9 +155,13 @@ export default class PlayScene extends Phaser.Scene {
 
   clearPlayerTiles(playerIndex) {
     // clear a players harbor and path tiles when the die or they disconnect from the game
+    // **this may not be needed if we're just updating from tilemap from server
   }
 
   gameOver() {
+    // tell the server that the player was killed
+    playerKilled(this.harborIndex, this.pathIndex, this.tileValues.regular);
+
     //this.ship.sprite.body.velocity.setTo(0, 0);
     console.log('game over loser');
     this.scene.start('losing');
