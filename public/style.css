@@ -36,21 +36,20 @@ form div {
 }
 
 /* Testing styles */
+span.tile {
+  padding: 0 5px;
+}
 span.tile5 {
   background-color: white;
-  padding: 0 5px;
 }
 span.tile6 {
   background-color: purple;
-  padding: 0 5px;
 }
 span.tile7 {
   background-color: rgb(49, 49, 49);
-  padding: 0 5px;
 }
 span.tile8 {
   background-color: pink;
-  padding: 0 5px;
 }
 
 .hopper-header {

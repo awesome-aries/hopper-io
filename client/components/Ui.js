@@ -18,7 +18,7 @@ class Ui extends React.Component {
             this.props.tileMap.map((tile, ind) => {
               if ((ind + 1) % this.props.rowLength === 0) {
                 return (
-                  <span key={ind} className={'tile' + tile}>
+                  <span key={ind} className={'tile tile' + tile}>
                     <span>
                       {this.props.shipInd === ind ? '❗️' : ' ' + tile + ' '}
                     </span>
@@ -27,7 +27,7 @@ class Ui extends React.Component {
                 );
               } else {
                 return (
-                  <span key={ind} className={'tile' + tile}>
+                  <span key={ind} className={'tile tile' + tile}>
                     {this.props.shipInd === ind ? '❗️' : ' ' + tile + ' '}
                   </span>
                 );

@@ -258,6 +258,12 @@ export default class PlayScene extends Phaser.Scene {
   // this is called in our listeners file whenever
   onUpdateState(players, newTileMap, newTileMapRowLength) {
     // when we get updates from the server we need to update the tilemap in phaser...
+    console.log(
+      'newTileMap',
+      newTileMap,
+      'newTileMap.length',
+      newTileMap.length
+    );
     this.foregroundLayer.putTilesAt(newTileMap, 0, 0);
     // and in our store
     clientStore.dispatch(

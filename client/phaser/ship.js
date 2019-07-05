@@ -239,7 +239,8 @@ export default class Ship {
   }
 
   isPath(currentTile) {
-    if (currentTile.index === this.scene.pathIndex) {
+    // if the tile is any of the path tiles
+    if (this.scene.tileValues.path.includes(currentTile.index)) {
       return true;
     }
     return false;
