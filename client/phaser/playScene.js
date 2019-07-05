@@ -21,9 +21,6 @@ export default class PlayScene extends Phaser.Scene {
 
     this.alive = true;
 
-    // the indicies for the different kinds of tiles
-    this.tileValues = getTileIndices();
-
     // this.shipSpawnX =
 
     // store the opponents
@@ -58,7 +55,16 @@ export default class PlayScene extends Phaser.Scene {
 
     // get the current state from store
     // get the players location from store that was sent from the server
-    const {game: {playerWorldXY, tileMap}} = clientStore.getState();
+    const {
+      game: {playerWorldXY, tileMap, pathIndex, harborIndex}
+    } = clientStore.getState();
+
+    // the indicies for the different kinds of tiles
+    this.tileValues = getTileIndices();
+
+    // the specific values for this player
+    this.harborIndex = harborIndex;
+    this.pathIndex = pathIndex;
 
     // **************** Set up the tilemap **************
 
@@ -229,8 +235,8 @@ export default class PlayScene extends Phaser.Scene {
 
       if (this.keys.shift.isDown) {
         this.ship.fillArea(clickedTile);
-      } else if (clickedTile.index !== this.tileValues.harbor) {
-        this.setTileIndex(this.tileValues.harbor, {
+      } else if (clickedTile.index !== this.harborIndex) {
+        this.setTileIndex(this.harborIndex, {
           type: 'world', //must indicate format of xy
           x: snappedWorldPoint.x,
           y: snappedWorldPoint.y

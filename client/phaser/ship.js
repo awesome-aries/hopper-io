@@ -32,11 +32,11 @@ export default class Ship {
 
     //setting all the surrounding tiles of the start position as harbor tiles
 
-    harbor.forEach(tile => (tile.index = this.scene.tileValues.harbor));
+    harbor.forEach(tile => (tile.index = this.scene.harborIndex));
 
     //updating store with harbor
     clientStore.dispatch(
-      clientActionCreators.game.setTiles(harbor, this.scene.tileValues.harbor)
+      clientActionCreators.game.setTiles(harbor, this.scene.harborIndex)
     );
 
     // **************************************
@@ -116,15 +116,6 @@ export default class Ship {
     this.setPath(game);
 
     // *************************************************
-
-    // get the updated state and emit it to the server
-    // we want to tell the server everytime we move
-    // if this overloading the server then we may want to move it into the setPath if clause at the end
-    let {
-      game: {playerWorldXY, direction, tileMapDiff}
-    } = clientStore.getState();
-
-    emitState(playerWorldXY.present, direction.present, tileMapDiff);
   }
 
   // eslint-disable-next-line complexity
@@ -170,8 +161,8 @@ export default class Ship {
 
       // If the user is moving from harbor to a different kind of tile, then we must set the exit point
       if (
-        currentTileIdx.previous === this.scene.tileValues.harbor &&
-        currentTileIdx.present !== this.scene.tileValues.harbor
+        currentTileIdx.previous === this.scene.harborIndex &&
+        currentTileIdx.present !== this.scene.harborIndex
       ) {
         clientStore.dispatch(
           clientActionCreators.game.setExitPoint(
@@ -214,7 +205,7 @@ export default class Ship {
       // get the tile at the location of the ship and make it a path tile if on a regular tile
       if (currentTileIdx.present === this.scene.tileValues.regular) {
         this.scene.setTileIndex(
-          this.scene.tileValues.path, //type of tile to set it to
+          this.scene.pathIndex, //type of tile to set it to
           {
             type: 'tile', //must indicate format of xy
             x: playerPhaserXY.present.x,
@@ -222,6 +213,18 @@ export default class Ship {
           }
         );
       }
+      // *************************************************
+
+      // get the updated state and emit it to the server
+      // we want to tell the server everytime we move
+      // if this overloading the server then we may want to move it into the setPath if clause at the end
+      let {game} = clientStore.getState();
+
+      emitState(
+        game.playerWorldXY.present,
+        game.direction.present,
+        game.tileMapDiff
+      );
     }
   }
 
@@ -230,13 +233,13 @@ export default class Ship {
     // If the user is moving from sea to harbor
     return (
       exitPoint &&
-      currentTileIdx.previous !== this.scene.tileValues.harbor &&
-      currentTileIdx.present === this.scene.tileValues.harbor
+      currentTileIdx.previous !== this.scene.harborIndex &&
+      currentTileIdx.present === this.scene.harborIndex
     );
   }
 
   isPath(currentTile) {
-    if (currentTile.index === this.scene.tileValues.path) {
+    if (currentTile.index === this.scene.pathIndex) {
       return true;
     }
     return false;
@@ -289,19 +292,14 @@ export default class Ship {
     // here we want to fill all the path tiles instead
     // track maxX minX, maxY, minY
     this.scene.foregroundLayer.replaceByIndex(
-      this.scene.tileValues.path,
-      this.scene.tileValues.harbor,
+      this.scene.pathIndex,
+      this.scene.harborIndex,
       minX,
       minY,
       maxX - minX + 1,
       maxY - minY + 1
     );
-    clientStore.dispatch(
-      clientActionCreators.game.changePathToHarbor(
-        this.scene.tileValues.path,
-        this.scene.tileValues.harbor
-      )
-    );
+    clientStore.dispatch(clientActionCreators.game.changePathToHarbor());
 
     this.vertices = [];
   }
@@ -352,12 +350,10 @@ export default class Ship {
       let neighbors = this.getSurroundingTiles(currentTile, false, visited);
       toExplore = toExplore.concat(neighbors);
     }
-    tilesToFlood.forEach(tile => (tile.index = this.scene.tileValues.harbor));
+    // In order to stop flood fill from delaying rendering, do tile changes outside of the while loop
+    tilesToFlood.forEach(tile => (tile.index = this.scene.harborIndex));
     clientStore.dispatch(
-      clientActionCreators.game.setTiles(
-        tilesToFlood,
-        this.scene.tileValues.harbor
-      )
+      clientActionCreators.game.setTiles(tilesToFlood, this.scene.harborIndex)
     );
   }
 
@@ -423,12 +419,12 @@ export default class Ship {
     if (
       currentTile.index === this.scene.tileValues.regular &&
       (neighborTile.index === this.scene.tileValues.regular ||
-        neighborTile.index === this.scene.tileValues.path)
+        neighborTile.index === this.scene.pathIndex)
     ) {
       return true;
     } else if (
-      currentTile.index === this.scene.tileValues.path &&
-      neighborTile.index === this.scene.tileValues.path
+      currentTile.index === this.scene.pathIndex &&
+      neighborTile.index === this.scene.pathIndex
     ) {
       // if a tile is a path tile, only fill it's neighbor if it is also a path tile
       return true;

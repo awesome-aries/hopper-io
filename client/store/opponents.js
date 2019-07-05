@@ -17,7 +17,7 @@ const UPDATE_OPPONENTS_POS = 'UPDATE_OPPONENTS_POS';
  * ACTION CREATORS
  */
 export const opponentActionCreators = {
-  // when a new player joins this action will be dispatched to add them to the players store
+  // when a new player joins this action will be dispatched to add all other current players to the players store
   addOpponent: opponent => ({
     type: ADD_OPPONENT,
     opponent
@@ -50,11 +50,11 @@ export const opponentActionCreators = {
 export default function opponentReducer(state = initialState, action) {
   switch (action.type) {
     case INIT_OPPONENTS:
-      return [...state, action.opponents];
+      return [...state, ...action.opponents];
     case ADD_OPPONENT:
       return [...state, action.opponent];
     case UPDATE_OPPONENTS_POS:
-      return [...state, action.opponents];
+      return [...state, ...action.opponents];
     case REMOVE_OPPONENT:
       return state.filter(opponent => {
         return opponent.Id !== action.opponentId;

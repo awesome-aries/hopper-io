@@ -2537,19 +2537,19 @@
       "tiles": [
         {
           "id": 0,
-          "type": "opponentPath"
+          "type": "path"
         },
         {
           "id": 1,
-          "type": "opponentHarbor"
+          "type": "harbor"
         },
         {
           "id": 2,
-          "type": "opponentPath"
+          "type": "path"
         },
         {
           "id": 3,
-          "type": "opponentHarbor"
+          "type": "harbor"
         },
         {
           "id": 4,

@@ -56,6 +56,7 @@ function tilesReducer(state = initialState, action) {
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
         tileMapCopy[tileInd] = tileIndex;
       });
+
       return {
         ...state,
         tileMap: {

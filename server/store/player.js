@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 const {Player} = require('../db/models');
 const {randomizeXY, worldXYToTileXY} = require('../game/utils');
 const {getTileIndices} = require('../game/utils');
@@ -14,8 +15,19 @@ const MOVE_PLAYER = 'MOVE_PLAYER';
  */
 
 const initialState = {
-  players: []
+  players: [],
+  tileValues: getTileIndices(), //get tile values from tiled exported json
+  rooms: [
+    {
+      id: 1,
+      isFull: false,
+      players: [] //array of socketIds
+    }
+  ], //right now can support 3 players
+  gameIsFull: false
 };
+
+console.log('initialState', initialState);
 
 /**
  * ACTION CREATORS
@@ -25,13 +37,14 @@ const playersActionCreators = {
     type: ADDED_PLAYER,
     player
   }),
-  removedPlayer: socketId => ({
+  removedPlayer: removedPlayer => ({
     type: REMOVED_PLAYER,
-    socketId
+    removedPlayer
   }),
-  playerStartGame: updatedPlayer => ({
+  playerStartGame: (updatedPlayer, updatedTileValues) => ({
     type: PLAYER_START_GAME,
-    updatedPlayer
+    updatedPlayer,
+    updatedTileValues
   }),
   movePlayer: updatedPlayer => ({
     type: MOVE_PLAYER,
@@ -72,12 +85,15 @@ const addPlayer = playerInfo => {
 
 // may not need to separate this from add player.... might just be able to create player here
 const playerStartGame = (socket, socketId, name) => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     try {
       // update our player to be playing and the starting pos
       // Randomize spawn location
       let worldStartPos = randomizeXY();
       let tileStartPos = worldXYToTileXY(worldStartPos.x, worldStartPos.y);
+      let {players: {tileValues}} = getState();
+
+      let updatedTileValues = {...tileValues};
 
       const player = await Player.findOne({
         where: {
@@ -94,11 +110,18 @@ const playerStartGame = (socket, socketId, name) => {
         x: tileStartPos.y,
         y: tileStartPos.x,
         phaserX: tileStartPos.x,
-        phaserY: tileStartPos.y
+        phaserY: tileStartPos.y,
+        harborIndex: updatedTileValues.harbor.shift(),
+        pathIndex: updatedTileValues.path.shift()
       });
 
       //and update in our store
-      dispatch(playersActionCreators.playerStartGame(player.dataValues));
+      dispatch(
+        playersActionCreators.playerStartGame(
+          player.dataValues,
+          updatedTileValues
+        )
+      );
     } catch (error) {
       console.error(error);
     }
@@ -108,14 +131,17 @@ const playerStartGame = (socket, socketId, name) => {
 const removePlayer = socketId => {
   return async (dispatch, getState) => {
     try {
-      // and remove them from our database
-      await Player.destroy({
+      const player = await Player.findOne({
         where: {
           socketId: socketId
         }
       });
+      // save field values
+      let removedPlayer = player.dataValues;
+      // and remove them from our database
+      await player.destroy();
 
-      dispatch(playersActionCreators.removedPlayer(socketId));
+      dispatch(playersActionCreators.removedPlayer(removedPlayer));
     } catch (error) {
       console.error(error);
     }
@@ -175,14 +201,20 @@ function playersReducer(state = initialState, action) {
         ]
       };
     case REMOVED_PLAYER:
+      // make the tile values avaiable again
+      let tileValuesCopy = {...state.tileValues};
+      tileValuesCopy.harbor.push(action.removedPlayer.harborIndex);
+      tileValuesCopy.path.push(action.removedPlayer.pathIndex);
       return {
         ...state,
         players: state.players.filter(player => {
           return player.socketId !== action.socketId;
-        })
+        }),
+        tileValues: tileValuesCopy
+        // TODO remove players tiles from the tileMap
       };
     case PLAYER_START_GAME:
-      // update the player with new coords
+      // update the player with game info
       return {
         ...state,
         players: state.players.map(player => {
@@ -195,12 +227,16 @@ function playersReducer(state = initialState, action) {
               worldX: action.updatedPlayer.worldX,
               worldY: action.updatedPlayer.worldY,
               x: action.updatedPlayer.x,
-              y: action.updatedPlayer.y
+              y: action.updatedPlayer.y,
+              harborIndex: action.updatedPlayer.harborIndex,
+              pathIndex: action.updatedPlayer.pathIndex
             };
           } else {
             return player;
           }
-        })
+        }),
+        tileValues: action.updatedTileValues,
+        gameIsFull: action.updatedTileValues.harbor.length > 0 //as long as there are unassigned tiles, then game is not full
       };
     case MOVE_PLAYER:
       return {

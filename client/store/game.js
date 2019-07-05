@@ -2,13 +2,14 @@
 /* eslint-disable no-case-declarations */
 // IndToXY returns obj {x,y}
 import {XYToInd, tileXYToWorldXY} from '../util/tileMapConversions';
-import getTileIndices from '../util/getTileIndices';
-let harborIndex = getTileIndices().harbor;
+
 /**
  * INITIAL STATE
  */
 
 const initialState = {
+  pathIndex: null, //get this from the server
+  harborIndex: null,
   playerWorldXY: {
     previous: {}, //in phaser order
     present: {}
@@ -26,8 +27,8 @@ const initialState = {
     present: ''
   },
   currentTileIdx: {
-    previous: harborIndex,
-    present: harborIndex //initialize to harbor because player should always start on a harbor
+    previous: null,
+    present: null //initialize to harbor because player should always start on a harbor
   },
   entryPoint: null,
   exitPoint: null,
@@ -53,6 +54,7 @@ const SET_TILEMAP = 'SET_TILEMAP';
 const SET_TILE = 'SET_TILE';
 const SET_TILES = 'SET_TILES';
 const CHANGE_PATH_TO_HARBOR = 'CHANGE_PATH_TO_HARBOR';
+const SET_TILE_VALUES = 'SET_TILE_VALUES';
 
 /**
  * ACTION CREATORS
@@ -104,10 +106,13 @@ export const gameActionCreators = {
     XYArray, //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
     tileIndex //the tile index aka the type of tile
   }),
-  changePathToHarbor: (pathTileIndex, harborTileIndex) => ({
-    type: CHANGE_PATH_TO_HARBOR,
-    pathTileIndex,
-    harborTileIndex
+  changePathToHarbor: () => ({
+    type: CHANGE_PATH_TO_HARBOR
+  }),
+  setTileValues: (pathIndex, harborIndex) => ({
+    type: SET_TILE_VALUES,
+    pathIndex,
+    harborIndex
   })
 };
 
@@ -319,11 +324,11 @@ export default function gameReducer(state = initialState, action) {
       // make copy of the current tilemap
       let newTileMap = [...state.tileMap.present];
       newTileMap.forEach((tileVal, i) => {
-        if (tileVal === action.pathTileIndex) {
+        if (tileVal === state.pathIndex) {
           // change the value from path to harbor
-          newTileMap[i] = action.harborTileIndex;
+          newTileMap[i] = state.harborIndex;
           // record the change
-          newTileMapDiff.push({tileInd: i, tileIndex: action.harborTileIndex});
+          newTileMapDiff.push({tileInd: i, tileIndex: state.harborIndex});
         }
       });
       return {
@@ -333,6 +338,12 @@ export default function gameReducer(state = initialState, action) {
           present: newTileMap
         },
         tileMapDiff: newTileMapDiff
+      };
+    case SET_TILE_VALUES:
+      return {
+        ...state,
+        pathIndex: action.pathIndex,
+        harborIndex: action.harborIndex
       };
     default:
       return state;

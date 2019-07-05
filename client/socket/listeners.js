@@ -43,6 +43,15 @@ async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
 
   console.log('This is the new player, you!', thisPlayer);
   console.log('tileMap', tileMap);
+
+  // set the path and tile values for the player
+  await clientStore.dispatch(
+    clientActionCreators.game.setTileValues(
+      thisPlayer.pathIndex,
+      thisPlayer.harborIndex
+    )
+  );
+
   // set the client's tilemap
   await clientStore.dispatch(
     clientActionCreators.game.setTilemap(tileMap, tileMapRowLength)
