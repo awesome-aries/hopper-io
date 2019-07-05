@@ -4,7 +4,6 @@ import Ship from './ship';
 import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
 import socket from '../socket';
-import {playerKilled} from '../socket/emitEvents';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -106,6 +105,9 @@ export default class PlayScene extends Phaser.Scene {
     socket.on('updateState', (players, newTileMap, newTileMapRowLength) => {
       this.onUpdateState(players, newTileMap, newTileMapRowLength);
     });
+    socket.on('wasKilled', () => {
+      this.onWasKilled();
+    });
     // **************************************************
   }
 
@@ -159,9 +161,6 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   gameOver() {
-    // tell the server that the player was killed
-    playerKilled(this.harborIndex, this.pathIndex, this.tileValues.regular);
-
     //this.ship.sprite.body.velocity.setTo(0, 0);
     console.log('game over loser');
     this.scene.start('losing');
@@ -277,5 +276,10 @@ export default class PlayScene extends Phaser.Scene {
 
     // also update opponents
     // TODO
+  }
+  onWasKilled() {
+    console.log('You were killed');
+    // here we need to set on the gameState that they were killed
+    this.alive = false;
   }
 }

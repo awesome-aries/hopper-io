@@ -2,6 +2,7 @@
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
 import {emitState} from '../socket/emitEvents';
+import {playerKilled} from '../socket/emitEvents';
 
 export default class Ship {
   constructor(scene, x, y) {
@@ -199,8 +200,10 @@ export default class Ship {
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
       }
+      // when you hit a path, that player is killed
       if (this.isPath(newTile)) {
-        this.scene.alive = false;
+        // here we want to emit that we killed whichever player this path belongs to
+        playerKilled(newTile.index);
       }
       // get the tile at the location of the ship and make it a path tile if on a regular tile
       if (currentTileIdx.present === this.scene.tileValues.regular) {

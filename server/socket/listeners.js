@@ -27,8 +27,8 @@ function initServerListeners(io, socket) {
     onPlayerStartGame(socket, socketId, name)
   );
 
-  socket.on('playerKilled', (harborIndex, pathIndex, regularIndex) => {
-    onPlayerKilled(socket, harborIndex, pathIndex, regularIndex);
+  socket.on('playerKilled', pathIndex => {
+    onPlayerKilled(io, socket, pathIndex);
   });
 }
 
@@ -133,25 +133,38 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
   );
 }
 
-async function onPlayerKilled(socket, harborIndex, pathIndex, regularIndex) {
-  console.log(`Player ${socket.id} was killed`);
+async function onPlayerKilled(io, socket, pathIndex) {
+  // console.log(`Player ${socket.id} was killed`);
+
+  let oldState = serverStore.getState();
+
+  // get the player that was killed
+  let killedPlayer = oldState.players.players.find(player => {
+    return player.pathIndex === pathIndex;
+  });
+
+  console.log('killedPlayer', killedPlayer);
+
+  // emit to that player that they died
+  io.to(`${killedPlayer.socketId}`).emit('wasKilled');
+  console.log(`Player ${killedPlayer.socketId} was killed`);
 
   // update the player in db and store
-  await serverStore.dispatch(playerKilled(socket.id));
+  await serverStore.dispatch(playerKilled(killedPlayer.socketId));
 
   // and remove their tiles from the tileMap
   await serverStore.dispatch(
     serverActionCreators.tiles.removePlayersTiles(
-      pathIndex,
-      harborIndex,
-      regularIndex
+      killedPlayer.pathIndex,
+      killedPlayer.harborIndex,
+      oldState.players.tileValues.regular
     )
   );
   // get the new state
   const {tiles: {tileMap}} = serverStore.getState();
 
   // send back to the other player the id of the player who left and the new tilemap
-  socket.broadcast.emit('removePlayer', socket.id, tileMap.present);
+  socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMap.present);
 }
 
 async function onDisconnect(socket) {

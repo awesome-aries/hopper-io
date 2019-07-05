@@ -9,7 +9,7 @@ export function emitState(playerWorldXY, direction, tilemapDiff) {
   socket.emit('playerMove', playerWorldXY, direction, tilemapDiff);
 }
 
-export function playerKilled(harborIndex, pathIndex, regularIndex) {
+export function playerKilled(pathIndex) {
   // need to tell the server that the player has been killed so that it can update their state and remove them from the game
-  socket.emit('playerKilled', harborIndex, pathIndex, regularIndex);
+  socket.emit('playerKilled', pathIndex);
 }
