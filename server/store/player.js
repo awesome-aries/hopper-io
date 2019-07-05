@@ -1,17 +1,33 @@
+/* eslint-disable no-case-declarations */
 const {Player} = require('../db/models');
 const {randomizeXY, worldXYToTileXY} = require('../game/utils');
+const {getTileIndices} = require('../game/utils');
 /**
  * ACTION TYPES
  */
 const ADDED_PLAYER = 'ADDED_PLAYER';
 const REMOVED_PLAYER = 'REMOVED_PLAYER';
 const PLAYER_START_GAME = 'PLAYER_START_GAME';
+const MOVE_PLAYER = 'MOVE_PLAYER';
 
 /**
  * INITIAL STATE
  */
 
-const initialState = [];
+const initialState = {
+  players: [],
+  tileValues: getTileIndices(), //get tile values from tiled exported json
+  rooms: [
+    {
+      id: 1,
+      isFull: false,
+      players: [] //array of socketIds
+    }
+  ], //right now can support 3 players
+  gameIsFull: false
+};
+
+console.log('initialState', initialState);
 
 /**
  * ACTION CREATORS
@@ -21,12 +37,17 @@ const playersActionCreators = {
     type: ADDED_PLAYER,
     player
   }),
-  removedPlayer: socketId => ({
+  removedPlayer: removedPlayer => ({
     type: REMOVED_PLAYER,
-    socketId
+    removedPlayer
   }),
-  playerStartGame: updatedPlayer => ({
+  playerStartGame: (updatedPlayer, updatedTileValues) => ({
     type: PLAYER_START_GAME,
+    updatedPlayer,
+    updatedTileValues
+  }),
+  movePlayer: updatedPlayer => ({
+    type: MOVE_PLAYER,
     updatedPlayer
   })
 };
@@ -70,6 +91,9 @@ const playerStartGame = (socket, socketId, name) => {
       // Randomize spawn location
       let worldStartPos = randomizeXY();
       let tileStartPos = worldXYToTileXY(worldStartPos.x, worldStartPos.y);
+      let {players: {tileValues}} = getState();
+
+      let updatedTileValues = {...tileValues};
 
       const player = await Player.findOne({
         where: {
@@ -82,37 +106,22 @@ const playerStartGame = (socket, socketId, name) => {
         name: name,
         worldX: worldStartPos.x,
         worldY: worldStartPos.y,
-        x: tileStartPos.x,
-        y: tileStartPos.y,
-        phaserX: tileStartPos.y,
-        phaserY: tileStartPos.x
+        // need to invert for store
+        x: tileStartPos.y,
+        y: tileStartPos.x,
+        phaserX: tileStartPos.x,
+        phaserY: tileStartPos.y,
+        harborIndex: updatedTileValues.harbor.shift(),
+        pathIndex: updatedTileValues.path.shift()
       });
 
       //and update in our store
-      dispatch(playersActionCreators.playerStartGame(player));
-      // get all the players currently in the state
-      const {players} = getState();
-
-      // also need to send them the current tilemap
-      // TODO
-
-      // make a copy of players and remove the current player from the object so the player only gets their opponents
-      // also make sure not sending any players not yet in the game
-      const playersCopy = players.filter(player => {
-        return player.isPlaying && player.socketId !== socket.id;
-      });
-
-      // get the new player
-      let newPlayer = players.find(player => {
-        return player.socketId === socket.id;
-      });
-
-      console.log('startingInfo', playersCopy, newPlayer);
-      socket.emit('startingInfo', playersCopy, newPlayer);
-
-      // send the newPlayer to the other players
-      console.log('newPlayer', newPlayer);
-      socket.broadcast.emit('newPlayer', newPlayer);
+      dispatch(
+        playersActionCreators.playerStartGame(
+          player.dataValues,
+          updatedTileValues
+        )
+      );
     } catch (error) {
       console.error(error);
     }
@@ -122,14 +131,46 @@ const playerStartGame = (socket, socketId, name) => {
 const removePlayer = socketId => {
   return async (dispatch, getState) => {
     try {
+      const player = await Player.findOne({
+        where: {
+          socketId: socketId
+        }
+      });
+      // save field values
+      let removedPlayer = player.dataValues;
       // and remove them from our database
-      await Player.destroy({
+      await player.destroy();
+
+      dispatch(playersActionCreators.removedPlayer(removedPlayer));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+
+const movePlayer = (socketId, worldXY, direction) => {
+  return async dispatch => {
+    try {
+      const player = await Player.findOne({
         where: {
           socketId: socketId
         }
       });
 
-      dispatch(playersActionCreators.removedPlayer(socketId));
+      let tilePos = worldXYToTileXY(worldXY.x, worldXY.y);
+
+      await player.update({
+        isPlaying: true,
+        worldX: worldXY.x,
+        worldY: worldXY.y,
+        // need to invert for store
+        x: tilePos.y,
+        y: tilePos.x,
+        phaserX: tilePos.x,
+        phaserY: tilePos.y,
+        direction: direction
+      });
+      dispatch(playersActionCreators.movePlayer(player.dataValues));
     } catch (error) {
       console.error(error);
     }
@@ -142,42 +183,81 @@ const removePlayer = socketId => {
 function playersReducer(state = initialState, action) {
   switch (action.type) {
     case ADDED_PLAYER:
-      return [
+      return {
         ...state,
-        {
-          socketId: action.player.socketId,
-          name: action.player.name,
-          phaserX: action.player.phaserX,
-          phaserY: action.player.phaserY,
-          worldX: action.player.worldX,
-          worldY: action.player.worldY,
-          x: action.player.y,
-          y: action.player.x,
-          isPlaying: action.player.isPlaying
-        }
-      ];
+        players: [
+          ...state.players,
+          {
+            socketId: action.player.socketId,
+            name: action.player.name,
+            phaserX: action.player.phaserX,
+            phaserY: action.player.phaserY,
+            worldX: action.player.worldX,
+            worldY: action.player.worldY,
+            x: action.player.x,
+            y: action.player.y,
+            isPlaying: action.player.isPlaying
+          }
+        ]
+      };
     case REMOVED_PLAYER:
-      return state.filter(player => {
-        return player.socketId !== action.socketId;
-      });
+      // make the tile values avaiable again
+      let tileValuesCopy = {...state.tileValues};
+      tileValuesCopy.harbor.push(action.removedPlayer.harborIndex);
+      tileValuesCopy.path.push(action.removedPlayer.pathIndex);
+      return {
+        ...state,
+        players: state.players.filter(player => {
+          return player.socketId !== action.socketId;
+        }),
+        tileValues: tileValuesCopy
+        // TODO remove players tiles from the tileMap
+      };
     case PLAYER_START_GAME:
-      // update the player with new
-      return state.map(player => {
-        if (player.socketId === action.updatedPlayer.socketId) {
-          return {
-            ...player,
-            isPlaying: true,
-            phaserX: action.updatedPlayer.phaserX,
-            phaserY: action.updatedPlayer.phaserY,
-            worldX: action.updatedPlayer.worldX,
-            worldY: action.updatedPlayer.worldY,
-            x: action.updatedPlayer.y,
-            y: action.updatedPlayer.x
-          };
-        } else {
-          return player;
-        }
-      });
+      // update the player with game info
+      return {
+        ...state,
+        players: state.players.map(player => {
+          if (player.socketId === action.updatedPlayer.socketId) {
+            return {
+              ...player,
+              isPlaying: true,
+              phaserX: action.updatedPlayer.phaserX,
+              phaserY: action.updatedPlayer.phaserY,
+              worldX: action.updatedPlayer.worldX,
+              worldY: action.updatedPlayer.worldY,
+              x: action.updatedPlayer.x,
+              y: action.updatedPlayer.y,
+              harborIndex: action.updatedPlayer.harborIndex,
+              pathIndex: action.updatedPlayer.pathIndex
+            };
+          } else {
+            return player;
+          }
+        }),
+        tileValues: action.updatedTileValues,
+        gameIsFull: action.updatedTileValues.harbor.length > 0 //as long as there are unassigned tiles, then game is not full
+      };
+    case MOVE_PLAYER:
+      return {
+        ...state,
+        players: state.players.map(player => {
+          if (player.socketId === action.updatedPlayer.socketId) {
+            return {
+              ...player,
+              phaserX: action.updatedPlayer.phaserX,
+              phaserY: action.updatedPlayer.phaserY,
+              worldX: action.updatedPlayer.worldX,
+              worldY: action.updatedPlayer.worldY,
+              x: action.updatedPlayer.x,
+              y: action.updatedPlayer.y,
+              direction: action.updatedPlayer.direction
+            };
+          } else {
+            return player;
+          }
+        })
+      };
     default:
       return state;
   }
@@ -188,5 +268,6 @@ module.exports = {
   playersActionCreators,
   addPlayer,
   removePlayer,
-  playerStartGame
+  playerStartGame,
+  movePlayer
 };

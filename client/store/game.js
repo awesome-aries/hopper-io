@@ -8,6 +8,8 @@ import {XYToInd, tileXYToWorldXY} from '../util/tileMapConversions';
  */
 
 const initialState = {
+  pathIndex: null, //get this from the server
+  harborIndex: null,
   playerWorldXY: {
     previous: {}, //in phaser order
     present: {}
@@ -26,7 +28,7 @@ const initialState = {
   },
   currentTileIdx: {
     previous: null,
-    present: null
+    present: null //initialize to harbor because player should always start on a harbor
   },
   entryPoint: null,
   exitPoint: null,
@@ -34,6 +36,8 @@ const initialState = {
     previous: [], //need to keep track of the previous state of the tileMap
     present: []
   },
+  tileMapDiff: [], //here we just need to track all the tiles that have changed since last receving the tilemap from the server
+  // tileMapDiff is an arry holding objects {tileInd, tileIndex}
   tileMapRowLength: null //number
 };
 
@@ -50,6 +54,7 @@ const SET_TILEMAP = 'SET_TILEMAP';
 const SET_TILE = 'SET_TILE';
 const SET_TILES = 'SET_TILES';
 const CHANGE_PATH_TO_HARBOR = 'CHANGE_PATH_TO_HARBOR';
+const SET_TILE_VALUES = 'SET_TILE_VALUES';
 
 /**
  * ACTION CREATORS
@@ -101,10 +106,13 @@ export const gameActionCreators = {
     XYArray, //we must switch phaser x and y for javascript (see tileMapConversions.js for detailed explanation)
     tileIndex //the tile index aka the type of tile
   }),
-  changePathToHarbor: (pathTileIndex, harborTileIndex) => ({
-    type: CHANGE_PATH_TO_HARBOR,
-    pathTileIndex,
-    harborTileIndex
+  changePathToHarbor: () => ({
+    type: CHANGE_PATH_TO_HARBOR
+  }),
+  setTileValues: (pathIndex, harborIndex) => ({
+    type: SET_TILE_VALUES,
+    pathIndex,
+    harborIndex
   })
 };
 
@@ -221,6 +229,7 @@ export default function gameReducer(state = initialState, action) {
         exitPoint: null
       };
     case SET_TILEMAP:
+      // this is only called when we're receiving a new tilemap from the server, so we must set the tilemap and then clear the diff array
       return {
         ...state,
         tileMap: {
@@ -228,9 +237,10 @@ export default function gameReducer(state = initialState, action) {
           previous: [...state.tileMap.present],
           present: [...action.tileMap]
         },
+        // reinitialize to be an empty array
+        tileMapDiff: [],
         tileMapRowLength: action.tileMapRowLength
       };
-
     case SET_TILE:
       // corresponding index in tileMap
       let ind = XYToInd(+action.y, +action.x, state.tileMapRowLength);
@@ -253,6 +263,7 @@ export default function gameReducer(state = initialState, action) {
             }
           })
         },
+        // only update if the tile the player is on is being changed
         currentTileIdx: {
           previous:
             ind === playerInd
@@ -260,38 +271,79 @@ export default function gameReducer(state = initialState, action) {
               : state.currentTileIdx.previous,
           present:
             ind === playerInd ? action.tileIndex : state.currentTileIdx.present
-        }
+        },
+        // mark the tile being set in the tilemap as a change
+        tileMapDiff: [
+          ...state.tileMapDiff,
+          {tileInd: ind, tileIndex: action.tileIndex}
+        ]
       };
     case SET_TILES:
       // convert all the x y to ind
       let inds = action.XYArray.map(coords => {
         return XYToInd(coords.y, coords.x, state.tileMapRowLength);
       });
-      // make copy of the present tileMap and set new index value (tile type) for each tile specified
+      // make copy of tileMapDiff
+      let newChanges = [...state.tileMapDiff];
+      // make copy of the present tileMap
       let presentCopy = [...state.tileMap.present];
       inds.forEach(i => {
+        // set new index value (tile type) for each tile specified in the copy
         presentCopy[i] = action.tileIndex;
+        // and also record the changes
+        newChanges.push({tileInd: i, tileIndex: action.tileIndex});
       });
+      // check to see if a player is on a tile being changed
+      let playerOnTile = inds.includes(
+        XYToInd(
+          state.playerXY.present.x,
+          state.playerXY.present.y,
+          state.tileMapRowLength
+        )
+      );
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
           present: presentCopy
+        },
+        tileMapDiff: newChanges,
+        // only update if the tile the player is on is being changed
+        currentTileIdx: {
+          previous: playerOnTile
+            ? {...state.currentTileIdx}.present
+            : state.currentTileIdx.previous,
+          present: playerOnTile
+            ? action.tileIndex
+            : state.currentTileIdx.present
         }
       };
     case CHANGE_PATH_TO_HARBOR:
-      let newTileMap = state.tileMap.present.map(tile => {
-        if (tile === action.pathTileIndex) {
-          tile = action.harborTileIndex;
+      // make copy of tileMapDiff
+      let newTileMapDiff = [...state.tileMapDiff];
+      // make copy of the current tilemap
+      let newTileMap = [...state.tileMap.present];
+      newTileMap.forEach((tileVal, i) => {
+        if (tileVal === state.pathIndex) {
+          // change the value from path to harbor
+          newTileMap[i] = state.harborIndex;
+          // record the change
+          newTileMapDiff.push({tileInd: i, tileIndex: state.harborIndex});
         }
-        return tile;
       });
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
           present: newTileMap
-        }
+        },
+        tileMapDiff: newTileMapDiff
+      };
+    case SET_TILE_VALUES:
+      return {
+        ...state,
+        pathIndex: action.pathIndex,
+        harborIndex: action.harborIndex
       };
     default:
       return state;

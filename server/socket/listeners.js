@@ -1,7 +1,12 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
 
-const {addPlayer, removePlayer, playerStartGame} = require('../store/player');
+const {
+  addPlayer,
+  removePlayer,
+  playerStartGame,
+  movePlayer
+} = require('../store/player');
 
 function initServerListeners(io, socket) {
   // set up all our socket listeners
@@ -13,8 +18,8 @@ function initServerListeners(io, socket) {
   socket.on('disconnect', () => onDisconnect(socket));
 
   // When the player has moved we want to update their location in store and the new tilemap
-  socket.on('playerMove', (worldX, worldY, direction, tilemap) =>
-    onPlayerMove(socket, worldX, worldY, direction, tilemap)
+  socket.on('playerMove', (worldXY, direction, tilemap) =>
+    onPlayerMove(socket, worldXY, direction, tilemap)
   );
 
   socket.on('playerStartGame', (socketId, name) =>
@@ -57,10 +62,7 @@ async function onPlayerStartGame(socket, socketId, name) {
   await serverStore.dispatch(playerStartGame(socket, socketId, name));
 
   // get all the players currently in the state
-  const {players} = serverStore.getState();
-
-  // also need to send them the current tilemap
-  // TODO
+  const {players: {players}, tiles} = serverStore.getState();
 
   // make a copy of players and remove the current player from the object so the player only gets their opponents
   // also make sure not sending any players not yet in the game
@@ -73,19 +75,57 @@ async function onPlayerStartGame(socket, socketId, name) {
     return player.socketId === socket.id;
   });
 
-  console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
-  socket.emit('startingInfo', playersCopy, newPlayer);
+  // also need to send them the current tilemap to the new player
+  console.log(
+    'startingInfo',
+    playersCopy,
+    'newPlayer',
+    newPlayer
+    // 'tileMap',
+    // tiles.tileMap
+  );
+  socket.emit(
+    'startingInfo',
+    playersCopy,
+    newPlayer,
+    tiles.tileMap.present,
+    tiles.tileMapRowLength
+  );
 
   // send the newPlayer to the other players
   console.log('newPlayer', newPlayer);
   socket.broadcast.emit('newPlayer', newPlayer);
 }
 
-function onPlayerMove(socket, worldX, worldY, direction, tilemap) {
-  // when each player moved we want to update their location and new tilemap in the store and the
-  // and then broadcast the new state to all the other players
-  // socket.broadcast.emit('updateState', *newData*)
+async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
+  // when each player moved we want to update their location and new tilemap in the store
+
+  // update the tilemap
+  // not a thunk rn, just in store but need to make a thunk and place in DB
   // TODO
+  await serverStore.dispatch(
+    serverActionCreators.tiles.updateTileMap(tilemapDiff)
+  );
+
+  // update the player location
+  await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
+
+  // get the new state
+  const {players: {players}, tiles} = serverStore.getState();
+
+  // make a copy of players and remove the current player from the object so the player only gets their opponents
+  // also make sure not sending any players not yet in the game
+  const playersCopy = players.filter(player => {
+    return player.isPlaying && player.socketId !== socket.id;
+  });
+
+  // and then broadcast the new state to all the other players
+  socket.broadcast.emit(
+    'updateState',
+    playersCopy,
+    tiles.tileMap.present,
+    tiles.tileMapRowLength
+  );
 }
 
 async function onDisconnect(socket) {
@@ -93,6 +133,9 @@ async function onDisconnect(socket) {
 
   // When a player disconnects, remove that player from our store and database
   await serverStore.dispatch(removePlayer(socket.id));
+
+  // clear that players path and harbor tiles from the tilemap
+  // TODO
 
   // and send the id of player to remove to the other players
   socket.broadcast.emit('removedPlayer', socket.id);

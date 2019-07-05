@@ -10,8 +10,8 @@ function initClientListeners(io, socket) {
   // console.log(tileMap.present);
 
   //
-  socket.on('startingInfo', (players, thisPlayer) =>
-    onStart(players, thisPlayer)
+  socket.on('startingInfo', (players, thisPlayer, tileMap, tileMapRowLength) =>
+    onStart(players, thisPlayer, tileMap, tileMapRowLength)
   );
 
   socket.on('newPlayer', player => onNewPlayer(player));
@@ -20,6 +20,11 @@ function initClientListeners(io, socket) {
   socket.on('removedPlayer', removedPlayerID =>
     onRemovedPlayer(removedPlayerID)
   );
+
+  // The onUpdateState listener must be in playScene so that it can manipulate phaser objects
+  // socket.on('updateState', (players, newTileMap) => {
+  //   onUpdateState(players, newTileMap);
+  // });
 }
 
 function onRemovedPlayer(removedPlayerID) {
@@ -30,13 +35,28 @@ function onRemovedPlayer(removedPlayerID) {
   // TODO
 }
 
-async function onStart(players, thisPlayer) {
+async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
   // dispatch INIT_OPPONENTS in opponent reducer
   // TODO
 
   console.log('This is the new player, you!', thisPlayer);
+  console.log('tileMap', tileMap);
+
+  // set the path and tile values for the player
+  await clientStore.dispatch(
+    clientActionCreators.game.setTileValues(
+      thisPlayer.pathIndex,
+      thisPlayer.harborIndex
+    )
+  );
+
+  // set the client's tilemap
+  await clientStore.dispatch(
+    clientActionCreators.game.setTilemap(tileMap, tileMapRowLength)
+  );
+
   // set this players starting position in tile coords
   await clientStore.dispatch(
     clientActionCreators.game.setPlayerXY(
@@ -59,5 +79,11 @@ function onNewPlayer(player) {
   // dispath action addOpponent in opponet reducer
   // TODO
 }
+
+// function onUpdateState(players, newTileMap) {
+//   // when we get updates from the server we need to update the tilemap in our store and in phaser...
+//   // also update opponents
+//   // TODO
+// }
 
 export default initClientListeners;

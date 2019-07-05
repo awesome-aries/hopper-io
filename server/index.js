@@ -10,6 +10,8 @@ const sessionStore = new SequelizeStore({db});
 const PORT = process.env.PORT || 8080;
 const app = express();
 const socketio = require('socket.io');
+const {initTileMap} = require('./game/utils');
+const {serverStore, serverActionCreators} = require('./store');
 module.exports = app;
 
 // This is a global Mocha hook, used for resource cleanup.
@@ -108,6 +110,7 @@ const startListening = () => {
 const syncDb = () => db.sync({force: true});
 
 async function bootApp() {
+  await initTileMap(serverStore, serverActionCreators); //set the tilemap in server store
   await sessionStore.sync();
   await syncDb();
   await createApp();

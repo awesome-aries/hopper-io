@@ -42,6 +42,15 @@ const Player = db.define('player', {
   isPlaying: {
     type: Sequelize.BOOLEAN,
     defaultValue: false
+  },
+  harborIndex: {
+    type: Sequelize.STRING
+  },
+  pathIndex: {
+    type: Sequelize.STRING
+  },
+  roomId: {
+    type: Sequelize.STRING
   }
 });
 
