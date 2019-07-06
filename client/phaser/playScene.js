@@ -119,6 +119,10 @@ export default class PlayScene extends Phaser.Scene {
 
     this.ship.update(game);
 
+    this.scoreText.x = this.ship.sprite.x + 240;
+
+    this.scoreText.y = this.ship.sprite.y - 300;
+
     if (!this.alive) {
       this.gameOver();
     }
@@ -210,6 +214,7 @@ export default class PlayScene extends Phaser.Scene {
         fill: 'black'
       }
     );
+    console.log('score text,', this.scoreText);
   }
 
   createTileMap(tileMap) {
