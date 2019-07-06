@@ -275,7 +275,7 @@ function playersReducer(state = initialState, action) {
       };
     case PLAYER_KILLED:
       console.log('player killed*******');
-      console.log('killedPLayer: ', action.updatedPlayer);
+      console.log('killedPLayer: ', action.killedPlayer);
       console.log('tileValues', action.updatedTileValues);
       console.log('TTTTTTTTTTTTTTTTT');
       return {

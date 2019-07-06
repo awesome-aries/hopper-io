@@ -122,7 +122,7 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
 
     // get the new state
-    const {players: {players}, tiles} = serverStore.getState();
+    const {players: {players}, tiles: {tileMapDiff}} = serverStore.getState();
 
     // make a copy of players and remove the current player from the object so the player only gets their opponents
     // also make sure not sending any players not yet in the game
@@ -131,12 +131,10 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     });
 
     // and then broadcast the new state to all the other players
-    socket.broadcast.emit(
-      'updateState',
-      playersCopy,
-      tiles.tileMap.present,
-      tiles.tileMapRowLength
-    );
+    socket.broadcast.emit('updateState', playersCopy, tileMapDiff);
+
+    // and clear the changes we just broadcast to the clients
+    serverStore.dispatch(serverActionCreators.tiles.resetTileMapDiff());
   }
 }
 
@@ -168,10 +166,10 @@ async function onPlayerKilled(io, socket, pathIndex) {
     )
   );
   // get the new state
-  const {tiles: {tileMap}} = serverStore.getState();
+  const {tiles: {tileMapDiff}} = serverStore.getState();
 
   // send back to the other player the id of the player who left and the new tilemap
-  socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMap.present);
+  socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
 }
 
 async function onDisconnect(socket) {
@@ -196,16 +194,11 @@ async function onDisconnect(socket) {
   );
 
   // get the new state
-  const {tiles: {tileMap, tileMapRowLength}} = serverStore.getState();
+  const {tiles: {tileMapDiff}} = serverStore.getState();
 
   // and send the id of player to remove to the other players if the player left while currently playing
   if (oldPlayer.isPlaying) {
-    socket.broadcast.emit(
-      'removePlayer',
-      socket.id,
-      tileMap.present,
-      tileMapRowLength
-    );
+    socket.broadcast.emit('removePlayer', socket.id, tileMapDiff);
   }
 }
 

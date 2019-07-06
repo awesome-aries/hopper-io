@@ -95,8 +95,8 @@ export default class PlayScene extends Phaser.Scene {
     // ***************** Set up Socket ******************
 
     // Set up our socket listener for updates from the server
-    socket.on('updateState', (players, newTileMap, newTileMapRowLength) => {
-      this.onUpdateState(players, newTileMap, newTileMapRowLength);
+    socket.on('updateState', (players, tileMapDiff) => {
+      this.onUpdateState(players, tileMapDiff);
     });
     socket.on('wasKilled', () => {
       this.onWasKilled();
@@ -111,7 +111,7 @@ export default class PlayScene extends Phaser.Scene {
     );
     // **************************************************
   }
-  onRemovedPlayer(removedPlayerID, newTileMap, newTileMapRowLength) {
+  onRemovedPlayer(removedPlayerID, newTileMapDiff) {
     // when a player leaves the game or killed we want to remove them from the game.
     clientStore.dispatch(
       clientActionCreators.opponent.removeOpponent(removedPlayerID)
@@ -130,11 +130,11 @@ export default class PlayScene extends Phaser.Scene {
     console.log(`This is the player that left:`, removedPlayerID);
 
     // need to update our tile map
-    this.updatePhaserTileMap(newTileMap);
+    this.updatePhaserTileMap(newTileMapDiff);
 
     // and in our store
     clientStore.dispatch(
-      clientActionCreators.game.setTilemap(newTileMap, newTileMapRowLength)
+      clientActionCreators.game.updateTileMap(newTileMapDiff)
     );
   }
   onNewPlayer(player) {
@@ -234,7 +234,13 @@ export default class PlayScene extends Phaser.Scene {
       this.foregroundLayer.height
     );
 
-    this.updatePhaserTileMap(tileMap.present);
+    // set the tiles values according to the server
+
+    tileMap.present.forEach(({tileIndex, ind}) => {
+      let {x, y} = IndToXY(ind, this.planeDimensions.x);
+      let tile = this.map.getTileAt(x, y);
+      tile.index = tileIndex;
+    });
   }
 
   manuallyMakeHarbor() {
@@ -277,21 +283,14 @@ export default class PlayScene extends Phaser.Scene {
     });
   }
 
-  onUpdateState(players, newTileMap, newTileMapRowLength) {
+  onUpdateState(players, tileMapDiff) {
     // when we get updates from the server we need to update the tilemap in phaser...
-    console.log(
-      'newTileMap',
-      newTileMap,
-      'newTileMap.length',
-      newTileMap.length
-    );
+    console.log('from server tileMapDiff', tileMapDiff);
 
-    this.updatePhaserTileMap(newTileMap);
+    this.updatePhaserTileMap(tileMapDiff);
 
     // and in our store
-    clientStore.dispatch(
-      clientActionCreators.game.setTilemap(newTileMap, newTileMapRowLength)
-    );
+    clientStore.dispatch(clientActionCreators.game.updateTileMap(tileMapDiff));
 
     // also update opponents in state
     clientStore.dispatch(
@@ -316,11 +315,12 @@ export default class PlayScene extends Phaser.Scene {
       });
     });
   }
-  updatePhaserTileMap(tileMap) {
+  updatePhaserTileMap(tileMapDiff) {
     // set the tiles in phaser to match the store
-    tileMap.forEach((tileIndex, ind) => {
-      let {x, y} = IndToXY(ind);
-      this.foregroundLayer.putTileAt(tileIndex, x, y);
+    tileMapDiff.forEach(({tileInd, tileIndex}) => {
+      let {x, y} = IndToXY(tileInd, this.planeDimensions.x);
+      let tile = this.map.getTileAt(x, y);
+      tile.index = tileIndex;
     });
     // not sure if it'll take a flat array
     // this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);

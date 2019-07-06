@@ -6,6 +6,7 @@
 const INIT_TILEMAP = 'INIT_TILEMAP';
 const UPDATE_TILEMAP = 'UPDATE_TILEMAP';
 const REMOVE_PLAYERS_TILES = 'REMOVE_PLAYERS_TILES';
+const RESET_TILEMAP_DIFF = 'RESET_TILEMAP_DIFF';
 
 /**
  * INITIAL STATE
@@ -16,6 +17,7 @@ const initialState = {
     previous: [], //need to keep track of the previous state of the tileMap
     present: []
   },
+  tileMapDiff: [], //array of changes from the client
   tileMapRowLength: null //number
 };
 
@@ -37,6 +39,9 @@ const tilesActionCreators = {
     harborIndex,
     pathIndex,
     regularIndex
+  }),
+  resetTileMapDiff: () => ({
+    type: RESET_TILEMAP_DIFF
   })
 };
 /**
@@ -70,22 +75,28 @@ function tilesReducer(state = initialState, action) {
         }
       };
     case UPDATE_TILEMAP:
-      console.log('****current tilemap');
-      printTileMap(state.tileMap.present, state.tileMapRowLength);
+      // console.log('****current tilemap');
+      // printTileMap(state.tileMap.present, state.tileMapRowLength);
       // eslint-disable-next-line no-case-declarations
       let tileMapCopy = [...state.tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
         tileMapCopy[tileInd] = tileIndex;
       });
-      console.log('****new tilemap');
-      printTileMap(tileMapCopy, state.tileMapRowLength);
+      // console.log('****new tilemap');
+      // printTileMap(tileMapCopy, state.tileMapRowLength);
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
           present: tileMapCopy
-        }
+        },
+        tileMapDiff: [...state.tileMapDiff, ...action.tileMapDiff]
+      };
+    case RESET_TILEMAP_DIFF:
+      return {
+        ...state,
+        tileMapDiff: []
       };
     case REMOVE_PLAYERS_TILES:
       // when a player is killed or leaves the game we need to revert their tiles
