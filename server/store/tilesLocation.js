@@ -70,16 +70,16 @@ function tilesReducer(state = initialState, action) {
         }
       };
     case UPDATE_TILEMAP:
-      // console.log('****current tilemap');
-      // printTileMap(state.tileMap.present, state.tileMapRowLength);
+      console.log('****current tilemap');
+      printTileMap(state.tileMap.present, state.tileMapRowLength);
       // eslint-disable-next-line no-case-declarations
       let tileMapCopy = [...state.tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
         tileMapCopy[tileInd] = tileIndex;
       });
-      // console.log('****new tilemap');
-      // printTileMap(tileMapCopy, state.tileMapRowLength);
+      console.log('****new tilemap');
+      printTileMap(tileMapCopy, state.tileMapRowLength);
       return {
         ...state,
         tileMap: {
@@ -95,17 +95,23 @@ function tilesReducer(state = initialState, action) {
         '&',
         action.pathIndex
       );
+      let newTileMap = ['test'];
       printTileMap(state.tileMap.present, state.tileMapRowLength);
-      let newTileMap = state.tileMap.present.map(tileIndex => {
-        if (
-          tileIndex === action.harborIndex ||
-          tileIndex === action.pathIndex
-        ) {
-          return action.regularIndex;
-        } else {
-          return tileIndex;
-        }
-      });
+      // only need to remove tiles if the player wasnt killed
+      if (action.harborIndex) {
+        newTileMap = state.tileMap.present.map(tileIndex => {
+          if (
+            tileIndex === action.harborIndex ||
+            tileIndex === action.pathIndex
+          ) {
+            return action.regularIndex;
+          } else {
+            return tileIndex;
+          }
+        });
+      } else {
+        newTileMap = [...state.tileMap.present];
+      }
       console.log('vvvvvvvvvvvvremovedvvvvvvvvvvvv');
       printTileMap(newTileMap, state.tileMapRowLength);
       return {
