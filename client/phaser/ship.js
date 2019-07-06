@@ -256,8 +256,8 @@ export default class Ship {
   isPath(currentTile) {
     if (currentTile.index !== 5) {
       console.log('************isPath**********');
-      console.log('tileValues', this.scene.tileValues);
-      console.log('currentTile', currentTile.index);
+      console.log('path tileValues', this.scene.tileValues.path);
+      console.log('currentTile', currentTile);
     }
 
     // if the tile is any of the path tiles

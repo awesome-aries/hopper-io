@@ -236,7 +236,7 @@ export default class PlayScene extends Phaser.Scene {
 
     // set the tiles values according to the server
 
-    tileMap.present.forEach(({tileIndex, ind}) => {
+    tileMap.present.forEach((tileIndex, ind) => {
       let {x, y} = IndToXY(ind, this.planeDimensions.x);
       let tile = this.map.getTileAt(x, y);
       tile.index = tileIndex;
