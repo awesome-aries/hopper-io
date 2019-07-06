@@ -153,6 +153,19 @@ export default class Ship {
 
     // check to see if the cart has moved to a new tile or not.
     if (newTileXY !== currTileXY) {
+      // *************************************************
+
+      // emit the state to the server
+      // we want to tell the server everytime we move
+      // if this overloading the server then we may want to move it into the setPath if clause at the end
+      // or move out if it looks jerky
+      // const newState = clientStore.getState();
+
+      emitState(
+        game.playerWorldXY.present,
+        game.direction.present,
+        game.tileMapDiff
+      );
       // If we've reached a new tile, then set that as the new present tile
       clientStore.dispatch(
         clientActionCreators.game.movePlayer(
@@ -216,8 +229,8 @@ export default class Ship {
         // here we want to emit that we killed whichever player this path belongs to
         playerKilled(newTile.index);
       }
-      // get the tile at the location of the ship and make it a path tile if on a regular tile
-      if (currentTileIdx.present === this.scene.tileValues.regular) {
+      // get the tile at the location of the ship and make it a path tile as long as youre not in your own harbor
+      if (currentTileIdx.present !== this.scene.harborIndex) {
         this.scene.setTileIndex(
           this.scene.pathIndex, //type of tile to set it to
           {
@@ -227,19 +240,6 @@ export default class Ship {
           }
         );
       }
-      // *************************************************
-
-      // get the updated state and emit it to the server
-      // we want to tell the server everytime we move
-      // if this overloading the server then we may want to move it into the setPath if clause at the end
-      // or move out if it looks jerky
-      let {game} = clientStore.getState();
-
-      emitState(
-        game.playerWorldXY.present,
-        game.direction.present,
-        game.tileMapDiff
-      );
     }
   }
 

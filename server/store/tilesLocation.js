@@ -77,7 +77,6 @@ function tilesReducer(state = initialState, action) {
     case UPDATE_TILEMAP:
       // console.log('****current tilemap');
       // printTileMap(state.tileMap.present, state.tileMapRowLength);
-      // eslint-disable-next-line no-case-declarations
       let tileMapCopy = [...state.tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
@@ -104,25 +103,33 @@ function tilesReducer(state = initialState, action) {
         '*******removing*********:',
         action.harborIndex,
         '&',
-        action.pathIndex
+        action.pathIndex,
+        'changing to:',
+        action.regularIndex
       );
-      let newTileMap = ['test'];
+      let newTileMap = [];
+      let newTileMapDiff = [...state.tileMapDiff];
       printTileMap(state.tileMap.present, state.tileMapRowLength);
       // only need to remove tiles if the player wasnt killed
       if (action.harborIndex) {
-        newTileMap = state.tileMap.present.map(tileIndex => {
-          if (
-            tileIndex === action.harborIndex ||
-            tileIndex === action.pathIndex
-          ) {
-            return action.regularIndex;
+        state.tileMap.present.forEach((tileIndex, ind) => {
+          if (tileIndex === action.harborIndex) {
+            newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
+            // for the players harbor tiles, we revert themback to regular tiles
+            newTileMap.push(action.regularIndex);
+          } else if (tileIndex === action.pathIndex) {
+            newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
+            // for their path tiles, we want to revert it back to the previous value to  make sure if they are cutting into an opponents harbor that harbor is restored
+            // return state.tileMap.previous[ind];
+            newTileMap.push(action.regularIndex);
           } else {
-            return tileIndex;
+            newTileMap.push(tileIndex);
           }
         });
       } else {
         newTileMap = [...state.tileMap.present];
       }
+      console.log('newTileMapDiff', newTileMapDiff);
       console.log('vvvvvvvvvvvvremovedvvvvvvvvvvvv');
       printTileMap(newTileMap, state.tileMapRowLength);
       return {
@@ -130,7 +137,8 @@ function tilesReducer(state = initialState, action) {
         tileMap: {
           previous: [...state.tileMap.present],
           present: newTileMap
-        }
+        },
+        tileMapDiff: [...state.tileMapDiff, ...newTileMapDiff]
       };
     default:
       return state;

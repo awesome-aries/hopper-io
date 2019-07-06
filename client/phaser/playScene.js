@@ -95,23 +95,38 @@ export default class PlayScene extends Phaser.Scene {
     // ***************** Set up Socket ******************
 
     // Set up our socket listener for updates from the server
-    socket.on('updateState', (players, tileMapDiff) => {
-      this.onUpdateState(players, tileMapDiff);
-    });
-    socket.on('wasKilled', () => {
-      this.onWasKilled();
-    });
-    socket.on('newPlayer', player => this.onNewPlayer(player));
+    // socket.on('updateState', (players, tileMapDiff) => {
+    //   this.onUpdateState(players, tileMapDiff);
+    // });
+    // socket.on('wasKilled', () => {
+    //   this.onWasKilled();
+    // });
+    // socket.on('newPlayer', player => this.onNewPlayer(player));
+
+    // // // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
+    // socket.on(
+    //   'removePlayer',
+    //   (removedPlayerID, newTileMap, newTileMapRowLength) =>
+    //     this.onRemovedPlayer(removedPlayerID, newTileMap, newTileMapRowLength)
+    // );
+    socket.on('updateState', this.onUpdateState);
+    socket.on('wasKilled', this.onWasKilled);
+    socket.on('newPlayer', this.onNewPlayer);
 
     // // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
-    socket.on(
-      'removePlayer',
-      (removedPlayerID, newTileMap, newTileMapRowLength) =>
-        this.onRemovedPlayer(removedPlayerID, newTileMap, newTileMapRowLength)
-    );
+    socket.on('removePlayer', this.onRemovedPlayer);
     // **************************************************
   }
-  onRemovedPlayer(removedPlayerID, newTileMapDiff) {
+  onRemovedPlayer = (removedPlayerID, newTileMapDiff) => {
+    console.log('newTileMapDiff', newTileMapDiff);
+    // need to update our tile map
+    this.updatePhaserTileMap(newTileMapDiff);
+
+    // and in our store
+    clientStore.dispatch(
+      clientActionCreators.game.updateTileMap(newTileMapDiff)
+    );
+
     // when a player leaves the game or killed we want to remove them from the game.
     clientStore.dispatch(
       clientActionCreators.opponent.removeOpponent(removedPlayerID)
@@ -128,21 +143,13 @@ export default class PlayScene extends Phaser.Scene {
       return phaserOpponent.socketId !== removedPlayerID;
     });
     console.log(`This is the player that left:`, removedPlayerID);
-
-    // need to update our tile map
-    this.updatePhaserTileMap(newTileMapDiff);
-
-    // and in our store
-    clientStore.dispatch(
-      clientActionCreators.game.updateTileMap(newTileMapDiff)
-    );
-  }
-  onNewPlayer(player) {
+  };
+  onNewPlayer = player => {
     // here we add the new player to our list
     clientStore.dispatch(clientActionCreators.opponent.addOpponent(player));
     this.makeOpponent(this, player.worldX, player.worldY);
     console.log('A new player has joined', player);
-  }
+  };
   createOpponents(opponent) {
     //if the opponent from state doesn't exist in phaser opponents array, call makeOpponent to add it and create sprite.
     opponent.forEach(stateOpponent => {
@@ -199,6 +206,15 @@ export default class PlayScene extends Phaser.Scene {
   gameOver() {
     //this.ship.sprite.body.velocity.setTo(0, 0);
     console.log('game over loser');
+
+    // when we are killed we no longer want to listen to socket events
+    socket.removeListener('updateState', this.onUpdateState);
+    socket.removeListener('wasKilled', this.onWasKilled);
+    socket.removeListener('newPlayer', this.onNewPlayer);
+
+    // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
+    socket.removeListener('removePlayer', this.onRemovedPlayer);
+
     this.scene.start('losing');
   }
 
@@ -283,7 +299,7 @@ export default class PlayScene extends Phaser.Scene {
     });
   }
 
-  onUpdateState(players, tileMapDiff) {
+  onUpdateState = (players, tileMapDiff) => {
     // when we get updates from the server we need to update the tilemap in phaser...
     console.log('from server tileMapDiff', tileMapDiff);
 
@@ -299,7 +315,7 @@ export default class PlayScene extends Phaser.Scene {
 
     // and phaser
     this.updateOpponents();
-  }
+  };
   updateOpponents() {
     // update the phaser opponent sprites based on the opponent in store's position
     const {opponent} = clientStore.getState();
@@ -325,11 +341,11 @@ export default class PlayScene extends Phaser.Scene {
     // not sure if it'll take a flat array
     // this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
   }
-  onWasKilled() {
+  onWasKilled = () => {
     console.log('You were killed');
     // here we need to set on the gameState that they were killed
     this.alive = false;
 
     // dont set isPlaying to false yet because that will immediately transition them out of the game, set it in the losing screen
-  }
+  };
 }

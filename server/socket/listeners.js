@@ -148,28 +148,31 @@ async function onPlayerKilled(io, socket, pathIndex) {
     return player.pathIndex === pathIndex;
   });
 
-  console.log('killedPlayer previous vals:', killedPlayer);
+  if (killedPlayer) {
+    // check that player exists because sometimes you can hit a players path tile twice and double kill them before the start is updated.
+    console.log('killedPlayer previous vals:', killedPlayer);
 
-  // emit to that player that they died
-  io.to(`${killedPlayer.socketId}`).emit('wasKilled');
-  console.log(`Player ${killedPlayer.socketId} was killed by ${socket.id}`);
+    // emit to that player that they died
+    io.to(`${killedPlayer.socketId}`).emit('wasKilled');
+    console.log(`Player ${killedPlayer.socketId} was killed by ${socket.id}`);
 
-  // update the player in db and store
-  await serverStore.dispatch(playerKilled(killedPlayer.socketId));
+    // update the player in db and store
+    await serverStore.dispatch(playerKilled(killedPlayer.socketId));
 
-  // and remove their tiles from the tileMap
-  await serverStore.dispatch(
-    serverActionCreators.tiles.removePlayersTiles(
-      killedPlayer.pathIndex,
-      killedPlayer.harborIndex,
-      oldState.players.tileValues.regular
-    )
-  );
-  // get the new state
-  const {tiles: {tileMapDiff}} = serverStore.getState();
+    // and remove their tiles from the tileMap
+    await serverStore.dispatch(
+      serverActionCreators.tiles.removePlayersTiles(
+        killedPlayer.pathIndex,
+        killedPlayer.harborIndex,
+        oldState.players.tileValues.regular
+      )
+    );
+    // get the new state
+    const {tiles: {tileMapDiff}} = serverStore.getState();
 
-  // send back to the other player the id of the player who left and the new tilemap
-  socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
+    // send back to the other player the id of the player who left and the new tilemap
+    socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
+  }
 }
 
 async function onDisconnect(socket) {
@@ -184,20 +187,19 @@ async function onDisconnect(socket) {
   // When a player disconnects, remove that player from our store and database
   await serverStore.dispatch(removePlayer(socket.id));
 
-  // clear that players path and harbor tiles from the tilemap
-  await serverStore.dispatch(
-    serverActionCreators.tiles.removePlayersTiles(
-      oldPlayer.pathIndex,
-      oldPlayer.harborIndex,
-      oldState.players.tileValues.regular
-    )
-  );
-
-  // get the new state
-  const {tiles: {tileMapDiff}} = serverStore.getState();
-
   // and send the id of player to remove to the other players if the player left while currently playing
   if (oldPlayer.isPlaying) {
+    // clear that players path and harbor tiles from the tilemap
+    await serverStore.dispatch(
+      serverActionCreators.tiles.removePlayersTiles(
+        oldPlayer.pathIndex,
+        oldPlayer.harborIndex,
+        oldState.players.tileValues.regular
+      )
+    );
+    // get the new state
+    const {tiles: {tileMapDiff}} = serverStore.getState();
+
     socket.broadcast.emit('removePlayer', socket.id, tileMapDiff);
   }
 }
