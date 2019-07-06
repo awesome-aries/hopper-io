@@ -17,7 +17,7 @@ const UPDATE_OPPONENTS_POS = 'UPDATE_OPPONENTS_POS';
  * ACTION CREATORS
  */
 export const opponentActionCreators = {
-  // when a new player joins this action will be dispatched to add all other current players to the players store
+  // when a new player joins this action will be dispatched to add current player to all other players store
   addOpponent: opponent => ({
     type: ADD_OPPONENT,
     opponent
