@@ -13,12 +13,12 @@ A playable online build of Hopper.io can be found here (need to add deployed sit
 * Cara Takemoto
   * [Github](https://github.com/ctakemoto)
   * [LinkedIn](https://www.linkedin.com/in/cara-takemoto/)
+ * Nida Jabbar
+  * [Github](https://github.com/nj2296)
+  * [LinkedIn](https://www.linkedin.com/in/nidajabbar/)
 * Allison Geismar
   * [Github](https://github.com/ageismar)
   * [LinkedIn](https://www.linkedin.com/in/allison-geismar/)
-* Nida Jabbar
-  * [Github](https://github.com/nj2296)
-  * [LinkedIn](https://www.linkedin.com/in/nidajabbar/)
 * Katie Guest
   * [Github](https://github.com/KatieGuest)
   * [LinkedIn](https://www.linkedin.com/in/katieguest11/)
