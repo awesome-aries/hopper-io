@@ -151,9 +151,12 @@ const removePlayer = socketId => {
       let updatedTileValues = {...tileValues};
 
       // if they were killed before they left then they wont have these assigned anymore
-      if (removedPlayer.harborIndex) {
+      if (removedPlayer.isPlaying) {
         updatedTileValues.harbor.push(removedPlayer.harborIndex);
         updatedTileValues.path.push(removedPlayer.pathIndex);
+        console.log('player removed*******');
+        console.log('tileValues', updatedTileValues);
+        console.log('TTTTTTTTTTTTTTTTT');
       }
 
       // and remove them from our database
@@ -262,9 +265,6 @@ function playersReducer(state = initialState, action) {
         ]
       };
     case REMOVED_PLAYER:
-      console.log('player removed*******');
-      console.log('tileValues', action.updatedTileValues);
-      console.log('TTTTTTTTTTTTTTTTT');
       // make the tile values avaiable again
       return {
         ...state,
@@ -275,6 +275,7 @@ function playersReducer(state = initialState, action) {
       };
     case PLAYER_KILLED:
       console.log('player killed*******');
+      console.log('killedPLayer: ', action.updatedPlayer);
       console.log('tileValues', action.updatedTileValues);
       console.log('TTTTTTTTTTTTTTTTT');
       return {

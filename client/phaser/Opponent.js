@@ -57,8 +57,10 @@ export default class Opponent {
   destroy() {
     this.sprite.destroy();
   }
-  move(x, y) {
+  move(x, y, direction) {
     this.sprite.x = x;
     this.sprite.y = y;
+
+    this.direction = direction;
   }
 }

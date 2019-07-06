@@ -33,11 +33,22 @@ export default class Ship {
 
     //setting all the surrounding tiles of the start position as harbor tiles
 
-    harbor.forEach(tile => (tile.index = this.scene.harborIndex));
+    harbor.forEach(tile => {
+      tile.index = this.scene.harborIndex;
+    });
 
     //updating store with harbor
     clientStore.dispatch(
       clientActionCreators.game.setTiles(harbor, this.scene.harborIndex)
+    );
+
+    // once we've set the harbor in store, need to emit the change to the server
+    let {game} = clientStore.getState();
+
+    emitState(
+      game.playerWorldXY.present,
+      game.direction.present,
+      game.tileMapDiff
     );
 
     // **************************************
@@ -221,6 +232,7 @@ export default class Ship {
       // get the updated state and emit it to the server
       // we want to tell the server everytime we move
       // if this overloading the server then we may want to move it into the setPath if clause at the end
+      // or move out if it looks jerky
       let {game} = clientStore.getState();
 
       emitState(
@@ -242,6 +254,12 @@ export default class Ship {
   }
 
   isPath(currentTile) {
+    if (currentTile.index !== 5) {
+      console.log('************isPath**********');
+      console.log('tileValues', this.scene.tileValues);
+      console.log('currentTile', currentTile.index);
+    }
+
     // if the tile is any of the path tiles
     if (this.scene.tileValues.path.includes(currentTile.index)) {
       return true;

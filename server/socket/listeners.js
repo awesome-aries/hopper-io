@@ -104,33 +104,40 @@ async function onPlayerStartGame(socket, socketId, name) {
 
 async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
   // when each player moved we want to update their location and new tilemap in the store
-
-  // update the tilemap
-  // not a thunk rn, just in store but need to make a thunk and place in DB
-  // TODO
-  await serverStore.dispatch(
-    serverActionCreators.tiles.updateTileMap(tilemapDiff)
-  );
-
-  // update the player location
-  await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
-
-  // get the new state
-  const {players: {players}, tiles} = serverStore.getState();
-
-  // make a copy of players and remove the current player from the object so the player only gets their opponents
-  // also make sure not sending any players not yet in the game
-  const playersCopy = players.filter(player => {
-    return player.isPlaying && player.socketId !== socket.id;
+  const oldState = serverStore.getState();
+  let oldPlayer = oldState.players.players.find(player => {
+    return player.socketId === socket.id;
   });
 
-  // and then broadcast the new state to all the other players
-  socket.broadcast.emit(
-    'updateState',
-    playersCopy,
-    tiles.tileMap.present,
-    tiles.tileMapRowLength
-  );
+  // check to see if player is still playing and only update if so, necessary because after player was killed, last move was still sending updateState
+  if (oldPlayer.isPlaying) {
+    // update the tilemap
+    // not a thunk rn, just in store but need to make a thunk and place in DB
+    // TODO
+    await serverStore.dispatch(
+      serverActionCreators.tiles.updateTileMap(tilemapDiff)
+    );
+
+    // update the player location
+    await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
+
+    // get the new state
+    const {players: {players}, tiles} = serverStore.getState();
+
+    // make a copy of players and remove the current player from the object so the player only gets their opponents
+    // also make sure not sending any players not yet in the game
+    const playersCopy = players.filter(player => {
+      return player.isPlaying && player.socketId !== socket.id;
+    });
+
+    // and then broadcast the new state to all the other players
+    socket.broadcast.emit(
+      'updateState',
+      playersCopy,
+      tiles.tileMap.present,
+      tiles.tileMapRowLength
+    );
+  }
 }
 
 async function onPlayerKilled(io, socket, pathIndex) {
@@ -143,11 +150,11 @@ async function onPlayerKilled(io, socket, pathIndex) {
     return player.pathIndex === pathIndex;
   });
 
-  console.log('killedPlayer', killedPlayer);
+  console.log('killedPlayer previous vals:', killedPlayer);
 
   // emit to that player that they died
   io.to(`${killedPlayer.socketId}`).emit('wasKilled');
-  console.log(`Player ${killedPlayer.socketId} was killed`);
+  console.log(`Player ${killedPlayer.socketId} was killed by ${socket.id}`);
 
   // update the player in db and store
   await serverStore.dispatch(playerKilled(killedPlayer.socketId));
@@ -189,10 +196,17 @@ async function onDisconnect(socket) {
   );
 
   // get the new state
-  const {tiles: {tileMap}} = serverStore.getState();
+  const {tiles: {tileMap, tileMapRowLength}} = serverStore.getState();
 
-  // and send the id of player to remove to the other players
-  socket.broadcast.emit('removePlayer', socket.id, tileMap);
+  // and send the id of player to remove to the other players if the player left while currently playing
+  if (oldPlayer.isPlaying) {
+    socket.broadcast.emit(
+      'removePlayer',
+      socket.id,
+      tileMap.present,
+      tileMapRowLength
+    );
+  }
 }
 
 module.exports = initServerListeners;

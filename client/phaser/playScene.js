@@ -22,22 +22,12 @@ export default class PlayScene extends Phaser.Scene {
 
     this.alive = true;
 
-    // this.shipSpawnX =
-
     // store the opponents
     // an array of objects with socketId and instance of Opponent class
     this.opponents = [];
   }
   init() {
     // used to prepare data
-    // get the tilemap array data and send it to our clientStore
-    // now dont set the tile map in store here, since its being set in the onStart listener with the tilemap from the server
-    // clientStore.dispatch(
-    //   clientActionCreators.game.setTilemap(
-    //     TileMapJS.layers[0].data,
-    //     TileMapJS.layers[0].width
-    //   )
-    // );
   }
   preload() {
     // loading in data
@@ -100,6 +90,7 @@ export default class PlayScene extends Phaser.Scene {
       shift: SHIFT
     });
     // **************************************************
+    // ***************** Set up Opponents ***************
     this.createOpponents(opponent);
     // ***************** Set up Socket ******************
 
@@ -112,29 +103,39 @@ export default class PlayScene extends Phaser.Scene {
     });
     socket.on('newPlayer', player => this.onNewPlayer(player));
 
-    // // when another player leaves the game, we want to listen for the server to tell us that the player that left
-    socket.on('removePlayer', removedPlayerID =>
-      this.onRemovedPlayer(removedPlayerID)
+    // // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
+    socket.on(
+      'removePlayer',
+      (removedPlayerID, newTileMap, newTileMapRowLength) =>
+        this.onRemovedPlayer(removedPlayerID, newTileMap, newTileMapRowLength)
     );
     // **************************************************
   }
-  onRemovedPlayer(removedPlayerID) {
-    // here we want to remove the player from our list with filter
-    // update the state and then in playScene, we'll populate our opponents from state
+  onRemovedPlayer(removedPlayerID, newTileMap, newTileMapRowLength) {
+    // when a player leaves the game or killed we want to remove them from the game.
     clientStore.dispatch(
       clientActionCreators.opponent.removeOpponent(removedPlayerID)
     );
+
     //have to destroy sprite to remove from phaser
-    this.opponent.forEach(phaserOpponent => {
+    this.opponents.forEach(phaserOpponent => {
       if (phaserOpponent.socketId === removedPlayerID) {
         phaserOpponent.opponent.destroy();
       }
     });
     //remove from our opponent list
-    this.opponent = this.opponent.filter(phaserOpponent => {
+    this.opponents = this.opponents.filter(phaserOpponent => {
       return phaserOpponent.socketId !== removedPlayerID;
     });
     console.log(`This is the player that left:`, removedPlayerID);
+
+    // need to update our tile map
+    this.updatePhaserTileMap(newTileMap);
+
+    // and in our store
+    clientStore.dispatch(
+      clientActionCreators.game.setTilemap(newTileMap, newTileMapRowLength)
+    );
   }
   onNewPlayer(player) {
     // here we add the new player to our list
@@ -154,17 +155,6 @@ export default class PlayScene extends Phaser.Scene {
           opponent.direction
         );
       }
-    });
-  }
-
-  updateOpponents() {
-    const {opponent} = clientStore.getState();
-    opponent.forEach(stateOpponent => {
-      this.opponents.forEach(phaserOpponent => {
-        if (stateOpponent.socketId === phaserOpponent.socketId) {
-          phaserOpponent.opponent.move();
-        }
-      });
     });
   }
 
@@ -206,11 +196,6 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  clearPlayerTiles(playerIndex) {
-    // clear a players harbor and path tiles when the die or they disconnect from the game
-    // **this may not be needed if we're just updating from tilemap from server
-  }
-
   gameOver() {
     //this.ship.sprite.body.velocity.setTo(0, 0);
     console.log('game over loser');
@@ -218,6 +203,7 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   createShip(playerWorldXY) {
+    // creates the ship when the game first starts
     console.log('playerWorldXY', playerWorldXY);
 
     this.ship = new Ship(
@@ -231,6 +217,7 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   createTileMap(tileMap) {
+    // initialized the tilemap when the game first starts
     this.map = this.make.tilemap({
       key: 'map',
       tileWidth: this.tileWidth,
@@ -247,13 +234,7 @@ export default class PlayScene extends Phaser.Scene {
       this.foregroundLayer.height
     );
 
-    // set the tiles in phaser to match the store
-    tileMap.present.forEach((tileIndex, ind) => {
-      let {x, y} = IndToXY(ind);
-      this.foregroundLayer.putTileAt(tileIndex, x, y);
-    });
-    // not sure if it'll take a flat array
-    // this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
+    this.updatePhaserTileMap(tileMap.present);
   }
 
   manuallyMakeHarbor() {
@@ -286,6 +267,7 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   makeOpponent(x, y, direction, socketId) {
+    // makes the opponent in phaser
     let newOpponnent = new Opponent(this, x, y, direction);
 
     // add the opponent to our list of opponents
@@ -294,7 +276,7 @@ export default class PlayScene extends Phaser.Scene {
       opponent: newOpponnent
     });
   }
-  // this is called in our listeners file whenever
+
   onUpdateState(players, newTileMap, newTileMapRowLength) {
     // when we get updates from the server we need to update the tilemap in phaser...
     console.log(
@@ -303,23 +285,51 @@ export default class PlayScene extends Phaser.Scene {
       'newTileMap.length',
       newTileMap.length
     );
-    newTileMap.forEach((tileIndex, ind) => {
-      let {x, y} = IndToXY(ind);
-      this.foregroundLayer.putTileAt(tileIndex, x, y);
-    });
-    // this.foregroundLayer.putTilesAt(newTileMap, 0, 0);
+
+    this.updatePhaserTileMap(newTileMap);
+
     // and in our store
     clientStore.dispatch(
       clientActionCreators.game.setTilemap(newTileMap, newTileMapRowLength)
     );
 
-    // also update opponents
+    // also update opponents in state
+    clientStore.dispatch(
+      clientActionCreators.opponent.updateOpponentsPos(players)
+    );
 
+    // and phaser
     this.updateOpponents();
+  }
+  updateOpponents() {
+    // update the phaser opponent sprites based on the opponent in store's position
+    const {opponent} = clientStore.getState();
+    opponent.forEach(stateOpponent => {
+      this.opponents.forEach(phaserOpponent => {
+        if (stateOpponent.socketId === phaserOpponent.socketId) {
+          phaserOpponent.opponent.move(
+            stateOpponent.worldX,
+            stateOpponent.worldY,
+            stateOpponent.direction
+          );
+        }
+      });
+    });
+  }
+  updatePhaserTileMap(tileMap) {
+    // set the tiles in phaser to match the store
+    tileMap.forEach((tileIndex, ind) => {
+      let {x, y} = IndToXY(ind);
+      this.foregroundLayer.putTileAt(tileIndex, x, y);
+    });
+    // not sure if it'll take a flat array
+    // this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
   }
   onWasKilled() {
     console.log('You were killed');
     // here we need to set on the gameState that they were killed
     this.alive = false;
+
+    // dont set isPlaying to false yet because that will immediately transition them out of the game, set it in the losing screen
   }
 }
