@@ -6,6 +6,7 @@
 const INIT_TILEMAP = 'INIT_TILEMAP';
 const UPDATE_TILEMAP = 'UPDATE_TILEMAP';
 const REMOVE_PLAYERS_TILES = 'REMOVE_PLAYERS_TILES';
+const RESET_TILEMAP_DIFF = 'RESET_TILEMAP_DIFF';
 
 /**
  * INITIAL STATE
@@ -16,6 +17,7 @@ const initialState = {
     previous: [], //need to keep track of the previous state of the tileMap
     present: []
   },
+  tileMapDiff: [], //array of changes from the client
   tileMapRowLength: null //number
 };
 
@@ -37,6 +39,9 @@ const tilesActionCreators = {
     harborIndex,
     pathIndex,
     regularIndex
+  }),
+  resetTileMapDiff: () => ({
+    type: RESET_TILEMAP_DIFF
   })
 };
 /**
@@ -70,22 +75,27 @@ function tilesReducer(state = initialState, action) {
         }
       };
     case UPDATE_TILEMAP:
-      console.log('****current tilemap');
-      printTileMap(state.tileMap.present, state.tileMapRowLength);
-      // eslint-disable-next-line no-case-declarations
+      // console.log('****current tilemap');
+      // printTileMap(state.tileMap.present, state.tileMapRowLength);
       let tileMapCopy = [...state.tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
         tileMapCopy[tileInd] = tileIndex;
       });
-      console.log('****new tilemap');
-      printTileMap(tileMapCopy, state.tileMapRowLength);
+      // console.log('****new tilemap');
+      // printTileMap(tileMapCopy, state.tileMapRowLength);
       return {
         ...state,
         tileMap: {
           previous: [...state.tileMap.present],
           present: tileMapCopy
-        }
+        },
+        tileMapDiff: [...state.tileMapDiff, ...action.tileMapDiff]
+      };
+    case RESET_TILEMAP_DIFF:
+      return {
+        ...state,
+        tileMapDiff: []
       };
     case REMOVE_PLAYERS_TILES:
       // when a player is killed or leaves the game we need to revert their tiles
@@ -93,19 +103,33 @@ function tilesReducer(state = initialState, action) {
         '*******removing*********:',
         action.harborIndex,
         '&',
-        action.pathIndex
+        action.pathIndex,
+        'changing to:',
+        action.regularIndex
       );
+      let newTileMap = [];
+      let newTileMapDiff = [...state.tileMapDiff];
       printTileMap(state.tileMap.present, state.tileMapRowLength);
-      let newTileMap = state.tileMap.present.map(tileIndex => {
-        if (
-          tileIndex === action.harborIndex ||
-          tileIndex === action.pathIndex
-        ) {
-          return action.regularIndex;
-        } else {
-          return tileIndex;
-        }
-      });
+      // only need to remove tiles if the player wasnt killed
+      if (action.harborIndex) {
+        state.tileMap.present.forEach((tileIndex, ind) => {
+          if (tileIndex === action.harborIndex) {
+            newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
+            // for the players harbor tiles, we revert themback to regular tiles
+            newTileMap.push(action.regularIndex);
+          } else if (tileIndex === action.pathIndex) {
+            newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
+            // for their path tiles, we want to revert it back to the previous value to  make sure if they are cutting into an opponents harbor that harbor is restored
+            // return state.tileMap.previous[ind];
+            newTileMap.push(action.regularIndex);
+          } else {
+            newTileMap.push(tileIndex);
+          }
+        });
+      } else {
+        newTileMap = [...state.tileMap.present];
+      }
+      console.log('newTileMapDiff', newTileMapDiff);
       console.log('vvvvvvvvvvvvremovedvvvvvvvvvvvv');
       printTileMap(newTileMap, state.tileMapRowLength);
       return {
@@ -113,7 +137,8 @@ function tilesReducer(state = initialState, action) {
         tileMap: {
           previous: [...state.tileMap.present],
           present: newTileMap
-        }
+        },
+        tileMapDiff: [...state.tileMapDiff, ...newTileMapDiff]
       };
     default:
       return state;

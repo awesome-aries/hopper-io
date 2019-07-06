@@ -44,10 +44,10 @@ const Player = db.define('player', {
     defaultValue: false
   },
   harborIndex: {
-    type: Sequelize.STRING
+    type: Sequelize.INTEGER
   },
   pathIndex: {
-    type: Sequelize.STRING
+    type: Sequelize.INTEGER
   },
   roomId: {
     type: Sequelize.STRING

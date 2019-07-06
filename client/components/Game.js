@@ -19,6 +19,9 @@ class Game extends React.Component {
       scene: [StartingScene, PlayScene, LoseEndScene, WinEndScene]
     };
     let game = new Phaser.Game(config);
+    // make it so that the scene update function still runs when the window loses focus
+    game.events.off('visible', game.onVisible, game);
+    game.events.off('hidden', game.onHidden, game);
   }
   shouldComponentUpdate() {
     return false;
