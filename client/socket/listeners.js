@@ -14,35 +14,19 @@ function initClientListeners(io, socket) {
     onStart(players, thisPlayer, tileMap, tileMapRowLength)
   );
 
-  socket.on('newPlayer', player => onNewPlayer(player));
-
-  // // when another player leaves the game, we want to listen for the server to tell us that the player that left
-  socket.on('removePlayer', removedPlayerID =>
-    onRemovedPlayer(removedPlayerID)
-  );
-
   // The onUpdateState listener must be in playScene so that it can manipulate phaser objects
   // socket.on('updateState', (players, newTileMap) => {
   //   onUpdateState(players, newTileMap);
   // });
 }
 
-function onRemovedPlayer(removedPlayerID) {
-  // here we'll want to remove the player from our list with filter
-  // update the state and then in playScene, we'll populate our opponents from state
-  console.log(`This is the player that left:`, removedPlayerID);
-  // dispatch removeOpponent in opponent reducer
-  // TODO
-}
-
 async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
   // dispatch INIT_OPPONENTS in opponent reducer
-  // TODO
+  clientStore.dispatch(clientActionCreators.opponent.initOpponents(players));
 
   console.log('This is the new player, you!', thisPlayer);
-  console.log('tileMap', tileMap);
 
   // set the path and tile values for the player
   await clientStore.dispatch(
@@ -71,13 +55,6 @@ async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
   await clientStore.dispatch(
     clientActionCreators.gameState.startGame(thisPlayer.name)
   );
-}
-
-function onNewPlayer(player) {
-  // here we'll want to add the new player to our list
-  console.log('A new player has joined', player);
-  // dispath action addOpponent in opponet reducer
-  // TODO
 }
 
 // function onUpdateState(players, newTileMap) {

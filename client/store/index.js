@@ -25,8 +25,8 @@ const clientStore = createStore(
   reducer,
   composeEnhancers(
     applyMiddleware(
-      thunkMiddleware.withExtraArgument({axios}),
-      createLogger({collapsed: true})
+      thunkMiddleware.withExtraArgument({axios})
+      // createLogger({collapsed: true})
     )
   )
 );

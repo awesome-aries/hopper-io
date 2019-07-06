@@ -56,6 +56,8 @@ const SET_TILE = 'SET_TILE';
 const SET_TILES = 'SET_TILES';
 const CHANGE_PATH_TO_HARBOR = 'CHANGE_PATH_TO_HARBOR';
 const SET_TILE_VALUES = 'SET_TILE_VALUES';
+const RESET_TILEMAP_DIFF = 'RESET_TILEMAP_DIFF';
+const UPDATE_TILEMAP = 'UPDATE_TILEMAP';
 
 /**
  * ACTION CREATORS
@@ -114,6 +116,13 @@ export const gameActionCreators = {
     type: SET_TILE_VALUES,
     pathIndex,
     harborIndex
+  }),
+  resetTileMapDiff: () => ({
+    type: RESET_TILEMAP_DIFF
+  }),
+  updateTileMap: tileMapDiff => ({
+    type: UPDATE_TILEMAP,
+    tileMapDiff
   })
 };
 
@@ -238,9 +247,26 @@ export default function gameReducer(state = initialState, action) {
           previous: [...state.tileMap.present],
           present: [...action.tileMap]
         },
-        // reinitialize to be an empty array
-        tileMapDiff: [],
         tileMapRowLength: action.tileMapRowLength
+      };
+    case RESET_TILEMAP_DIFF:
+      return {
+        ...state,
+        // reinitialize to be an empty array
+        tileMapDiff: []
+      };
+    case UPDATE_TILEMAP:
+      let tileMapCopy = [...state.tileMap.present];
+      // for all the reported changes from the server set them in our tilemap
+      action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
+        tileMapCopy[tileInd] = tileIndex;
+      });
+      return {
+        ...state,
+        tileMap: {
+          previous: [...state.tileMap.present],
+          present: tileMapCopy
+        }
       };
     case SET_TILE:
       // corresponding index in tileMap

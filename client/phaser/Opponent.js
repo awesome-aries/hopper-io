@@ -54,4 +54,13 @@ export default class Opponent {
       this.sprite.anims.play('ship-south');
     }
   }
+  destroy() {
+    this.sprite.destroy();
+  }
+  move(x, y, direction) {
+    this.sprite.x = x;
+    this.sprite.y = y;
+
+    this.direction = direction;
+  }
 }

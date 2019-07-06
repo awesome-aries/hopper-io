@@ -27,8 +27,8 @@ function initServerListeners(io, socket) {
     onPlayerStartGame(socket, socketId, name)
   );
 
-  socket.on('playerKilled', (harborIndex, pathIndex, regularIndex) => {
-    onPlayerKilled(socket, harborIndex, pathIndex, regularIndex);
+  socket.on('playerKilled', pathIndex => {
+    onPlayerKilled(io, socket, pathIndex);
   });
 }
 
@@ -104,54 +104,75 @@ async function onPlayerStartGame(socket, socketId, name) {
 
 async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
   // when each player moved we want to update their location and new tilemap in the store
-
-  // update the tilemap
-  // not a thunk rn, just in store but need to make a thunk and place in DB
-  // TODO
-  await serverStore.dispatch(
-    serverActionCreators.tiles.updateTileMap(tilemapDiff)
-  );
-
-  // update the player location
-  await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
-
-  // get the new state
-  const {players: {players}, tiles} = serverStore.getState();
-
-  // make a copy of players and remove the current player from the object so the player only gets their opponents
-  // also make sure not sending any players not yet in the game
-  const playersCopy = players.filter(player => {
-    return player.isPlaying && player.socketId !== socket.id;
+  const oldState = serverStore.getState();
+  let oldPlayer = oldState.players.players.find(player => {
+    return player.socketId === socket.id;
   });
 
-  // and then broadcast the new state to all the other players
-  socket.broadcast.emit(
-    'updateState',
-    playersCopy,
-    tiles.tileMap.present,
-    tiles.tileMapRowLength
-  );
+  // check to see if player is still playing and only update if so, necessary because after player was killed, last move was still sending updateState
+  if (oldPlayer.isPlaying) {
+    // update the tilemap
+    // not a thunk rn, just in store but need to make a thunk and place in DB
+    // TODO
+    await serverStore.dispatch(
+      serverActionCreators.tiles.updateTileMap(tilemapDiff)
+    );
+
+    // update the player location
+    await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
+
+    // get the new state
+    const {players: {players}, tiles: {tileMapDiff}} = serverStore.getState();
+
+    // make a copy of players and remove the current player from the object so the player only gets their opponents
+    // also make sure not sending any players not yet in the game
+    const playersCopy = players.filter(player => {
+      return player.isPlaying && player.socketId !== socket.id;
+    });
+
+    // and then broadcast the new state to all the other players
+    socket.broadcast.emit('updateState', playersCopy, tileMapDiff);
+
+    // and clear the changes we just broadcast to the clients
+    serverStore.dispatch(serverActionCreators.tiles.resetTileMapDiff());
+  }
 }
 
-async function onPlayerKilled(socket, harborIndex, pathIndex, regularIndex) {
-  console.log(`Player ${socket.id} was killed`);
+async function onPlayerKilled(io, socket, pathIndex) {
+  // console.log(`Player ${socket.id} was killed`);
 
-  // update the player in db and store
-  await serverStore.dispatch(playerKilled(socket.id));
+  let oldState = serverStore.getState();
 
-  // and remove their tiles from the tileMap
-  await serverStore.dispatch(
-    serverActionCreators.tiles.removePlayersTiles(
-      pathIndex,
-      harborIndex,
-      regularIndex
-    )
-  );
-  // get the new state
-  const {tiles: {tileMap}} = serverStore.getState();
+  // get the player that was killed
+  let killedPlayer = oldState.players.players.find(player => {
+    return player.pathIndex === pathIndex;
+  });
 
-  // send back to the other player the id of the player who left and the new tilemap
-  socket.broadcast.emit('removePlayer', socket.id, tileMap.present);
+  if (killedPlayer) {
+    // check that player exists because sometimes you can hit a players path tile twice and double kill them before the start is updated.
+    console.log('killedPlayer previous vals:', killedPlayer);
+
+    // emit to that player that they died
+    io.to(`${killedPlayer.socketId}`).emit('wasKilled');
+    console.log(`Player ${killedPlayer.socketId} was killed by ${socket.id}`);
+
+    // update the player in db and store
+    await serverStore.dispatch(playerKilled(killedPlayer.socketId));
+
+    // and remove their tiles from the tileMap
+    await serverStore.dispatch(
+      serverActionCreators.tiles.removePlayersTiles(
+        killedPlayer.pathIndex,
+        killedPlayer.harborIndex,
+        oldState.players.tileValues.regular
+      )
+    );
+    // get the new state
+    const {tiles: {tileMapDiff}} = serverStore.getState();
+
+    // send back to the other player the id of the player who left and the new tilemap
+    socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
+  }
 }
 
 async function onDisconnect(socket) {
@@ -166,20 +187,21 @@ async function onDisconnect(socket) {
   // When a player disconnects, remove that player from our store and database
   await serverStore.dispatch(removePlayer(socket.id));
 
-  // clear that players path and harbor tiles from the tilemap
-  await serverStore.dispatch(
-    serverActionCreators.tiles.removePlayersTiles(
-      oldPlayer.pathIndex,
-      oldPlayer.harborIndex,
-      oldState.players.tileValues.regular
-    )
-  );
+  // and send the id of player to remove to the other players if the player left while currently playing
+  if (oldPlayer.isPlaying) {
+    // clear that players path and harbor tiles from the tilemap
+    await serverStore.dispatch(
+      serverActionCreators.tiles.removePlayersTiles(
+        oldPlayer.pathIndex,
+        oldPlayer.harborIndex,
+        oldState.players.tileValues.regular
+      )
+    );
+    // get the new state
+    const {tiles: {tileMapDiff}} = serverStore.getState();
 
-  // get the new state
-  const {tiles: {tileMap}} = serverStore.getState();
-
-  // and send the id of player to remove to the other players
-  socket.broadcast.emit('removePlayer', socket.id, tileMap);
+    socket.broadcast.emit('removePlayer', socket.id, tileMapDiff);
+  }
 }
 
 module.exports = initServerListeners;
