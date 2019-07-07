@@ -7,7 +7,8 @@ const useStyles = makeStyles({
     margin: '20px',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    align: 'center'
   },
   scoreBar: {
     background: 'white',
@@ -15,13 +16,19 @@ const useStyles = makeStyles({
     border: '1 solid white',
     borderRadius: 3,
     color: 'black',
-    height: '50px',
+    height: '40px',
     width: '800px',
     padding: '0 30px',
     position: 'relative',
     // fontFamily: '"Monoton", cursive',
     // fontFamily: '"Coiny", cursive'
-    fontFamily: '"Audiowide", cursive'
+    fontFamily: '"Audiowide", cursive',
+    zIndex: '-5'
+  },
+  scoreText: {
+    height: '100%',
+    fontSize: '40px',
+    zIndex: '5'
   },
   percent: {
     height: '100%',
@@ -32,7 +39,8 @@ const useStyles = makeStyles({
     transition: 'width .2s ease-in',
     position: 'absolute',
     top: '0',
-    left: '0'
+    left: '0',
+    zIndex: '-1'
   }
 });
 
@@ -41,7 +49,9 @@ const Score = props => {
   return (
     <div className={classes.score}>
       <div className={classes.scoreBar}>
-        {props.name} : {props.score}%
+        <div className={classes.scoreText}>
+          {props.name} : {props.score}%
+        </div>
         <div className={classes.percent} style={{width: `${props.score}%`}} />
       </div>
     </div>
