@@ -8,6 +8,7 @@ import GameView from './components/GameView';
 import {makeStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Footer from './components/Footer';
+import Routes from './routes';
 
 const useStyles = makeStyles(theme => ({
   app: {
@@ -28,7 +29,7 @@ const App = props => {
     <div id="app" className={classes.app}>
       <CssBaseline />
       {/* <Navbar /> */}
-      {/* <Routes className={classes.main} /> */}
+      <Routes />
       <div className={classes.main}>
         {!isPlaying && <Welcome />}
         {isPlaying && <GameView />}

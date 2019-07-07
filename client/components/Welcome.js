@@ -126,49 +126,63 @@ class Welcome extends Component {
           </div> */}
         </Container>
 
-        <Container className="play-instructions" align="center">
+        <Container id="control-panel">
+          <Container className="play-instructions" align="center">
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={this.handleClickOpen}
+              className="control-panel-button"
+            >
+              Open dialog
+            </Button>
+            <Dialog
+              onClose={this.handleClose}
+              aria-labelledby="customized-dialog-title"
+              open={this.state.open}
+            >
+              <DialogTitle
+                id="customized-dialog-title"
+                onClose={this.handleClose}
+              >
+                How To Play
+              </DialogTitle>
+              <DialogContent dividers>
+                <Typography gutterBottom>
+                  <ol>
+                    <li>Use arrows or WSAD to control your spacecraft</li>
+                    <li>
+                      Capture more space territory by creating a path and
+                      returning to your harbor
+                    </li>
+                    <li>
+                      Don't let enemies (or yourself) cross your tail path!
+                    </li>
+                    <li>To crush opponents, cut off their tail path</li>
+                    <li>
+                      Compete with other players to capture the most space
+                      territory in the galaxy!
+                    </li>
+                  </ol>
+                </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.handleClose} color="primary">
+                  Okay
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </Container>
+
           <Button
             variant="outlined"
             color="secondary"
-            onClick={this.handleClickOpen}
             className="control-panel-button"
           >
-            Open dialog
+            About
           </Button>
-          <Dialog
-            onClose={this.handleClose}
-            aria-labelledby="customized-dialog-title"
-            open={this.state.open}
-          >
-            <DialogTitle
-              id="customized-dialog-title"
-              onClose={this.handleClose}
-            >
-              How To Play
-            </DialogTitle>
-            <DialogContent dividers>
-              <Typography gutterBottom>
-                <ol>
-                  <li>Use arrows or WSAD to control your spacecraft</li>
-                  <li>
-                    Capture more space territory by creating a path and
-                    returning to your harbor
-                  </li>
-                  <li>Don't let enemies (or yourself) cross your tail path!</li>
-                  <li>To crush opponents, cut off their tail path</li>
-                  <li>
-                    Compete with other players to capture the most space
-                    territory in the galaxy!
-                  </li>
-                </ol>
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleClose} color="primary">
-                Okay
-              </Button>
-            </DialogActions>
-          </Dialog>
+
+          <Container />
         </Container>
       </div>
     );
