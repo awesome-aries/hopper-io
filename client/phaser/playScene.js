@@ -22,8 +22,7 @@ export default class PlayScene extends Phaser.Scene {
 
     this.alive = true;
 
-    // store the opponents
-    // an array of objects with socketId and instance of Opponent class
+    //here the opponents will live as opponent objects so we can move them in update opponents(called from onUpdateState)
     this.opponents = [];
   }
   init() {
@@ -123,41 +122,43 @@ export default class PlayScene extends Phaser.Scene {
       clientActionCreators.game.updateTileMap(newTileMapDiff)
     );
 
+    //******** need someway of removing player when they die from this.opponents so they player object doesn't keep moving
+    //this.opponents.filter
+
     // when a player leaves the game or killed we want to remove them from the game.
     clientStore.dispatch(
       clientActionCreators.opponent.removeOpponent(removedPlayerID)
     );
-
-    //have to destroy sprite to remove from phaser
-    this.opponents.forEach(phaserOpponent => {
-      if (phaserOpponent.socketId === removedPlayerID) {
-        phaserOpponent.opponent.destroy();
-      }
-    });
-    //remove from our opponent list
-    this.opponents = this.opponents.filter(phaserOpponent => {
-      return phaserOpponent.socketId !== removedPlayerID;
-    });
-    console.log(`This is the player that left:`, removedPlayerID);
+    let opponents = clientStore.getState().opponent;
+    console.log(
+      `This is the player that left:`,
+      removedPlayerID,
+      `opponents: `,
+      opponents
+    );
   };
+
   onNewPlayer = player => {
-    // here we add the new player to our list
+    // here we add the new opponent to our store if you are currently playing
     clientStore.dispatch(clientActionCreators.opponent.addOpponent(player));
-    this.makeOpponent(this, player.worldX, player.worldY);
+
+    this.makeOpponent(player.worldX, player.worldY, 'north', player.socketId);
+
     console.log('A new player has joined', player);
   };
   createOpponents(opponent) {
+    this.opponents = [];
+    //here we are creating the opponents if you are joining a pre-existing game
+    console.log('opponent', opponent);
     //if the opponent from state doesn't exist in phaser opponents array, call makeOpponent to add it and create sprite.
+
     opponent.forEach(stateOpponent => {
-      if (!this.opponents.includes(stateOpponent)) {
-        //this creates the opponent sprite and adds it to this.opponents
-        this.makeOpponent(
-          this,
-          opponent.worldX,
-          opponent.worldY,
-          opponent.direction
-        );
-      }
+      this.makeOpponent(
+        stateOpponent.worldX,
+        stateOpponent.worldY,
+        stateOpponent.direction,
+        stateOpponent.socketId
+      );
     });
   }
 
@@ -319,13 +320,7 @@ export default class PlayScene extends Phaser.Scene {
   makeOpponent(x, y, direction, socketId) {
     // makes the opponent in phaser
     let newOpponnent = new Opponent(this, x, y, direction);
-    console.log(newOpponnent);
-
-    // add the opponent to our list of opponents
-    this.opponents.push({
-      socketId,
-      opponent: newOpponnent
-    });
+    this.opponents.push(newOpponnent);
   }
 
   onUpdateState = (players, tileMapDiff) => {
@@ -349,16 +344,13 @@ export default class PlayScene extends Phaser.Scene {
   updateOpponents() {
     // update the phaser opponent sprites based on the opponent in store's position
     const {opponent} = clientStore.getState();
-    opponent.forEach(stateOpponent => {
-      this.opponents.forEach(phaserOpponent => {
-        if (stateOpponent.socketId === phaserOpponent.socketId) {
-          phaserOpponent.opponent.move(
-            stateOpponent.worldX,
-            stateOpponent.worldY,
-            stateOpponent.direction
-          );
-        }
-      });
+    console.log('opponents on local', this.opponents);
+    this.opponents.forEach(localOpponent => {
+      localOpponent.move(
+        localOpponent.worldX,
+        localOpponent.worldY,
+        localOpponent.direction
+      );
     });
   }
 

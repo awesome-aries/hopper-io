@@ -56,9 +56,7 @@ export default function opponentReducer(state = initialState, action) {
     case UPDATE_OPPONENTS_POS:
       return [...action.opponents];
     case REMOVE_OPPONENT:
-      return state.filter(opponent => {
-        return opponent.Id !== action.opponentId;
-      });
+      return state.filter(opponent => opponent.Id !== action.opponentId);
     default:
       return state;
   }
