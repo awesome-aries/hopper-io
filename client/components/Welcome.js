@@ -35,6 +35,7 @@ class Welcome extends Component {
     return (
       <div className="welcome-box">
         <Container className="welcome" align="center">
+          <h1 id="title">Hopper.io</h1>
           <form onSubmit={this.onSubmit}>
             <Input
               id="name"
@@ -46,7 +47,9 @@ class Welcome extends Component {
               placeholder="Enter your name"
             />
 
-            <Button type="submit">Play</Button>
+            <Button type="submit" id="play-button">
+              Play
+            </Button>
           </form>
         </Container>
       </div>

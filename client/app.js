@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 
 import Welcome from './components/Welcome';
 import GameView from './components/GameView';
-import {Navbar} from './components';
+// import {Navbar} from './components';
 // import Routes from './routes';
 import {makeStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -27,13 +27,13 @@ const App = props => {
   return (
     <div id="app" className={classes.app}>
       <CssBaseline />
-      <Navbar />
+      {/* <Navbar /> */}
       {/* <Routes className={classes.main} /> */}
       <div className={classes.main}>
         {!isPlaying && <Welcome />}
         {isPlaying && <GameView />}
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

@@ -10,10 +10,19 @@ html {
   box-sizing: inherit;
 }
 body {
-  font-family: sans-serif;
+  /* font-family: sans-serif;
   margin: 0;
   padding: 0;
   background-image: url('./assets/Galaxy-Photo.jpg');
+  background-size: cover; */
+
+  height: 100%;
+  color: #ffffff;
+  font-size: 1em;
+  font-family: Audiowide, cursive, sans-serif;
+  overflow: hidden;
+
+  background: url('./images/bg-1.jpg') no-repeat top center fixed;
   background-size: cover;
 }
 
@@ -52,18 +61,58 @@ span.tile8 {
   background-color: pink;
 }
 
-.hopper-header {
-  color: white;
-}
 #phaser-game {
   text-align: center;
 }
 
-.welcome-box {
-  background-color: white;
+#name {
+  /* background-color: white;
   opacity: 0.5;
   margin-left: 40vw;
   margin-right: 40vw;
   border-radius: 15px;
   min-width: 240px;
+  font-size: 4vh; */
+  font-weight: bold;
+  color: white;
+  position: fixed;
+  font-size: 4vh;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25vw;
+  height: 7vh;
+  border: 1px solid;
+  border-radius: 8px;
+  background-color: transparent;
+  text-align: center;
+}
+
+#play-button {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: fixed;
+  font-size: 3.5vh;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid;
+  border-radius: 14px;
+  background-color: white;
+  text-align: center;
+  padding: 1vh 1vw;
+}
+
+#title {
+  color: white;
+  font-family: Audiowide, cursive;
+  position: fixed;
+  top: 12%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 17vh;
+  text-align: center;
+  letter-spacing: 10px;
+  font-weight: lighter;
 }

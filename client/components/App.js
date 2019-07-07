@@ -34,7 +34,7 @@ class App extends Component {
           <CssBaseline />
           <Navbar />
           {/* <Routes className={classes.main} /> */}
-          <Footer />
+          {/* <Footer /> */}
         </div>
         <div className={this.classes.main}>
           {!isPlaying && <Welcome />}
