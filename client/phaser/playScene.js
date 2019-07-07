@@ -374,6 +374,8 @@ export default class PlayScene extends Phaser.Scene {
 
   onWasKilled = () => {
     console.log('You were killed');
+    // stop the game timer
+    clientStore.dispatch(clientActionCreators.gameState.gameOver());
     // here we need to set on the gameState that they were killed
     this.alive = false;
 

@@ -27,8 +27,9 @@ const useStyles = makeStyles({
   },
   scoreText: {
     height: '100%',
-    fontSize: '40px',
-    zIndex: '5'
+    fontSize: '35px',
+    zIndex: '5',
+    margin: '0'
   },
   percent: {
     height: '100%',
