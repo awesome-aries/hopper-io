@@ -319,6 +319,7 @@ export default class PlayScene extends Phaser.Scene {
   makeOpponent(x, y, direction, socketId) {
     // makes the opponent in phaser
     let newOpponnent = new Opponent(this, x, y, direction);
+    console.log(newOpponnent);
 
     // add the opponent to our list of opponents
     this.opponents.push({
