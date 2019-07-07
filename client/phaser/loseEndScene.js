@@ -1,4 +1,4 @@
-import store from '../store';
+import clientStore, {clientActionCreators} from '../store';
 import Phaser from 'phaser';
 
 export default class LoseEndScene extends Phaser.Scene {
@@ -13,13 +13,17 @@ export default class LoseEndScene extends Phaser.Scene {
     // used to load assest like images and audio into memory
   }
   create() {
+    const {gameState: {duration, playersKilled}} = clientStore.getState();
     this.gameOverText = this.add.text(
       400,
       300,
-      'Grace Hopper says: GAME OVER LOSER',
+      `Grace Hopper says: GAME OVER LOSER
+
+        Time Alive: ${duration} seconds`,
       {
         fontFamily: '"Audiowide", cursive',
-        fontSize: '32px'
+        fontSize: '32px',
+        textAlign: 'left'
       }
     );
     this.gameOverText.setOrigin(0.5);

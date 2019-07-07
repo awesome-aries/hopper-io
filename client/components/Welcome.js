@@ -21,10 +21,10 @@ class Welcome extends Component {
 
   onSubmit = e => {
     e.preventDefault();
-    console.log('onSubmit');
+    console.log('onSubmit, name:', this.state.name);
 
     // when a user hits play, we want to send a message to the server that they are starting the game
-    socket.emit('playerStartGame', socket.id, this.state.name);
+    socket.emit('playerStartGame', this.state.name);
 
     // reset state
     this.setState({

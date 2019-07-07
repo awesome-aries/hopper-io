@@ -6,11 +6,9 @@ import Ui from './Ui';
 class GameView extends React.Component {
   render() {
     return (
-      <div>
-        <Ui>
-          <Game />
-        </Ui>
-      </div>
+      <Ui>
+        <Game />
+      </Ui>
     );
   }
 }

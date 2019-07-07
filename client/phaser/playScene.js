@@ -48,7 +48,8 @@ export default class PlayScene extends Phaser.Scene {
     // get the players location from store that was sent from the server
     const {
       game: {playerWorldXY, tileMap, pathIndex, harborIndex},
-      opponent
+      opponent,
+      gameState: {score, playerName}
     } = clientStore.getState();
 
     // the indicies for the different kinds of tiles
@@ -90,30 +91,25 @@ export default class PlayScene extends Phaser.Scene {
       shift: SHIFT
     });
     // **************************************************
+
+    // ***************** Set up Score *****************
+
+    // this.createScore(playerWorldXY, score, playerName);
+    this.ship.calculateScore(tileMap);
+
+    // **************************************************
     // ***************** Set up Opponents ***************
+
     this.createOpponents(opponent);
+
     // ***************** Set up Socket ******************
 
     // Set up our socket listener for updates from the server
-    // socket.on('updateState', (players, tileMapDiff) => {
-    //   this.onUpdateState(players, tileMapDiff);
-    // });
-    // socket.on('wasKilled', () => {
-    //   this.onWasKilled();
-    // });
-    // socket.on('newPlayer', player => this.onNewPlayer(player));
-
-    // // // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
-    // socket.on(
-    //   'removePlayer',
-    //   (removedPlayerID, newTileMap, newTileMapRowLength) =>
-    //     this.onRemovedPlayer(removedPlayerID, newTileMap, newTileMapRowLength)
-    // );
     socket.on('updateState', this.onUpdateState);
     socket.on('wasKilled', this.onWasKilled);
     socket.on('newPlayer', this.onNewPlayer);
 
-    // // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
+    // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
     socket.on('removePlayer', this.onRemovedPlayer);
     // **************************************************
   }
@@ -175,7 +171,25 @@ export default class PlayScene extends Phaser.Scene {
     const {game} = clientStore.getState();
 
     this.ship.update(game);
+
+    // this.calculateScore(game.tileMap);
+
+    if (!this.alive) {
+      this.gameOver();
+    }
+    // this.manuallyMakeHarbor();
   }
+
+  // calculateScore(tileMap) {
+  //   // get the state from update
+  //   // calculate score
+  //   clientStore.dispatch(
+  //     clientActionCreators.gameState.calculateScore(
+  //       tileMap.present,
+  //       this.harborIndex
+  //     )
+  //   );
+  // }
 
   setTileIndex(tileIndex, location) {
     // Sets the tile type in phaser and redux using world (pixel) coordinates
@@ -211,8 +225,6 @@ export default class PlayScene extends Phaser.Scene {
     socket.removeListener('updateState', this.onUpdateState);
     socket.removeListener('wasKilled', this.onWasKilled);
     socket.removeListener('newPlayer', this.onNewPlayer);
-
-    // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
     socket.removeListener('removePlayer', this.onRemovedPlayer);
 
     this.scene.start('losing');
@@ -230,6 +242,22 @@ export default class PlayScene extends Phaser.Scene {
 
     // make the ship not able to leave the world
     this.ship.sprite.body.setCollideWorldBounds(true);
+  }
+
+  createScore(playerWorldXY, score, playerName) {
+    //keeping track of score
+    this.score = score;
+
+    this.scoreText = this.add.text(
+      playerWorldXY.present.x + 240,
+      playerWorldXY.present.y - 300,
+      `${playerName} : ${this.score}`,
+      {
+        font: '34px Arial',
+        fill: 'black'
+      }
+    );
+    console.log('score text,', this.scoreText);
   }
 
   createTileMap(tileMap) {
@@ -316,6 +344,7 @@ export default class PlayScene extends Phaser.Scene {
     // and phaser
     this.updateOpponents();
   };
+
   updateOpponents() {
     // update the phaser opponent sprites based on the opponent in store's position
     const {opponent} = clientStore.getState();
@@ -331,6 +360,7 @@ export default class PlayScene extends Phaser.Scene {
       });
     });
   }
+
   updatePhaserTileMap(tileMapDiff) {
     // set the tiles in phaser to match the store
     tileMapDiff.forEach(({tileInd, tileIndex}) => {
@@ -341,8 +371,11 @@ export default class PlayScene extends Phaser.Scene {
     // not sure if it'll take a flat array
     // this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
   }
+
   onWasKilled = () => {
     console.log('You were killed');
+    // stop the game timer
+    clientStore.dispatch(clientActionCreators.gameState.gameOver());
     // here we need to set on the gameState that they were killed
     this.alive = false;
 

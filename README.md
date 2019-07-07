@@ -10,7 +10,6 @@ A playable online build of Hopper.io can be found here (need to add deployed sit
 
 ### Team Members
 
-
 ### App Architecture
 
 Hopper.io is built on [Node.js](https://nodejs.org/) using the Javascript game framework [Phaser](http://phaser.io/) for implementing game mechanics, [Socket.IO](http://socket.io/) for client-server interaction, [React](https://facebook.github.io/react/) for HTML rendering, [Redux](http://redux.js.org/) for both client and server app state and game state management, [React-redux](https://github.com/reduxjs/react-redux) to maintain data flow and bind react components with redix store, [Webpack](https://github.com/webpack/webpack) to bundle our JavaScript assets, [Express](https://expressjs.com/) to manage HTTP requests, [PostgreSQL](https://www.postgresql.org/) to manage relational data [Sequelize](http://docs.sequelizejs.com/) to write SQL in Javascript fashion, and [Material UI](https://material-ui.com/) for design.
@@ -27,12 +26,15 @@ Hopper.io is built on [Node.js](https://nodejs.org/) using the Javascript game f
 ### Getting Started
 
 To get the app started and running on your local machine for development purpose, first you need to install all the dependencies:
+
 ```
 $npm install
 ```
 
 To start the app in development mode, run the command below:
+
 ```
 $npm run start-dev
 ```
+
 Open localhost:8080 to run the app on your browser.

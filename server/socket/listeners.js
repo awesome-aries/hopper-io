@@ -23,9 +23,7 @@ function initServerListeners(io, socket) {
     onPlayerMove(socket, worldXY, direction, tilemap)
   );
 
-  socket.on('playerStartGame', (socketId, name) =>
-    onPlayerStartGame(socket, socketId, name)
-  );
+  socket.on('playerStartGame', name => onPlayerStartGame(socket, name));
 
   socket.on('playerKilled', pathIndex => {
     onPlayerKilled(io, socket, pathIndex);
@@ -61,10 +59,10 @@ async function createNewPlayer(socketId) {
   await serverStore.dispatch(addPlayer(player));
 }
 
-async function onPlayerStartGame(socket, socketId, name) {
+async function onPlayerStartGame(socket, name) {
   // this is called when the player hits the play game button and is navigated to the gameview component.
 
-  await serverStore.dispatch(playerStartGame(socket, socketId, name));
+  await serverStore.dispatch(playerStartGame(socket.id, name));
 
   // get all the players currently in the state
   const {players: {players}, tiles} = serverStore.getState();
@@ -81,14 +79,7 @@ async function onPlayerStartGame(socket, socketId, name) {
   });
 
   // also need to send them the current tilemap to the new player
-  console.log(
-    'startingInfo',
-    playersCopy,
-    'newPlayer',
-    newPlayer
-    // 'tileMap',
-    // tiles.tileMap
-  );
+  console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
   socket.emit(
     'startingInfo',
     playersCopy,
@@ -98,7 +89,6 @@ async function onPlayerStartGame(socket, socketId, name) {
   );
 
   // send the newPlayer to the other players
-  console.log('newPlayer', newPlayer);
   socket.broadcast.emit('newPlayer', newPlayer);
 }
 
@@ -149,7 +139,7 @@ async function onPlayerKilled(io, socket, pathIndex) {
   });
 
   if (killedPlayer) {
-    // check that player exists because sometimes you can hit a players path tile twice and double kill them before the start is updated.
+    // check that player exists because sometimes you can hit a players path tile twice and double kill them before the state is updated.
     console.log('killedPlayer previous vals:', killedPlayer);
 
     // emit to that player that they died

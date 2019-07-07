@@ -137,10 +137,13 @@ export default class Ship {
 
     const {
       playerPhaserXY,
+      playerWorldXY,
       currentTileIdx,
       entryPoint,
       exitPoint,
-      direction
+      direction,
+      tileMap,
+      tileMapDiff
     } = game;
 
     let currTileXY = `${playerPhaserXY.present.x},${playerPhaserXY.present.y}`;
@@ -157,15 +160,12 @@ export default class Ship {
 
       // emit the state to the server
       // we want to tell the server everytime we move
-      // if this overloading the server then we may want to move it into the setPath if clause at the end
-      // or move out if it looks jerky
-      // const newState = clientStore.getState();
 
-      emitState(
-        game.playerWorldXY.present,
-        game.direction.present,
-        game.tileMapDiff
-      );
+      emitState(playerWorldXY.present, direction.present, tileMapDiff);
+
+      // calculate the new score
+      this.calculateScore(tileMap);
+
       // If we've reached a new tile, then set that as the new present tile
       clientStore.dispatch(
         clientActionCreators.game.movePlayer(
@@ -265,6 +265,17 @@ export default class Ship {
       return true;
     }
     return false;
+  }
+
+  calculateScore(tileMap) {
+    // get the state from update
+    // calculate score
+    clientStore.dispatch(
+      clientActionCreators.gameState.calculateScore(
+        tileMap.present,
+        this.scene.harborIndex
+      )
+    );
   }
 
   findFillPoint() {
