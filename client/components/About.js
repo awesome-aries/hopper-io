@@ -3,7 +3,7 @@ import Footer from './Footer';
 
 const About = props => {
   return (
-    <div>
+    <div id="about-page">
       <h1>About</h1>
       <p>
         Inspired by Paper.io, Hopper.io is a multi-player version of the popular

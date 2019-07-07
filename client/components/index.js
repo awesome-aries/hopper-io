@@ -6,3 +6,4 @@
 // export {default as Navbar} from './Navbar';
 export {default as GameView} from './GameView';
 export {default as Welcome} from './Welcome';
+export {default as About} from './About';
