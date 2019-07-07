@@ -195,6 +195,7 @@ const playerKilled = socketId => {
         tileIndex: null,
         harborIndex: null,
         pathIndex: null,
+        worldX: 0,
         worldY: 0,
         x: 0,
         y: 0,

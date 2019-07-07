@@ -139,7 +139,7 @@ async function onPlayerKilled(io, socket, pathIndex) {
   });
 
   if (killedPlayer) {
-    // check that player exists because sometimes you can hit a players path tile twice and double kill them before the start is updated.
+    // check that player exists because sometimes you can hit a players path tile twice and double kill them before the state is updated.
     console.log('killedPlayer previous vals:', killedPlayer);
 
     // emit to that player that they died

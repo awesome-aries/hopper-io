@@ -95,7 +95,7 @@ export default class PlayScene extends Phaser.Scene {
     // ***************** Set up Score *****************
 
     // this.createScore(playerWorldXY, score, playerName);
-    this.calculateScore(tileMap);
+    this.ship.calculateScore(tileMap);
 
     // **************************************************
     // ***************** Set up Opponents ***************
@@ -172,7 +172,7 @@ export default class PlayScene extends Phaser.Scene {
 
     this.ship.update(game);
 
-    this.calculateScore(game.tileMap);
+    // this.calculateScore(game.tileMap);
 
     if (!this.alive) {
       this.gameOver();
@@ -180,16 +180,16 @@ export default class PlayScene extends Phaser.Scene {
     // this.manuallyMakeHarbor();
   }
 
-  calculateScore(tileMap) {
-    // get the state from update
-    // calculate score
-    clientStore.dispatch(
-      clientActionCreators.gameState.calculateScore(
-        tileMap.present,
-        this.harborIndex
-      )
-    );
-  }
+  // calculateScore(tileMap) {
+  //   // get the state from update
+  //   // calculate score
+  //   clientStore.dispatch(
+  //     clientActionCreators.gameState.calculateScore(
+  //       tileMap.present,
+  //       this.harborIndex
+  //     )
+  //   );
+  // }
 
   setTileIndex(tileIndex, location) {
     // Sets the tile type in phaser and redux using world (pixel) coordinates
