@@ -35,7 +35,12 @@ class Welcome extends Component {
     return (
       <div className="welcome-box">
         <Container className="welcome" align="center">
+          <h3 id="gh-quote1">
+            A ship in harbor is safe, but that is not what ships are built for
+          </h3>
+          <h3 id="gh-quote2"> - Rear Admiral Grace Hopper</h3>
           <h1 id="title">Hopper.io</h1>
+
           <form onSubmit={this.onSubmit}>
             <Input
               id="name"

@@ -65,19 +65,19 @@ span.tile8 {
   text-align: center;
 }
 
-#name {
-  /* background-color: white;
+/* background-color: white;
   opacity: 0.5;
   margin-left: 40vw;
   margin-right: 40vw;
   border-radius: 15px;
   min-width: 240px;
   font-size: 4vh; */
+#name {
   font-weight: bold;
   color: white;
   position: fixed;
   font-size: 4vh;
-  top: 55%;
+  top: 58%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 25vw;
@@ -94,7 +94,7 @@ span.tile8 {
   box-sizing: border-box;
   position: fixed;
   font-size: 3.5vh;
-  top: 65%;
+  top: 68%;
   left: 50%;
   transform: translate(-50%, -50%);
   border: 1px solid;
@@ -108,11 +108,39 @@ span.tile8 {
   color: white;
   font-family: Audiowide, cursive;
   position: fixed;
-  top: 12%;
+  top: 22%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 17vh;
   text-align: center;
   letter-spacing: 10px;
   font-weight: lighter;
+}
+
+#gh-quote1 {
+  color: white;
+  font-family: sans-serif;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3vh;
+  text-align: center;
+  /* letter-spacing: 10px; */
+  font-weight: lighter;
+  font-style: italic;
+}
+
+#gh-quote2 {
+  color: white;
+  font-family: sans-serif;
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.8vh;
+  text-align: center;
+  /* letter-spacing: 10px; */
+  font-weight: lighter;
+  font-style: italic;
 }
