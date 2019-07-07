@@ -1,17 +1,79 @@
 import React, {Component} from 'react';
 import socket from '../socket';
-import clientStore, {clientActionCreators} from '../store';
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
+import {withStyles} from '@material-ui/core/styles';
+import Dialog from '@material-ui/core/Dialog';
+import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import MuiDialogContent from '@material-ui/core/DialogContent';
+import MuiDialogActions from '@material-ui/core/DialogActions';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import Typography from '@material-ui/core/Typography';
+
+const styles = theme => ({
+  root: {
+    margin: 0,
+    padding: theme.spacing(2)
+  },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500]
+  }
+});
+
+const DialogTitle = withStyles(styles)(props => {
+  const {children, classes, onClose} = props;
+  return (
+    <MuiDialogTitle disableTypography className={classes.root}>
+      <Typography variant="h6">{children}</Typography>
+      {onClose ? (
+        <IconButton
+          aria-label="Close"
+          className={classes.closeButton}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </MuiDialogTitle>
+  );
+});
+
+const DialogContent = withStyles(theme => ({
+  root: {
+    padding: theme.spacing(2)
+  }
+}))(MuiDialogContent);
+
+const DialogActions = withStyles(theme => ({
+  root: {
+    margin: 0,
+    padding: theme.spacing(1)
+  }
+}))(MuiDialogActions);
 
 class Welcome extends Component {
   constructor() {
     super();
     this.state = {
-      name: ''
+      name: '',
+      open: false
     };
   }
+
+  handleClickOpen = () => {
+    this.setState({
+      open: true
+    });
+  };
+
+  handleClose = () => {
+    this.setState({open: false});
+  };
 
   onChange = e => {
     this.setState({
@@ -62,6 +124,51 @@ class Welcome extends Component {
               className="btn btn-social btn-github"
             />
           </div> */}
+        </Container>
+
+        <Container className="play-instructions" align="center">
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={this.handleClickOpen}
+            className="control-panel-button"
+          >
+            Open dialog
+          </Button>
+          <Dialog
+            onClose={this.handleClose}
+            aria-labelledby="customized-dialog-title"
+            open={this.state.open}
+          >
+            <DialogTitle
+              id="customized-dialog-title"
+              onClose={this.handleClose}
+            >
+              How To Play
+            </DialogTitle>
+            <DialogContent dividers>
+              <Typography gutterBottom>
+                <ol>
+                  <li>Use arrows or WSAD to control your spacecraft</li>
+                  <li>
+                    Capture more space territory by creating a path and
+                    returning to your harbor
+                  </li>
+                  <li>Don't let enemies (or yourself) cross your tail path!</li>
+                  <li>To crush opponents, cut off their tail path</li>
+                  <li>
+                    Compete with other players to capture the most space
+                    territory in the galaxy!
+                  </li>
+                </ol>
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleClose} color="primary">
+                Okay
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Container>
       </div>
     );
