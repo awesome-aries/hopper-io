@@ -1,10 +1,16 @@
+/* eslint-disable no-case-declarations */
 /**
  * INITIAL STATE
  */
 const initialState = {
   // isPlaying should be false, but for testing purposes leave as true
   isPlaying: false,
-  playerName: ''
+  playerName: '',
+  score: 0,
+  playersKilled: 0,
+  gameStartTime: null,
+  gameEndTime: null,
+  duration: null
 };
 
 /**
@@ -12,6 +18,7 @@ const initialState = {
  */
 const START_GAME = 'START_GAME';
 const STOP_GAME = 'STOP_GAME';
+const CALCULATE_SCORE = 'CALCULATE_SCORE';
 
 /**
  * ACTION CREATORS
@@ -23,13 +30,17 @@ export const gameStateActionCreators = {
   }),
   stopGame: () => ({
     type: STOP_GAME
+  }),
+  calculateScore: (tileMap, harborIndex) => ({
+    type: CALCULATE_SCORE,
+    tileMap,
+    harborIndex
   })
 };
 
 /**
  * THUNK CREATOR
  */
-// Need to write a thunk for getting name of players associated with/using socket id
 
 /**
  * REDUCER
@@ -44,6 +55,16 @@ export default function gameStateReducer(state = initialState, action) {
       };
     case STOP_GAME:
       return {state, isPlaying: false};
+    case CALCULATE_SCORE:
+      let numTotalTiles = action.tileMap.length;
+      let numHarborTiles = action.tileMap.reduce((numHarbor, tileIndex) => {
+        numHarbor += tileIndex === action.harborIndex ? 1 : 0;
+        return numHarbor;
+      }, 0);
+      return {
+        ...state,
+        score: Math.round(numHarborTiles / numTotalTiles * 100) //get percentage of board that are harborTiles
+      };
     default:
       return state;
   }
