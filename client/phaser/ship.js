@@ -337,6 +337,21 @@ export default class Ship {
     this.vertices = [];
   }
 
+  isFillPoint(neighborTile) {
+    if (neighborTile.index === this.scene.tileValues.regular) {
+      //checking to see if the tile is a regular tile to add as potential fill point
+      return true;
+    } else if (
+      neighborTile.index !== this.scene.harborIndex &&
+      this.scene.tileValues.harbor.includes(neighborTile.index)
+    ) {
+      //checking to see if tile value is another tiles harbor which can still be a fill point
+      return true;
+    }
+
+    return false;
+  }
+
   insidePoly(point, corners) {
     //from MIT module point-inside-polygon
     // ray-casting algorithm based on
@@ -424,10 +439,7 @@ export default class Ship {
         neighborTile = this.scene.foregroundLayer.getTileAt(i, j);
 
         // if this function is being called to find the fillpoint at which we want to begin floodfilling, then use this logic
-        if (
-          findingFillPoint &&
-          neighborTile.index === this.scene.tileValues.regular
-        ) {
+        if (findingFillPoint && this.isFillPoint(neighborTile)) {
           tiles.push(neighborTile);
         } else if (
           !findingFillPoint &&
@@ -448,11 +460,19 @@ export default class Ship {
   tileIsPaintable(currentTile, neighborTile) {
     // determines if a neighbor tile should be included in floodFill
 
+    const neighborIsOpponentTile =
+      neighborTile.index !== this.scene.harborIndex &&
+      this.scene.tileValues.harbor.includes(neighborTile.index);
+
+    const isOpponentTile =
+      this.scene.tileValues.harbor.includes(currentTile.index) &&
+      currentTile.index !== this.scene.harborIndex;
     // If a tile is regular tile, only fill it's neighbor, if the neighbor is also a regular tile or a path tile
     if (
       currentTile.index === this.scene.tileValues.regular &&
       (neighborTile.index === this.scene.tileValues.regular ||
-        neighborTile.index === this.scene.pathIndex)
+        neighborTile.index === this.scene.pathIndex ||
+        neighborIsOpponentTile)
     ) {
       return true;
     } else if (
@@ -460,6 +480,14 @@ export default class Ship {
       neighborTile.index === this.scene.pathIndex
     ) {
       // if a tile is a path tile, only fill it's neighbor if it is also a path tile
+      return true;
+    } else if (
+      isOpponentTile &&
+      (neighborIsOpponentTile ||
+        neighborTile.index === this.scene.pathIndex ||
+        neighborTile.index === this.scene.tileValues.regular)
+    ) {
+      //if we are inside the flood fill still fill to the border and the opponents harbor tiles
       return true;
     } else {
       return false;
