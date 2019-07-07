@@ -56,6 +56,12 @@ class Welcome extends Component {
               Play
             </Button>
           </form>
+          {/* <div id="github">
+            <a
+              href="https://github.com/awesome-aries/hopper-io"
+              className="btn btn-social btn-github"
+            />
+          </div> */}
         </Container>
       </div>
     );
