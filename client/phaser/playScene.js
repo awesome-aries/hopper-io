@@ -111,9 +111,6 @@ export default class PlayScene extends Phaser.Scene {
     // **************************************************
   }
   onRemovePlayer = (removedPlayerID, newTileMapDiff) => {
-    console.log('<><><><><><><><><><><><><><><><><><><><><><><>');
-    console.log('onRemovePLayer');
-    console.log('newTileMapDiff', newTileMapDiff);
     // need to update our tile map
     this.updatePhaserTileMap(newTileMapDiff);
 

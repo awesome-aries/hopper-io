@@ -7,7 +7,7 @@ export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
     this.absVelocity = 200;
-    this.direction = 1; //positive is down and right, negative is up and left
+    this.direction = -1; //positive is down and right, negative is up and left
     this.didTurn = false; // we have to know if we turned or not
     this.facingDir = 'north'; //keep track of direction we're facing
     // we need to keep track of the all the verticies of the drawn polygon
@@ -23,8 +23,6 @@ export default class Ship {
       .setOffset(0, 0);
 
     this.sprite.body.setAllowGravity(false);
-    // ** doesnt seem to do anything T_T
-    // this.sprite.body.collideWorldBounds = true;
 
     //Gets all the surrounding tiles of the start pos
     const startPos = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
@@ -51,42 +49,10 @@ export default class Ship {
     );
 
     // **************************************
-    // create animation
-    const anims = scene.anims;
-    anims.create({
-      key: 'ship-north',
-      frames: [{key: 'ship', frame: 0}],
-      frameRate: 3,
-      repeat: -1
-    });
+    this.setUpAnimation();
 
-    anims.create({
-      key: 'ship-east',
-      frames: [{key: 'ship', frame: 1}],
-      frameRate: 3,
-      repeat: -1
-    });
-    anims.create({
-      key: 'ship-south',
-      frames: [{key: 'ship', frame: 2}],
-      frameRate: 3,
-      repeat: -1
-    });
-    anims.create({
-      key: 'ship-west',
-      frames: [{key: 'ship', frame: 3}],
-      frameRate: 3,
-      repeat: -1
-    });
-
-    const {LEFT, RIGHT, UP, DOWN, SPACE} = Phaser.Input.Keyboard.KeyCodes;
-    this.keys = scene.input.keyboard.addKeys({
-      left: LEFT,
-      right: RIGHT,
-      up: UP,
-      down: DOWN,
-      space: SPACE
-    });
+    // we want the player to start out moving
+    this.sprite.body.setVelocity(0, this.absVelocity * this.direction);
   }
   freeze() {
     console.log('freeze');
@@ -130,6 +96,44 @@ export default class Ship {
     // *************************************************
   }
 
+  setUpAnimation() {
+    // set up the sprite animation and keyboard controls
+    const anims = this.scene.anims;
+    anims.create({
+      key: 'ship-north',
+      frames: [{key: 'ship', frame: 0}],
+      frameRate: 3,
+      repeat: -1
+    });
+
+    anims.create({
+      key: 'ship-east',
+      frames: [{key: 'ship', frame: 1}],
+      frameRate: 3,
+      repeat: -1
+    });
+    anims.create({
+      key: 'ship-south',
+      frames: [{key: 'ship', frame: 2}],
+      frameRate: 3,
+      repeat: -1
+    });
+    anims.create({
+      key: 'ship-west',
+      frames: [{key: 'ship', frame: 3}],
+      frameRate: 3,
+      repeat: -1
+    });
+
+    const {LEFT, RIGHT, UP, DOWN, SPACE} = Phaser.Input.Keyboard.KeyCodes;
+    this.keys = this.scene.input.keyboard.addKeys({
+      left: LEFT,
+      right: RIGHT,
+      up: UP,
+      down: DOWN,
+      space: SPACE
+    });
+  }
   // eslint-disable-next-line complexity
   setPath(game) {
     // get the current state of the store from playScene update
