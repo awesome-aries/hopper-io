@@ -45,6 +45,33 @@ export default class PlayScene extends Phaser.Scene {
   create() {
     // adds objects to the game
 
+    //opponents animations for sprite group to access
+    this.anims.create({
+      key: 'ship-north',
+      frames: [{key: 'ship', frame: 0}],
+      frameRate: 3,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'ship-east',
+      frames: [{key: 'ship', frame: 1}],
+      frameRate: 3,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'ship-south',
+      frames: [{key: 'ship', frame: 2}],
+      frameRate: 3,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'ship-west',
+      frames: [{key: 'ship', frame: 3}],
+      frameRate: 3,
+      repeat: -1
+    });
+
     // get the current state from store
     // get the players location from store that was sent from the server
     const {
@@ -121,6 +148,19 @@ export default class PlayScene extends Phaser.Scene {
 
     this.ship.update(game);
 
+    //updates the animation of the ship
+    this.opponents.getChildren().forEach(opponentSprite => {
+      if (opponentSprite.direction === 'north') {
+        opponentSprite.anims.play('ship-north');
+      } else if (opponentSprite.direction === 'west') {
+        opponentSprite.anims.play('ship-west');
+      } else if (opponentSprite.direction === 'east') {
+        opponentSprite.anims.play('ship-east');
+      } else if (opponentSprite.direction === 'south') {
+        opponentSprite.anims.play('ship-south');
+      }
+    });
+
     // this.manuallyMakeHarbor();
   }
 
@@ -134,6 +174,7 @@ export default class PlayScene extends Phaser.Scene {
     clientStore.dispatch(
       clientActionCreators.game.updateTileMap(newTileMapDiff)
     );
+    //need someway to remove opponent from this list so that we can stop getting the error but it is not working.
 
     //******** need someway of removing player when they die from this.opponents so they player object doesn't keep moving
     //this.opponents.filter
@@ -197,8 +238,10 @@ export default class PlayScene extends Phaser.Scene {
 
   makeOpponent(x, y, direction, socketId) {
     // makes the opponent in phaser
-
     let newOpponnent = new Opponent(this, x, y, direction, socketId);
+
+    //adding opponent instance
+
     // its the sprite that must be added to the group
     this.opponents.add(newOpponnent.sprite);
   }
