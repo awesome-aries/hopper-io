@@ -1,3 +1,6 @@
+import Tile from '../game/tile';
+const {getTileIndices} = require('../game/utils');
+
 /* eslint-disable no-case-declarations */
 /**
  * ACTION TYPES
@@ -18,7 +21,9 @@ const initialState = {
     present: []
   },
   tileMapDiff: [], //array of changes from the client
-  tileMapRowLength: null //number
+  tileMapRowLength: null, //number
+  //these are all tile values
+  tileValues: getTileIndices() //get tile values from tiled exported json
 };
 
 /**
@@ -66,13 +71,21 @@ function printTileMap(tileMap, rowLength) {
 function tilesReducer(state = initialState, action) {
   switch (action.type) {
     case INIT_TILEMAP:
+      let copyTileMap = action.tilemap.map(tileValue => {
+        let tileType;
+        if (state.tileValues.path.includes(tileValue)) {
+          tileType = 'path';
+        } else if (state.tileValues.harbor.includes(tileValue)) {
+          tileType = 'harbor';
+        } else {
+          tileType = 'regular';
+        }
+        return new Tile(tileValue, tileType);
+      });
       return {
         ...state,
         tileMapRowLength: action.tileMapRowLength,
-        tileMap: {
-          previous: [...state.tileMap.present],
-          present: [...action.tileMap]
-        }
+        tileMap: copyTileMap
       };
     case UPDATE_TILEMAP:
       // console.log('****current tilemap');

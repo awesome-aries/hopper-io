@@ -29,8 +29,8 @@ class Tile {
       this.current = {color, type};
     }
   }
-  playerCleared(color, type) {
-    //if a player existed on this tile it changes the previous tile value to be a regular tile if that player is killed
+  playerCleared(color = this.regularTile.color, type = this.regularTile.type) {
+    //if this tile is equal to a player's path and that player is killed, it changes the previous tile value to be a regular tile
     this.previous = {color, type};
   }
 }

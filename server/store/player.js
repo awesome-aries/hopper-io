@@ -17,6 +17,7 @@ const PLAYER_KILLED = 'PLAYER_KILLED';
 
 const initialState = {
   players: [],
+  //these are the available tile values
   tileValues: getTileIndices(), //get tile values from tiled exported json
   rooms: [
     {
