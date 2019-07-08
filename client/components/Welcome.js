@@ -122,9 +122,18 @@ class Welcome extends Component {
         </Container>
 
         <Container id="control-panel">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={this.handleClickOpen}
+            className="control-panel-button"
+          >
+            How To Play
+          </Button>
+
           <Link to="/about">
             <Button
-              variant="outlined"
+              variant="contained"
               color="secondary"
               className="control-panel-button"
             >
@@ -133,20 +142,11 @@ class Welcome extends Component {
           </Link>
 
           <Button
-            variant="outlined"
-            color="secondary"
+            variant="contained"
+            // color="primary"
             className="control-panel-button"
           >
             <a href="https://github.com/awesome-aries/hopper-io">Github</a>
-          </Button>
-
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={this.handleClickOpen}
-            className="control-panel-button"
-          >
-            How To Play
           </Button>
 
           <Container className="play-instructions" align="center">
