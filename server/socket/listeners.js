@@ -160,8 +160,8 @@ async function onPlayerKilled(io, socket, pathIndex) {
     // get the new state
     const {tiles: {tileMapDiff}} = serverStore.getState();
 
-    // send back to the other player the id of the player who left and the new tilemap
-    socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
+    // send back to all players to remove opponent and update map
+    socket.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
   }
 }
 
@@ -188,7 +188,8 @@ async function onDisconnect(socket) {
       )
     );
     // get the new state
-    const {tiles: {tileMapDiff}} = serverStore.getState();
+    const {tiles: {tileMapDiff}, players: {players}} = serverStore.getState();
+    console.log('current players &&&&&&&&&&&', players);
 
     socket.broadcast.emit('removePlayer', socket.id, tileMapDiff);
   }

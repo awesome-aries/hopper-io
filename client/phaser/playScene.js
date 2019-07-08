@@ -20,8 +20,6 @@ export default class PlayScene extends Phaser.Scene {
     this.tileWidth = 50;
     this.tileHeight = 50;
 
-    this.alive = true;
-
     //here the opponents will live as opponent objects so we can move them in update opponents(called from onUpdateState)
     this.opponents = [];
   }
@@ -109,10 +107,12 @@ export default class PlayScene extends Phaser.Scene {
     socket.on('newPlayer', this.onNewPlayer);
 
     // when another player leaves the game or they are killed, we want to listen for the server to tell us that the player that left
-    socket.on('removePlayer', this.onRemovedPlayer);
+    socket.on('removePlayer', this.onRemovePlayer);
     // **************************************************
   }
-  onRemovedPlayer = (removedPlayerID, newTileMapDiff) => {
+  onRemovePlayer = (removedPlayerID, newTileMapDiff) => {
+    console.log('<><><><><><><><><><><><><><><><><><><><><><><>');
+    console.log('onRemovePLayer');
     console.log('newTileMapDiff', newTileMapDiff);
     // need to update our tile map
     this.updatePhaserTileMap(newTileMapDiff);
@@ -163,9 +163,6 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   update() {
-    if (!this.alive) {
-      this.gameOver();
-    }
     // the game loop which runs constantly
 
     // get the state from the clientStore
@@ -173,24 +170,8 @@ export default class PlayScene extends Phaser.Scene {
 
     this.ship.update(game);
 
-    // this.calculateScore(game.tileMap);
-
-    if (!this.alive) {
-      this.gameOver();
-    }
     // this.manuallyMakeHarbor();
   }
-
-  // calculateScore(tileMap) {
-  //   // get the state from update
-  //   // calculate score
-  //   clientStore.dispatch(
-  //     clientActionCreators.gameState.calculateScore(
-  //       tileMap.present,
-  //       this.harborIndex
-  //     )
-  //   );
-  // }
 
   setTileIndex(tileIndex, location) {
     // Sets the tile type in phaser and redux using world (pixel) coordinates
@@ -226,7 +207,7 @@ export default class PlayScene extends Phaser.Scene {
     socket.removeListener('updateState', this.onUpdateState);
     socket.removeListener('wasKilled', this.onWasKilled);
     socket.removeListener('newPlayer', this.onNewPlayer);
-    socket.removeListener('removePlayer', this.onRemovedPlayer);
+    socket.removeListener('removePlayer', this.onRemovePlayer);
 
     this.scene.start('losing');
   }
@@ -369,8 +350,7 @@ export default class PlayScene extends Phaser.Scene {
     console.log('You were killed');
     // stop the game timer
     clientStore.dispatch(clientActionCreators.gameState.gameOver());
-    // here we need to set on the gameState that they were killed
-    this.alive = false;
+    this.gameOver();
 
     // dont set isPlaying to false yet because that will immediately transition them out of the game, set it in the losing screen
   };

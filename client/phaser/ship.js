@@ -1,8 +1,7 @@
 /* eslint-disable complexity */
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
-import {emitState} from '../socket/emitEvents';
-import {playerKilled} from '../socket/emitEvents';
+import {emitState, playerKilled} from '../socket/emitEvents';
 
 export default class Ship {
   constructor(scene, x, y) {
@@ -90,6 +89,7 @@ export default class Ship {
     });
   }
   freeze() {
+    console.log('freeze');
     this.sprite.body.moves = !this.sprite.body.moves;
   }
 
@@ -183,12 +183,13 @@ export default class Ship {
           currentTileIdx.previous
         ]);
       }
-
-      // If the user is moving from harbor to a different kind of tile, then we must set the exit point
+      // *********** Set Exit Point ***********
+      // If the user is moving from their harbor to a different kind of tile, then we must set the exit point
       if (
         currentTileIdx.previous === this.scene.harborIndex &&
         currentTileIdx.present !== this.scene.harborIndex
       ) {
+        console.log('setting exit point!!!');
         clientStore.dispatch(
           clientActionCreators.game.setExitPoint(
             playerPhaserXY.present.x,
@@ -201,9 +202,10 @@ export default class Ship {
           playerPhaserXY.present.y,
           currentTileIdx.previous
         ]);
+        // *********** Set Entry Point ***********
       } else if (this.shouldSetEntryPoint(currentTileIdx, exitPoint)) {
         // If the user is moving from sea to harbor, then we must set the entry point
-
+        console.log('setting entry point!!!');
         clientStore.dispatch(
           clientActionCreators.game.setEntryPoint(
             playerPhaserXY.present.x,
@@ -216,19 +218,27 @@ export default class Ship {
           playerPhaserXY.present.y,
           currentTileIdx.previous
         ]);
-      }
 
-      if (entryPoint && exitPoint) {
-        // when both have been set then we want to clear them and call the findFillPoint method
+        // once entry has been set, then we want to begin the flood fill process
+        // then we want to clear them and call the findFillPoint method
         this.findFillPoint();
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
       }
+
+      // if (entryPoint && exitPoint) {
+      //   // when both have been set then we want to clear them and call the findFillPoint method
+      //   this.findFillPoint();
+
+      //   clientStore.dispatch(clientActionCreators.game.clearExitEntry());
+      // }
+
       // when you hit a path, that player is killed
       if (this.isPath(newTile)) {
         // here we want to emit that we killed whichever player this path belongs to
         playerKilled(newTile.index);
       }
+
       // get the tile at the location of the ship and make it a path tile as long as youre not in your own harbor
       if (currentTileIdx.present !== this.scene.harborIndex) {
         this.scene.setTileIndex(
