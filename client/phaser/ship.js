@@ -224,23 +224,24 @@ export default class Ship {
         ]);
 
         // once entry has been set, then we want to begin the flood fill process
-        // then we want to clear them and call the findFillPoint method
         this.findFillPoint();
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
       }
 
-      // if (entryPoint && exitPoint) {
-      //   // when both have been set then we want to clear them and call the findFillPoint method
-      //   this.findFillPoint();
-
-      //   clientStore.dispatch(clientActionCreators.game.clearExitEntry());
-      // }
-
       // when you hit a path, that player is killed
       if (this.isPath(newTile)) {
         // here we want to emit that we killed whichever player this path belongs to
         playerKilled(newTile.index);
+        // and set it to our path tile
+        this.scene.setTileIndex(
+          this.scene.pathIndex, //type of tile to set it to
+          {
+            type: 'tile', //must indicate format of xy
+            x: newTile.x,
+            y: newTile.y
+          }
+        );
       }
 
       // get the tile at the location of the ship and make it a path tile as long as youre not in your own harbor

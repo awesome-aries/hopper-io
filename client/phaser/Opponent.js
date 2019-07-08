@@ -1,21 +1,18 @@
 import Phaser from 'phaser';
 
 export default class Opponent {
-  constructor(scene, x, y, direction) {
+  constructor(scene, x, y, direction, socketId) {
     // keep track of the direction they're facing
-    this.direction = direction;
+
+    this.scene = scene;
 
     // Opponent's starting location
-    this.sprite = scene.physics.add
+    this.sprite = this.scene.physics.add
       .sprite(x, y, 'ship', 0)
-      // .setDrag(1000, 0)
-      .setSize(50, 50)
-      .setOffset(0, 0);
-
-    this.sprite.body.setAllowGravity(false);
+      .setSize(50, 50);
 
     // create animation
-    const anims = scene.anims;
+    const anims = this.scene.anims;
     anims.create({
       key: 'ship-north',
       frames: [{key: 'ship', frame: 0}],
@@ -41,27 +38,34 @@ export default class Opponent {
       frameRate: 3,
       repeat: -1
     });
+
+    // set these as properties on the sprite so its accessible in the game
+    this.sprite.socketId = socketId;
+    this.sprite.direction = direction;
+    // this.sprite.move = this.move
   }
 
   update() {
-    if (this.direction === 'north') {
+    if (this.sprite.direction === 'north') {
       this.sprite.anims.play('ship-north');
-    } else if (this.direction === 'west') {
+    } else if (this.sprite.direction === 'west') {
       this.sprite.anims.play('ship-west');
-    } else if (this.direction === 'east') {
+    } else if (this.sprite.direction === 'east') {
       this.sprite.anims.play('ship-east');
-    } else if (this.direction === 'south') {
+    } else if (this.sprite.direction === 'south') {
       this.sprite.anims.play('ship-south');
     }
   }
-  destroy() {
-    this.sprite.destroy();
-  }
-  move(x, y, direction) {
-    // this.sprite.x = x;
-    // this.sprite.y = y;
-    this.sprite.setPosition(x, y);
+  // destroy() {
+  //   this.sprite.destroy();
+  // }
+  // move(x, y, direction) {
+  //   console.log('move');
+  //   console.log('this.sprite', this.sprite);
+  //   // this.sprite.x = x;
+  //   // this.sprite.y = y;
+  //   this.sprite.setPosition(x, y);
 
-    this.direction = direction;
-  }
+  //   this.sprite.direction = direction;
+  // }
 }

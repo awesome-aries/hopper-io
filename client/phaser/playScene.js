@@ -5,6 +5,7 @@ import getTileIndices from '../util/getTileIndices';
 import Opponent from './Opponent';
 import socket from '../socket';
 import {IndToXY} from '../util/tileMapConversions';
+import {playerKilled} from '../socket/emitEvents';
 
 export default class PlayScene extends Phaser.Scene {
   constructor() {
@@ -45,8 +46,7 @@ export default class PlayScene extends Phaser.Scene {
     // get the players location from store that was sent from the server
     const {
       game: {playerWorldXY, tileMap, pathIndex, harborIndex},
-      opponent,
-      gameState: {score, playerName}
+      opponent
     } = clientStore.getState();
 
     // the indicies for the different kinds of tiles
@@ -110,6 +110,17 @@ export default class PlayScene extends Phaser.Scene {
     socket.on('removePlayer', this.onRemovePlayer);
     // **************************************************
   }
+  update() {
+    // the game loop which runs constantly
+
+    // get the state from the clientStore
+    const {game} = clientStore.getState();
+
+    this.ship.update(game);
+
+    // this.manuallyMakeHarbor();
+  }
+
   onRemovePlayer = (removedPlayerID, newTileMapDiff) => {
     // need to update our tile map
     this.updatePhaserTileMap(newTileMapDiff);
@@ -121,6 +132,11 @@ export default class PlayScene extends Phaser.Scene {
 
     //******** need someway of removing player when they die from this.opponents so they player object doesn't keep moving
     //this.opponents.filter
+    let removedOpponent = this.opponents.getChildren().find(phaserOpponent => {
+      return phaserOpponent.socketId === removedPlayerID;
+    });
+    // get rid of that opponent
+    removedOpponent.destroy();
 
     // when a player leaves the game or killed we want to remove them from the game.
     clientStore.dispatch(
@@ -144,10 +160,11 @@ export default class PlayScene extends Phaser.Scene {
     console.log('A new player has joined', player);
   };
   createOpponents(opponent) {
-    this.opponents = [];
+    // this.opponents = [];
     //here we are creating the opponents if you are joining a pre-existing game
     console.log('opponent', opponent);
     //if the opponent from state doesn't exist in phaser opponents array, call makeOpponent to add it and create sprite.
+    this.opponents = this.add.group();
 
     opponent.forEach(stateOpponent => {
       this.makeOpponent(
@@ -157,17 +174,63 @@ export default class PlayScene extends Phaser.Scene {
         stateOpponent.socketId
       );
     });
+    // add collision and call back which calls game over with ship
+    this.physics.add.collider(this.ship, this.opponents);
+    this.physics.add.overlap(
+      this.ship,
+      this.opponents,
+      this.playersCollided,
+      null,
+      this
+    );
   }
 
-  update() {
-    // the game loop which runs constantly
+  makeOpponent(x, y, direction, socketId) {
+    // makes the opponent in phaser
 
-    // get the state from the clientStore
-    const {game} = clientStore.getState();
+    let newOpponnent = new Opponent(this, x, y, direction, socketId);
+    // its the sprite that must be added to the group
+    this.opponents.add(newOpponnent.sprite);
+  }
 
-    this.ship.update(game);
+  updateOpponents() {
+    // update the phaser opponent sprites based on the opponent in store's position
+    const {opponent} = clientStore.getState();
+    console.log('opponents on local', this.opponents.getChildren());
 
-    // this.manuallyMakeHarbor();
+    // go through all the opponents in the opponent group
+    this.opponents.getChildren().forEach(phaserOpponent => {
+      // go through the opponents in store
+      for (let i = 0; i < opponent.length; i++) {
+        const stateOpponent = opponent[i];
+        console.log('phaserOpponent', phaserOpponent);
+        // and find its match and update the position
+        if (phaserOpponent.socketId === stateOpponent.socketId) {
+          // phaserOpponent.move(
+          //   stateOpponent.worldX,
+          //   stateOpponent.worldY,
+          //   stateOpponent.direction
+          // );
+          // phaserOpponent.setPosition(
+          //   stateOpponent.worldX,
+          //   stateOpponent.worldY
+          // );
+          // still not updating***
+          phaserOpponent.x = stateOpponent.worldX;
+          phaserOpponent.y = stateOpponent.worldY;
+          phaserOpponent.direction = stateOpponent.direction;
+          // once we've found the correct opponent in state no need to keep checking
+          break;
+        }
+      }
+    });
+  }
+  playersCollided(ship, opponent) {
+    // when a player and an opponent collide they should both die
+    console.log('You collided and died');
+
+    // need to emit an event to the server that this player has been killed, this will trigger the server to send the player back the wasKilled event
+    playerKilled(this.pathIndex);
   }
 
   setTileIndex(tileIndex, location) {
@@ -295,12 +358,6 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  makeOpponent(x, y, direction, socketId) {
-    // makes the opponent in phaser
-    let newOpponnent = new Opponent(this, x, y, direction);
-    this.opponents.push(newOpponnent);
-  }
-
   onUpdateState = (players, tileMapDiff) => {
     // when we get updates from the server we need to update the tilemap in phaser...
     console.log('from server tileMapDiff', tileMapDiff);
@@ -318,19 +375,6 @@ export default class PlayScene extends Phaser.Scene {
     // and phaser
     this.updateOpponents();
   };
-
-  updateOpponents() {
-    // update the phaser opponent sprites based on the opponent in store's position
-    const {opponent} = clientStore.getState();
-    console.log('opponents on local', this.opponents);
-    this.opponents.forEach(localOpponent => {
-      localOpponent.move(
-        localOpponent.worldX,
-        localOpponent.worldY,
-        localOpponent.direction
-      );
-    });
-  }
 
   updatePhaserTileMap(tileMapDiff) {
     // set the tiles in phaser to match the store
