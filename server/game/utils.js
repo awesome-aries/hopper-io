@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 // get the map width and height from the tilemap
 const tileMap = require('../../public/assets/hopperio-tilemap.json');
 
@@ -129,6 +130,30 @@ function initTileMap(serverStore, serverActionCreators) {
   );
 }
 
+/*
+
+  4 bits allow us to store 16 different types of tiles:
+    3 path,
+    3 harbor,
+    1 regular
+
+  We currently have 3 different variations of path/harbor tiles,
+  and one regular tile, so a total of 
+*/
+
+function convertTileMapToBitfield(bits, tileMap) {
+  // we want 4 bits for each tile
+  return tileMap.reduce((bitfield, tileIndex) => {
+    // shift the bitfield over by number of bits
+    bitfield = bitfield << bits;
+
+    // and then set the tileIndex value
+    bitfield |= tileIndex;
+
+    return bitfield;
+  }, 0b0);
+}
+
 module.exports = {
   XYToInd,
   IndToXY,
@@ -136,5 +161,6 @@ module.exports = {
   worldXYToTileXY,
   tileXYToWorldXY,
   getTileIndices,
-  initTileMap
+  initTileMap,
+  convertTileMapToBitfield
 };

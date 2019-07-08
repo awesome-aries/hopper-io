@@ -1,5 +1,6 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
+const {convertTileMapToBitfield} = require('../game/utils.js');
 
 const {
   addPlayer,
@@ -78,13 +79,17 @@ async function onPlayerStartGame(socket, name) {
     return player.socketId === socket.id;
   });
 
+  // convert to bitmap to reduce amount of data sent to the server
+  let bitmap = convertTileMapToBitfield(4, tiles.tileMap.present);
+
   // also need to send them the current tilemap to the new player
   console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
   socket.emit(
     'startingInfo',
     playersCopy,
     newPlayer,
-    tiles.tileMap.present,
+    // tiles.tileMap.present,
+    bitmap,
     tiles.tileMapRowLength
   );
 

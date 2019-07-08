@@ -57,3 +57,26 @@ export function tileXYToWorldXY(tileX, tileY) {
     y
   };
 }
+
+export function convertBitfieldToTileMap(bits, bitfield) {
+  let tileMapLength = tileMap.length;
+  // initialize tilemap to array
+  let tilemap = Array(tileMapLength);
+  // get the bitfield in binary and left pad any leading zeros
+  let binaryString = bitfield.toString(2).padStart(bits * tileMapLength, '0');
+
+  // go through the bitString and convert back to integers and put in tileMap
+  for (
+    let i = binaryString.length, tileMapIterator = tileMapLength - 1;
+    i - bits >= 0;
+    i -= bits, --tileMapIterator
+  ) {
+    let subBitmask = binaryString.substring(i - bits, i);
+
+    // go through the binary string from the end
+    let tileIndex = parseInt(subBitmask, 2);
+
+    tilemap[tileMapIterator] = tileIndex;
+  }
+  return tilemap;
+}

@@ -1,4 +1,5 @@
 import clientStore, {clientActionCreators} from '../store/index';
+import {convertBitfieldToTileMap} from '../util/tileMapConversions';
 
 function initClientListeners(io, socket) {
   //  set up all our clientside listeners
@@ -10,8 +11,8 @@ function initClientListeners(io, socket) {
   // console.log(tileMap.present);
 
   //
-  socket.on('startingInfo', (players, thisPlayer, tileMap, tileMapRowLength) =>
-    onStart(players, thisPlayer, tileMap, tileMapRowLength)
+  socket.on('startingInfo', (players, thisPlayer, bitmap, tileMapRowLength) =>
+    onStart(players, thisPlayer, bitmap, tileMapRowLength)
   );
 
   // The onUpdateState listener must be in playScene so that it can manipulate phaser objects
@@ -20,7 +21,7 @@ function initClientListeners(io, socket) {
   // });
 }
 
-async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
+async function onStart(players, thisPlayer, bitmap, tileMapRowLength) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
   // dispatch INIT_OPPONENTS in opponent reducer
@@ -35,6 +36,11 @@ async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
       thisPlayer.harborIndex
     )
   );
+  console.log('bitmap', bitmap);
+
+  // convert the bitmap representation from the server into an array for our store
+  let tileMap = convertBitfieldToTileMap(4, bitmap);
+  console.log('tileMap', tileMap);
 
   // set the client's tilemap
   await clientStore.dispatch(

@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 /*
 Bit Map
 
@@ -16,9 +17,13 @@ function convertTileMapToBitfield(bits, tileMap) {
   return tileMap.reduce((bitfield, tileIndex) => {
     // shift the bitfield over by number of bits
     bitfield = bitfield << bits;
+    console.log('shifted bitfield', bitfield.toString(2));
 
     // and then set the tileIndex value
     bitfield |= tileIndex;
+    console.log('length of bitfield', bitfield.toString(2).length);
+    console.log('tileIndex', tileIndex.toString(2));
+    console.log('tileset bitfield', bitfield.toString(2));
 
     return bitfield;
   }, 0b0);
@@ -28,7 +33,7 @@ function convertBitfieldToTileMap(bits, bitfield, tileMapLength) {
   let tileMap = Array(tileMapLength);
   // get the bitfield in binary and left pad any leading zeros
   let binaryString = bitfield.toString(2).padStart(bits * tileMapLength, '0');
-
+  console.log('binaryString', binaryString);
   // go through the bitString and convert back to integers and put in tileMap
   for (
     let i = binaryString.length, tileMapIterator = tileMapLength - 1;
@@ -36,9 +41,11 @@ function convertBitfieldToTileMap(bits, bitfield, tileMapLength) {
     i -= bits, --tileMapIterator
   ) {
     let subBitmask = binaryString.substring(i - bits, i);
+    console.log('subBitmask', subBitmask);
 
-    // go through the binary sring from the end
+    // go through the binary string from the end
     let tileIndex = parseInt(subBitmask, 2);
+    console.log('tileIndex', tileIndex);
 
     tileMap[tileMapIterator] = tileIndex;
   }
@@ -77,23 +84,29 @@ function setBitmapValue(bitfield, bitmask, clearingMask) {
   return bitfield;
 }
 
-let map = [0, 2, 5];
+let map = [0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5];
+// for (let i = 0, j = 0; i < 50; i++, j++) {
+//   j = j > 8 ? 0 : j;
+//   map.push(j);
+// }
 console.log('map', map);
-let bits = 8;
+let bits = 4;
 let bitfield = convertTileMapToBitfield(bits, map);
-console.log(
-  `${bitfield} === ${bitfield.toString(2)} === 100101 is ${bitfield.toString(
-    2
-  ) === '100101'}`
-);
-let diff = [{tileInd: 0, tileIndex: 5}, {tileInd: 2, tileIndex: 2}];
-console.dir(diff);
-let [bitmask, clear] = createBitmask(bits, diff, map.length);
-console.log(
-  `bitmask: ${bitmask.toString(2)}, clearingMask: ${(clear >>> 0).toString(2)}`
-);
-let updatedBitfield = setBitmapValue(bitfield, bitmask, clear);
-console.log('updatedBitfield', updatedBitfield.toString(2));
 
-let updatedMap = convertBitfieldToTileMap(bits, updatedBitfield, map.length);
+console.log('*******************');
+
+let updatedMap = convertBitfieldToTileMap(bits, bitfield, map.length);
 console.log('updatedMap', updatedMap);
+
+// let diff = [{tileInd: 0, tileIndex: 5}, {tileInd: 2, tileIndex: 2}];
+// console.dir(diff);
+// let [bitmask, clear] = createBitmask(bits, diff, map.length);
+// console.log(
+//   `bitmask: ${bitmask.toString(2)}, clearingMask: ${(clear >>> 0).toString(2)}`
+// );
+
+// let updatedBitfield = setBitmapValue(bitfield, bitmask, clear);
+// console.log('updatedBitfield', updatedBitfield.toString(2));
+
+// let updatedMap = convertBitfieldToTileMap(bits, updatedBitfield, map.length);
+// console.log('updatedMap', updatedMap);
