@@ -10,8 +10,8 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 
 const useStyles = makeStyles(theme => ({
   footer: {
-    padding: theme.spacing(2),
-    marginTop: 'auto',
+    // padding: theme.spacing(2),
+    // marginTop: 'auto',
     backgroundColor: 'white'
   },
   linkContainer: {
@@ -29,9 +29,9 @@ const Footer = props => {
   return (
     <footer className={classes.footer}>
       <Container maxWidth="lg">
-        <Typography variant="h4" align="center">
+        {/* <Typography variant="h5" align="center">
           Hire Us!
-        </Typography>
+        </Typography> */}
         <div className={classes.linkContainer}>
           <List subheader={<ListSubheader>Allison Geismar</ListSubheader>}>
             <ListItem component="a" href="https://github.com/ageismar">

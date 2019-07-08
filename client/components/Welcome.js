@@ -12,6 +12,7 @@ import MuiDialogActions from '@material-ui/core/DialogActions';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
+import Footer from './Footer';
 
 const styles = theme => ({
   root: {
@@ -190,6 +191,7 @@ class Welcome extends Component {
 
           <Container />
         </Container>
+        <Footer />
       </div>
     );
   }

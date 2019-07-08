@@ -158,3 +158,8 @@ span.tile8 {
   left: auto;
   position: fixed;
 }
+
+footer {
+  margin-top: calc(5% + 400px);
+  bottom: 0;
+}
