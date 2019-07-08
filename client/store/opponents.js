@@ -10,8 +10,7 @@ const initialState = []; //an array of opponent objects
 
 const ADD_OPPONENT = 'ADD_OPPONENT';
 const REMOVE_OPPONENT = 'REMOVE_OPPONENT';
-const INIT_OPPONENTS = 'INIT_OPPONENTS';
-const UPDATE_OPPONENTS_POS = 'UPDATE_OPPONENTS_POS';
+const SET_OPPONENTS = 'SET_OPPONENTS';
 const FILTER_OPPONENTS = 'FILTER_OPPONENTS';
 
 /**
@@ -30,12 +29,12 @@ export const opponentActionCreators = {
   }),
   // when the player starts the game, this will be dispatched to set all the other players currently in the game
   initOpponents: opponents => ({
-    type: INIT_OPPONENTS,
+    type: SET_OPPONENTS,
     opponents
   }),
   // this will be dispatched everytime the server sends updates on other player's positions
   updateOpponentsPos: opponents => ({
-    type: UPDATE_OPPONENTS_POS,
+    type: SET_OPPONENTS,
     opponents
   }),
   filterOpponents: selfSocketId => ({
@@ -54,16 +53,16 @@ export const opponentActionCreators = {
 
 export default function opponentReducer(state = initialState, action) {
   switch (action.type) {
-    case INIT_OPPONENTS:
+    case SET_OPPONENTS:
       return [...action.opponents];
     case ADD_OPPONENT:
       return [...state, action.opponent];
-    case UPDATE_OPPONENTS_POS:
-      return [...action.opponents];
     case REMOVE_OPPONENT:
-      return state.filter(opponent => opponent.Id !== action.opponentId);
+      return state.filter(opponent => opponent.socketId !== action.opponentId);
     case FILTER_OPPONENTS:
-      return state.filter(opponent => opponent !== action.selfSocketId);
+      return state.filter(
+        opponent => opponent.socketId !== action.selfSocketId
+      );
     default:
       return state;
   }
