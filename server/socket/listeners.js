@@ -114,10 +114,9 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     // get the new state
     const {players: {players}, tiles: {tileMapDiff}} = serverStore.getState();
 
-    // make a copy of players and remove the current player from the object so the player only gets their opponents
-    // also make sure not sending any players not yet in the game
+    // make a copy of players and make sure not sending any players not yet in the game
     const playersCopy = players.filter(player => {
-      return player.isPlaying && player.socketId !== socket.id;
+      return player.isPlaying;
     });
 
     // and then broadcast the new state to all the other players
@@ -160,8 +159,8 @@ async function onPlayerKilled(io, socket, pathIndex) {
     // get the new state
     const {tiles: {tileMapDiff}} = serverStore.getState();
 
-    // send back to the other player the id of the player who left and the new tilemap
-    socket.broadcast.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
+    // send back to all players to remove opponent and update map
+    socket.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
   }
 }
 
@@ -188,7 +187,8 @@ async function onDisconnect(socket) {
       )
     );
     // get the new state
-    const {tiles: {tileMapDiff}} = serverStore.getState();
+    const {tiles: {tileMapDiff}, players: {players}} = serverStore.getState();
+    console.log('current players &&&&&&&&&&&', players);
 
     socket.broadcast.emit('removePlayer', socket.id, tileMapDiff);
   }

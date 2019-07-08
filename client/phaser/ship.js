@@ -1,14 +1,13 @@
 /* eslint-disable complexity */
 import Phaser from 'phaser';
 import clientStore, {clientActionCreators} from '../store';
-import {emitState} from '../socket/emitEvents';
-import {playerKilled} from '../socket/emitEvents';
+import {emitState, playerKilled} from '../socket/emitEvents';
 
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
     this.absVelocity = 200;
-    this.direction = 1; //positive is down and right, negative is up and left
+    this.direction = -1; //positive is down and right, negative is up and left
     this.didTurn = false; // we have to know if we turned or not
     this.facingDir = 'north'; //keep track of direction we're facing
     // we need to keep track of the all the verticies of the drawn polygon
@@ -24,8 +23,6 @@ export default class Ship {
       .setOffset(0, 0);
 
     this.sprite.body.setAllowGravity(false);
-    // ** doesnt seem to do anything T_T
-    // this.sprite.body.collideWorldBounds = true;
 
     //Gets all the surrounding tiles of the start pos
     const startPos = this.scene.foregroundLayer.getTileAtWorldXY(x, y);
@@ -52,8 +49,56 @@ export default class Ship {
     );
 
     // **************************************
-    // create animation
-    const anims = scene.anims;
+    this.setUpAnimation();
+
+    // we want the player to start out moving
+    this.sprite.body.setVelocity(0, this.absVelocity * this.direction);
+  }
+  freeze() {
+    console.log('freeze');
+    this.sprite.body.moves = !this.sprite.body.moves;
+  }
+
+  update(game) {
+    const {keys, sprite} = this;
+
+    // ******************Movement Logic******************
+    if (keys.left.isDown || keys.a.isDown) {
+      this.direction = -1;
+      sprite.body.setVelocity(this.absVelocity * this.direction, 0);
+      sprite.anims.play('ship-west');
+      this.facingDir = 'west';
+    } else if (keys.up.isDown || keys.w.isDown) {
+      this.direction = -1;
+      sprite.body.setVelocity(0, this.absVelocity * this.direction);
+      sprite.anims.play('ship-north');
+      this.facingDir = 'north';
+    } else if (keys.right.isDown || keys.d.isDown) {
+      this.direction = 1;
+      sprite.body.setVelocity(this.absVelocity * this.direction, 0);
+      sprite.anims.play('ship-east');
+      this.facingDir = 'east';
+    } else if (keys.down.isDown || keys.s.isDown) {
+      this.direction = 1;
+      sprite.body.setVelocity(0, this.absVelocity * this.direction);
+      sprite.anims.play('ship-south');
+      this.facingDir = 'south';
+    } else if (keys.space.isDown) {
+      // for testing purposes
+      this.freeze();
+    }
+
+    // // ******************Path Logic******************
+    // // get the tile at the location of the ship
+
+    this.setPath(game);
+
+    // *************************************************
+  }
+
+  setUpAnimation() {
+    // set up the sprite animation and keyboard controls
+    const anims = this.scene.anims;
     anims.create({
       key: 'ship-north',
       frames: [{key: 'ship', frame: 0}],
@@ -80,56 +125,29 @@ export default class Ship {
       repeat: -1
     });
 
-    const {LEFT, RIGHT, UP, DOWN, SPACE} = Phaser.Input.Keyboard.KeyCodes;
-    this.keys = scene.input.keyboard.addKeys({
+    const {
+      LEFT,
+      RIGHT,
+      UP,
+      DOWN,
+      SPACE,
+      W,
+      A,
+      S,
+      D
+    } = Phaser.Input.Keyboard.KeyCodes;
+    this.keys = this.scene.input.keyboard.addKeys({
       left: LEFT,
       right: RIGHT,
       up: UP,
       down: DOWN,
-      space: SPACE
+      space: SPACE,
+      w: W,
+      a: A,
+      s: S,
+      d: D
     });
   }
-  freeze() {
-    this.sprite.body.moves = !this.sprite.body.moves;
-  }
-
-  update(game) {
-    const {keys, sprite} = this;
-
-    // ******************Movement Logic******************
-    if (keys.left.isDown) {
-      this.direction = -1;
-      sprite.body.setVelocity(this.absVelocity * this.direction, 0);
-      sprite.anims.play('ship-west');
-      this.facingDir = 'west';
-    } else if (keys.up.isDown) {
-      this.direction = -1;
-      sprite.body.setVelocity(0, this.absVelocity * this.direction);
-      sprite.anims.play('ship-north');
-      this.facingDir = 'north';
-    } else if (keys.right.isDown) {
-      this.direction = 1;
-      sprite.body.setVelocity(this.absVelocity * this.direction, 0);
-      sprite.anims.play('ship-east');
-      this.facingDir = 'east';
-    } else if (keys.down.isDown) {
-      this.direction = 1;
-      sprite.body.setVelocity(0, this.absVelocity * this.direction);
-      sprite.anims.play('ship-south');
-      this.facingDir = 'south';
-    } else if (keys.space.isDown) {
-      // for testing purposes
-      this.freeze();
-    }
-
-    // // ******************Path Logic******************
-    // // get the tile at the location of the ship
-
-    this.setPath(game);
-
-    // *************************************************
-  }
-
   // eslint-disable-next-line complexity
   setPath(game) {
     // get the current state of the store from playScene update
@@ -183,12 +201,13 @@ export default class Ship {
           currentTileIdx.previous
         ]);
       }
-
-      // If the user is moving from harbor to a different kind of tile, then we must set the exit point
+      // *********** Set Exit Point ***********
+      // If the user is moving from their harbor to a different kind of tile, then we must set the exit point
       if (
         currentTileIdx.previous === this.scene.harborIndex &&
         currentTileIdx.present !== this.scene.harborIndex
       ) {
+        console.log('setting exit point!!!');
         clientStore.dispatch(
           clientActionCreators.game.setExitPoint(
             playerPhaserXY.present.x,
@@ -201,9 +220,10 @@ export default class Ship {
           playerPhaserXY.present.y,
           currentTileIdx.previous
         ]);
+        // *********** Set Entry Point ***********
       } else if (this.shouldSetEntryPoint(currentTileIdx, exitPoint)) {
         // If the user is moving from sea to harbor, then we must set the entry point
-
+        console.log('setting entry point!!!');
         clientStore.dispatch(
           clientActionCreators.game.setEntryPoint(
             playerPhaserXY.present.x,
@@ -216,19 +236,28 @@ export default class Ship {
           playerPhaserXY.present.y,
           currentTileIdx.previous
         ]);
-      }
 
-      if (entryPoint && exitPoint) {
-        // when both have been set then we want to clear them and call the findFillPoint method
+        // once entry has been set, then we want to begin the flood fill process
         this.findFillPoint();
 
         clientStore.dispatch(clientActionCreators.game.clearExitEntry());
       }
+
       // when you hit a path, that player is killed
       if (this.isPath(newTile)) {
         // here we want to emit that we killed whichever player this path belongs to
         playerKilled(newTile.index);
+        // and set it to our path tile
+        this.scene.setTileIndex(
+          this.scene.pathIndex, //type of tile to set it to
+          {
+            type: 'tile', //must indicate format of xy
+            x: newTile.x,
+            y: newTile.y
+          }
+        );
       }
+
       // get the tile at the location of the ship and make it a path tile as long as youre not in your own harbor
       if (currentTileIdx.present !== this.scene.harborIndex) {
         this.scene.setTileIndex(

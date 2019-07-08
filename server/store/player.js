@@ -164,7 +164,7 @@ const removePlayer = socketId => {
 
       dispatch(
         playersActionCreators.removedPlayer(
-          removePlayer.socketId,
+          removedPlayer.socketId,
           updatedTileValues
         )
       );
