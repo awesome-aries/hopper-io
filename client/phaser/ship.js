@@ -63,22 +63,22 @@ export default class Ship {
     const {keys, sprite} = this;
 
     // ******************Movement Logic******************
-    if (keys.left.isDown) {
+    if (keys.left.isDown || keys.a.isDown) {
       this.direction = -1;
       sprite.body.setVelocity(this.absVelocity * this.direction, 0);
       sprite.anims.play('ship-west');
       this.facingDir = 'west';
-    } else if (keys.up.isDown) {
+    } else if (keys.up.isDown || keys.w.isDown) {
       this.direction = -1;
       sprite.body.setVelocity(0, this.absVelocity * this.direction);
       sprite.anims.play('ship-north');
       this.facingDir = 'north';
-    } else if (keys.right.isDown) {
+    } else if (keys.right.isDown || keys.d.isDown) {
       this.direction = 1;
       sprite.body.setVelocity(this.absVelocity * this.direction, 0);
       sprite.anims.play('ship-east');
       this.facingDir = 'east';
-    } else if (keys.down.isDown) {
+    } else if (keys.down.isDown || keys.s.isDown) {
       this.direction = 1;
       sprite.body.setVelocity(0, this.absVelocity * this.direction);
       sprite.anims.play('ship-south');
@@ -125,13 +125,27 @@ export default class Ship {
       repeat: -1
     });
 
-    const {LEFT, RIGHT, UP, DOWN, SPACE} = Phaser.Input.Keyboard.KeyCodes;
+    const {
+      LEFT,
+      RIGHT,
+      UP,
+      DOWN,
+      SPACE,
+      W,
+      A,
+      S,
+      D
+    } = Phaser.Input.Keyboard.KeyCodes;
     this.keys = this.scene.input.keyboard.addKeys({
       left: LEFT,
       right: RIGHT,
       up: UP,
       down: DOWN,
-      space: SPACE
+      space: SPACE,
+      w: W,
+      a: A,
+      s: S,
+      d: D
     });
   }
   // eslint-disable-next-line complexity
