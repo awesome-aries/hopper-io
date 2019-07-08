@@ -114,10 +114,9 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     // get the new state
     const {players: {players}, tiles: {tileMapDiff}} = serverStore.getState();
 
-    // make a copy of players and remove the current player from the object so the player only gets their opponents
-    // also make sure not sending any players not yet in the game
+    // make a copy of players and make sure not sending any players not yet in the game
     const playersCopy = players.filter(player => {
-      return player.isPlaying && player.socketId !== socket.id;
+      return player.isPlaying;
     });
 
     // and then broadcast the new state to all the other players
