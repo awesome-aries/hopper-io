@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {Link} from 'react-router-dom';
 import socket from '../socket';
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
@@ -118,24 +119,37 @@ class Welcome extends Component {
               Play
             </Button>
           </form>
-          {/* <div id="github">
-            <a
-              href="https://github.com/awesome-aries/hopper-io"
-              className="btn btn-social btn-github"
-            />
-          </div> */}
         </Container>
 
         <Container id="control-panel">
-          <Container className="play-instructions" align="center">
+          <Link to="/about">
             <Button
               variant="outlined"
               color="secondary"
-              onClick={this.handleClickOpen}
               className="control-panel-button"
             >
-              Open dialog
+              About
             </Button>
+          </Link>
+
+          <Button
+            variant="outlined"
+            color="secondary"
+            className="control-panel-button"
+          >
+            <a href="https://github.com/awesome-aries/hopper-io">Github</a>
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={this.handleClickOpen}
+            className="control-panel-button"
+          >
+            How To Play
+          </Button>
+
+          <Container className="play-instructions" align="center">
             <Dialog
               onClose={this.handleClose}
               aria-labelledby="customized-dialog-title"
@@ -173,14 +187,6 @@ class Welcome extends Component {
               </DialogActions>
             </Dialog>
           </Container>
-
-          <Button
-            variant="outlined"
-            color="secondary"
-            className="control-panel-button"
-          >
-            About
-          </Button>
 
           <Container />
         </Container>

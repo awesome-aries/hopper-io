@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {withRouter, Route, Switch} from 'react-router-dom';
 import {me} from './store';
 import About from './components/About';
+import Welcome from './components/Welcome';
 
 /**
  * COMPONENT
@@ -16,7 +17,7 @@ class Routes extends Component {
     return (
       <Switch>
         {/* Routes placed here are available to all visitors */}
-        <Route path="/about" component={About} />
+        {/* <Route path="/about" component={About} /> */}
       </Switch>
     );
   }
