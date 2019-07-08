@@ -63,7 +63,8 @@ class Welcome extends Component {
     super();
     this.state = {
       name: '',
-      open: false
+      open: false,
+      openAbout: false
     };
   }
 
@@ -75,6 +76,16 @@ class Welcome extends Component {
 
   handleClose = () => {
     this.setState({open: false});
+  };
+
+  handleClickAboutOpen = () => {
+    this.setState({
+      openAbout: true
+    });
+  };
+
+  handleAboutClose = () => {
+    this.setState({openAbout: false});
   };
 
   onChange = e => {
@@ -120,77 +131,119 @@ class Welcome extends Component {
               Play
             </Button>
           </form>
-        </Container>
 
-        <Container id="control-panel">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={this.handleClickOpen}
-            className="control-panel-button"
-          >
-            How To Play
-          </Button>
+          <div id="control-panel">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.handleClickOpen}
+              className="control-panel-button"
+            >
+              How To Play
+            </Button>
 
-          <Link to="/about">
+            {/* <Link to="/about"> */}
             <Button
               variant="contained"
               color="secondary"
+              onClick={this.handleClickOpen}
               className="control-panel-button"
             >
               About
             </Button>
-          </Link>
+            {/* </Link> */}
 
-          <Button
-            variant="contained"
-            // color="primary"
-            className="control-panel-button"
-          >
-            <a href="https://github.com/awesome-aries/hopper-io">Github</a>
-          </Button>
-
-          <Container className="play-instructions" align="center">
-            <Dialog
-              onClose={this.handleClose}
-              aria-labelledby="customized-dialog-title"
-              open={this.state.open}
-            >
-              <DialogTitle
-                id="customized-dialog-title"
-                onClose={this.handleClose}
+            <Button variant="contained" className="control-panel-button">
+              <a
+                target="_blank"
+                href="https://github.com/awesome-aries/hopper-io"
               >
-                How To Play
-              </DialogTitle>
-              <DialogContent dividers>
-                <Typography gutterBottom>
-                  <ol>
-                    <li>Use arrows or WSAD to control your spacecraft</li>
-                    <li>
-                      Capture more space territory by creating a path and
-                      returning to your harbor
-                    </li>
-                    <li>
-                      Don't let enemies (or yourself) cross your tail path!
-                    </li>
-                    <li>To crush opponents, cut off their tail path</li>
-                    <li>
-                      Compete with other players to capture the most space
-                      territory in the galaxy!
-                    </li>
-                  </ol>
-                </Typography>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={this.handleClose} color="primary">
-                  Okay
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </Container>
-
-          <Container />
+                <i className="fab fa-github" /> Github
+              </a>
+            </Button>
+          </div>
         </Container>
+
+        <Container className="play-instructions" align="center">
+          <Dialog
+            onClose={this.handleClose}
+            aria-labelledby="customized-dialog-title"
+            open={this.state.open}
+          >
+            <DialogTitle
+              id="customized-dialog-title"
+              onClose={this.handleClose}
+            >
+              How To Play
+            </DialogTitle>
+            <DialogContent dividers>
+              <Typography gutterBottom>
+                <ol>
+                  <li>Use arrows or WSAD to control your spacecraft</li>
+                  <li>
+                    Capture more space territory by creating a path and
+                    returning to your harbor
+                  </li>
+                  <li>Don't let enemies (or yourself) cross your tail path!</li>
+                  <li>To crush opponents, cut off their tail path</li>
+                  <li>
+                    Compete with other players to capture the most space
+                    territory in the galaxy!
+                  </li>
+                </ol>
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleClose} color="primary">
+                Okay
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Container>
+
+        <Container className="about-dialog-box">
+          <Dialog
+            onClose={this.handleClose}
+            aria-labelledby="customized-dialog-title"
+            open={this.state.open}
+          >
+            <DialogTitle
+              id="customized-dialog-title"
+              onClose={this.handleClose}
+            >
+              About
+            </DialogTitle>
+            <DialogContent dividers>
+              <Typography gutterBottom>
+                Inspired by Paper.io, Hopper.io is a multi-player version of the
+                popular game released by Voodoo. The goal of the game is to
+                attain as much territory as possible.
+              </Typography>
+              <Typography gutterBottom>
+                Players compete to try and capture territory by forming a tail
+                and linking it back to their territory. Like in any other game,
+                there are rivals willing to outwit you and take your territory.
+                Be careful to gaurd your tail from being attacked by an
+                opponent! You must crush your opponents by hitting their tail
+                before they eliminate you!
+              </Typography>
+              <Typography gutterBottom>
+                The more space you win, the higher ranking and scores you get.
+                You have to act and think quickly. Develop your own strategy and
+                action plan. Play the game and see if you can claim the biggest
+                territory!
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleClose} color="primary">
+                Okay
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Container>
+
+        <Container />
+
         <Footer />
       </div>
     );
