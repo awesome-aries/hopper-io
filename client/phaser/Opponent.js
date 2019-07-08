@@ -55,6 +55,7 @@ export default class Opponent {
     } else if (this.sprite.direction === 'south') {
       this.sprite.anims.play('ship-south');
     }
+    // this.sprite.anims.play(`ship-${this.sprite.direction}`);
   }
   // destroy() {
   //   this.sprite.destroy();

@@ -12,6 +12,7 @@ const ADD_OPPONENT = 'ADD_OPPONENT';
 const REMOVE_OPPONENT = 'REMOVE_OPPONENT';
 const INIT_OPPONENTS = 'INIT_OPPONENTS';
 const UPDATE_OPPONENTS_POS = 'UPDATE_OPPONENTS_POS';
+const FILTER_OPPONENTS = 'FILTER_OPPONENTS';
 
 /**
  * ACTION CREATORS
@@ -36,6 +37,10 @@ export const opponentActionCreators = {
   updateOpponentsPos: opponents => ({
     type: UPDATE_OPPONENTS_POS,
     opponents
+  }),
+  filterOpponents: selfSocketId => ({
+    type: FILTER_OPPONENTS,
+    selfSocketId
   })
 };
 
@@ -57,6 +62,8 @@ export default function opponentReducer(state = initialState, action) {
       return [...action.opponents];
     case REMOVE_OPPONENT:
       return state.filter(opponent => opponent.Id !== action.opponentId);
+    case FILTER_OPPONENTS:
+      return state.filter(opponent => opponent !== action.selfSocketId);
     default:
       return state;
   }

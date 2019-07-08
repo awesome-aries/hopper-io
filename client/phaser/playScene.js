@@ -23,6 +23,9 @@ export default class PlayScene extends Phaser.Scene {
 
     //here the opponents will live as opponent objects so we can move them in update opponents(called from onUpdateState)
     this.opponents = [];
+
+    //getting the socket Id for the current player
+    this.socketId = socket.id;
   }
   init() {
     // used to prepare data
@@ -155,7 +158,12 @@ export default class PlayScene extends Phaser.Scene {
     // here we add the new opponent to our store if you are currently playing
     clientStore.dispatch(clientActionCreators.opponent.addOpponent(player));
 
-    this.makeOpponent(player.worldX, player.worldY, 'north', player.socketId);
+    this.makeOpponent(
+      player.worldX,
+      player.worldY,
+      player.direction,
+      player.socketId
+    );
 
     console.log('A new player has joined', player);
   };
@@ -195,6 +203,11 @@ export default class PlayScene extends Phaser.Scene {
 
   updateOpponents() {
     // update the phaser opponent sprites based on the opponent in store's position
+
+    //making sure you are not included as a opponent each time the server sends us the current players
+    clientStore.dispatch(
+      clientActionCreators.opponent.filterOpponents(this.socketId)
+    );
     const {opponent} = clientStore.getState();
     console.log('opponents on local', this.opponents.getChildren());
 
@@ -216,6 +229,8 @@ export default class PlayScene extends Phaser.Scene {
           //   stateOpponent.worldY
           // );
           // still not updating***
+          // console.log('opponents direction', stateOpponent.direction);
+
           phaserOpponent.x = stateOpponent.worldX;
           phaserOpponent.y = stateOpponent.worldY;
           phaserOpponent.direction = stateOpponent.direction;
