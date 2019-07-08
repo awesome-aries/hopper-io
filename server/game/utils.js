@@ -144,7 +144,7 @@ a 50*50 board has 2500 tiles
 */
 
 function convertTileMapToBitfield(bits, tileMap) {
-  // we want 4 bits for tile
+  // we want 4 bits for each tile
   return tileMap.reduce((bitfield, tileIndex) => {
     // shift the bitfield over by number of bits
     bitfield = bitfield << bits;
@@ -177,23 +177,36 @@ function convertBitfieldToTileMap(bits, bitfield, tileMapLength) {
   return tileMap;
 }
 function createBitmask(bits, tileMapDiff, tileMapLength) {
-  return tileMapDiff.reduce((bitmask, {tileInd, tileIndex}) => {
-    // set the value
-    let subBitmask = 0b0 | tileIndex;
-    // then shift it into place
-    subBitmask = subBitmask << (bits * (tileMapLength - tileInd));
-    // then set it on the bitmask
-    bitmask |= subBitmask;
-    console.log(
-      'bitmask',
-      bitmask.toString(2),
-      'tileIndex',
-      tileIndex,
-      'subBitmask',
-      subBitmask.toString(2)
-    );
-    return bitmask;
-  }, 0b0);
+  return tileMapDiff.reduce(
+    ([bitmask, clearingMask], {tileInd, tileIndex}) => {
+      // set the value
+      let subBitmask = 0b0 | tileIndex;
+      // then shift it into place
+      subBitmask = subBitmask << (bits * (tileMapLength - tileInd));
+      // then set it on the bitmask
+      bitmask |= subBitmask;
+      console.log(
+        'bitmask',
+        bitmask.toString(2),
+        'tileIndex',
+        tileIndex,
+        'subBitmask',
+        subBitmask.toString(2)
+      );
+      // we also want to make a mask that clears the 4bit sections we want to set with our mask. the parts we want to clear should be 0b0000, and the ones we want to keep the same should be 0b1111. Then we and that against the tilemap, and then or against our bitmask to set the values.
+      // TODO make this opposite to match above logic
+      let subClearingMask = 0b1111 << (bits * (tileMapLength - tileInd));
+      clearingMask |= subClearingMask;
+      return [bitmask, clearingMask];
+    },
+    [0b0, 0b0]
+  );
+}
+
+function setBitmapValue(bitfield, bitmask) {
+  // returns new tileMap bitfield with the new values
+  bitmask |= bitfield;
+  return bitmask;
 }
 
 module.exports = {
