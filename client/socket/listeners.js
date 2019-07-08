@@ -24,7 +24,7 @@ async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
   // dispatch INIT_OPPONENTS in opponent reducer
-  clientStore.dispatch(clientActionCreators.opponent.initOpponents(players));
+  clientStore.dispatch(clientActionCreators.opponent.setOpponents(players));
 
   console.log('This is the new player, you!', thisPlayer);
 

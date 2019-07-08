@@ -28,12 +28,8 @@ export const opponentActionCreators = {
     opponentId
   }),
   // when the player starts the game, this will be dispatched to set all the other players currently in the game
-  initOpponents: opponents => ({
-    type: SET_OPPONENTS,
-    opponents
-  }),
-  // this will be dispatched everytime the server sends updates on other player's positions
-  updateOpponentsPos: opponents => ({
+  // also will be dispatched everytime the server sends updates on other player's positions
+  setOpponents: opponents => ({
     type: SET_OPPONENTS,
     opponents
   }),

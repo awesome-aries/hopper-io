@@ -428,9 +428,7 @@ export default class PlayScene extends Phaser.Scene {
     clientStore.dispatch(clientActionCreators.game.updateTileMap(tileMapDiff));
 
     // also update opponents in state
-    clientStore.dispatch(
-      clientActionCreators.opponent.updateOpponentsPos(players)
-    );
+    clientStore.dispatch(clientActionCreators.opponent.setOpponents(players));
 
     // and phaser
     this.updateOpponents();
