@@ -160,7 +160,7 @@ async function onPlayerKilled(io, socket, pathIndex) {
     const {tiles: {tileMapDiff}} = serverStore.getState();
 
     // send back to all players to remove opponent and update map
-    socket.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
+    io.sockets.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
   }
 }
 
