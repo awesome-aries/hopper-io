@@ -417,14 +417,16 @@ export default class PlayScene extends Phaser.Scene {
     }
   }
 
-  onUpdateState = (players, tileMapDiff) => {
+  onUpdateState = (players, tileMap) => {
     // when we get updates from the server we need to update the tilemap in phaser...
-    console.log('from server tileMapDiff', tileMapDiff);
-
-    this.updatePhaserTileMap(tileMapDiff);
+    console.log('from server tileMap', tileMap);
 
     // and in our store
-    clientStore.dispatch(clientActionCreators.game.updateTileMap(tileMapDiff));
+    clientStore.dispatch(clientActionCreators.game.updateTileMap(tileMap));
+
+    // update the tilemap in phaser
+    // this should be after updating the store
+    this.updatePhaserTileMap(tileMap);
 
     // also update opponents in state
     clientStore.dispatch(clientActionCreators.opponent.setOpponents(players));
@@ -433,15 +435,13 @@ export default class PlayScene extends Phaser.Scene {
     this.updateOpponents();
   };
 
-  updatePhaserTileMap(tileMapDiff) {
+  updatePhaserTileMap(tileMap) {
     // set the tiles in phaser to match the store
-    tileMapDiff.forEach(({tileInd, tileIndex}) => {
-      let {x, y} = IndToXY(tileInd, this.planeDimensions.x);
+    tileMap.forEach((tileIndex, ind) => {
+      let {x, y} = IndToXY(ind, this.planeDimensions.x);
       let tile = this.map.getTileAt(x, y);
       tile.index = tileIndex;
     });
-    // not sure if it'll take a flat array
-    // this.foregroundLayer.putTilesAt(tileMap.present, 0, 0);
   }
 
   onWasKilled = () => {

@@ -119,9 +119,9 @@ export const gameActionCreators = {
   resetTileMapDiff: () => ({
     type: RESET_TILEMAP_DIFF
   }),
-  updateTileMap: tileMapDiff => ({
+  updateTileMap: tileMap => ({
     type: UPDATE_TILEMAP,
-    tileMapDiff
+    tileMap
   })
 };
 
@@ -255,10 +255,10 @@ export default function gameReducer(state = initialState, action) {
         tileMapDiff: []
       };
     case UPDATE_TILEMAP:
-      let tileMapCopy = [...state.tileMap.present];
-      // for all the reported changes from the server set them in our tilemap
-      action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
-        tileMapCopy[tileInd] = tileIndex;
+      let tileMapCopy = action.tileMap.map((tileIndex, tileInd) => {
+        if (state.tileMap.present[tileInd] !== tileIndex) {
+          return tileIndex;
+        } else return state.tileMap.present[tileInd];
       });
       return {
         ...state,

@@ -9,7 +9,6 @@ const {getTileIndices} = require('../game/utils');
 const INIT_TILEMAP = 'INIT_TILEMAP';
 const UPDATE_TILEMAP = 'UPDATE_TILEMAP';
 const REMOVE_PLAYERS_TILES = 'REMOVE_PLAYERS_TILES';
-const RESET_TILEMAP_DIFF = 'RESET_TILEMAP_DIFF';
 
 /**
  * INITIAL STATE
@@ -20,7 +19,6 @@ const initialState = {
     previous: [], //need to keep track of the previous state of the tileMap
     present: []
   },
-  tileMapDiff: [], //array of changes from the client
   tileMapRowLength: null, //number
   //these are all tile values
   tileValues: getTileIndices() //get tile values from tiled exported json
@@ -44,9 +42,6 @@ const tilesActionCreators = {
     harborIndex,
     pathIndex,
     regularIndex
-  }),
-  resetTileMapDiff: () => ({
-    type: RESET_TILEMAP_DIFF
   })
 };
 /**
@@ -96,7 +91,16 @@ function tilesReducer(state = initialState, action) {
       let tileMapCopy = [...state.tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
-        tileMapCopy[tileInd] = tileIndex;
+        let tileType;
+        if (state.tileValues.path.includes(tileIndex)) {
+          tileType = 'path';
+        } else if (state.tileValues.harbor.includes(tileIndex)) {
+          tileType = 'harbor';
+        } else {
+          tileType = 'regular';
+        }
+        let currentTile = tileMapCopy[tileInd];
+        currentTile.tileChange(tileIndex, tileType);
       });
       // console.log('****new tilemap');
       // printTileMap(tileMapCopy, state.tileMapRowLength);
@@ -105,13 +109,7 @@ function tilesReducer(state = initialState, action) {
         tileMap: {
           previous: [...state.tileMap.present],
           present: tileMapCopy
-        },
-        tileMapDiff: [...state.tileMapDiff, ...action.tileMapDiff]
-      };
-    case RESET_TILEMAP_DIFF:
-      return {
-        ...state,
-        tileMapDiff: []
+        }
       };
     case REMOVE_PLAYERS_TILES:
       // when a player is killed or leaves the game we need to revert their tiles

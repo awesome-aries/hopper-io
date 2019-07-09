@@ -107,6 +107,7 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     // update the tilemap
     // not a thunk rn, just in store but need to make a thunk and place in DB
     // TODO
+    console.log('tile map diff from client', tilemapDiff);
     await serverStore.dispatch(
       serverActionCreators.tiles.updateTileMap(tilemapDiff)
     );
@@ -115,18 +116,15 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
 
     // get the new state
-    const {players: {players}, tiles: {tileMapDiff}} = serverStore.getState();
+    const {players: {players}, tiles: {tileMap}} = serverStore.getState();
 
     // make a copy of players and make sure not sending any players not yet in the game
     const playersCopy = players.filter(player => {
       return player.isPlaying;
     });
-
+    const updatedConvertedTileMap = convertServerToClient(tileMap.present);
     // and then broadcast the new state to all the other players
-    socket.broadcast.emit('updateState', playersCopy, tileMapDiff);
-
-    // and clear the changes we just broadcast to the clients
-    serverStore.dispatch(serverActionCreators.tiles.resetTileMapDiff());
+    socket.broadcast.emit('updateState', playersCopy, updatedConvertedTileMap);
   }
 }
 

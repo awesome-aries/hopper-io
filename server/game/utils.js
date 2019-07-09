@@ -53,9 +53,11 @@ function tileXYToWorldXY(tileX, tileY) {
 }
 
 function convertServerToClient(serverTileMap) {
+  //takes a tile map of tile class objects and converts them to tile indices(colors) for the client to sort through
   console.log(serverTileMap);
   return serverTileMap.map(tile => tile.present.color);
 }
+
 /*
 The tileMap exported by Tiled and that we use to represent the tileMap in the redux store is a flat array, so we must transform the grid style indicies as in the b array below (b[x][y]) into a single index as in a array (a[ind]) such that a[ind] === b[x][y]
 
