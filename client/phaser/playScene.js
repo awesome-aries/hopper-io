@@ -13,10 +13,9 @@ export default class PlayScene extends Phaser.Scene {
     super('play');
 
     this.TILE_MAP_PATH = 'assets/hopperio-tilemap.json';
-    this.TILE_SET_PATH = 'assets/tile-set50x50tiles.png';
+    this.TILE_SET_NAME = 'hopperio-tileset50x50';
+    this.TILE_SET_PATH = `assets/${this.TILE_SET_NAME}.png`;
     this.SHIP_SPRITE_PATH = 'assets/shipspritealpha.png';
-
-    this.TILE_SET_NAME = '8colors50x50Tileset';
 
     this.tileWidth = 50;
     this.tileHeight = 50;
