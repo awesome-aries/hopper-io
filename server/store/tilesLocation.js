@@ -13,11 +13,12 @@ const RESET_TILEMAP_DIFF = 'RESET_TILEMAP_DIFF';
  */
 
 const initialState = {
-  tileMap: {
-    previous: [], //need to keep track of the previous state of the tileMap
-    present: []
-  },
-  tileMapDiff: [], //array of changes from the client
+  // tileMap: {
+  //   previous: [], //need to keep track of the previous state of the tileMap
+  //   present: []
+  // },
+  rooms: {}, //the keys will be the roomIds and the value will be an object with a tilemap property which will have present and precious values, and a tilemapdiff property
+  // tileMapDiff: [], //array of changes from the client
   tileMapRowLength: null //number
 };
 
@@ -25,23 +26,27 @@ const initialState = {
  * ACTION CREATORS
  */
 const tilesActionCreators = {
-  initTileMap: (tileMap, tileMapRowLength) => ({
+  initTileMap: (tileMap, tileMapRowLength, roomId) => ({
     type: INIT_TILEMAP,
     tileMap,
-    tileMapRowLength
+    tileMapRowLength,
+    roomId
   }),
-  updateTileMap: tileMapDiff => ({
+  updateTileMap: (tileMapDiff, roomId) => ({
     type: UPDATE_TILEMAP,
-    tileMapDiff
+    tileMapDiff,
+    roomId
   }),
-  removePlayersTiles: (pathIndex, harborIndex, regularIndex) => ({
+  removePlayersTiles: (pathIndex, harborIndex, regularIndex, roomId) => ({
     type: REMOVE_PLAYERS_TILES,
     harborIndex,
     pathIndex,
-    regularIndex
+    regularIndex,
+    roomId
   }),
-  resetTileMapDiff: () => ({
-    type: RESET_TILEMAP_DIFF
+  resetTileMapDiff: roomId => ({
+    type: RESET_TILEMAP_DIFF,
+    roomId
   })
 };
 /**
@@ -69,15 +74,21 @@ function tilesReducer(state = initialState, action) {
       return {
         ...state,
         tileMapRowLength: action.tileMapRowLength,
-        tileMap: {
-          previous: [...state.tileMap.present],
-          present: [...action.tileMap]
+        rooms: {
+          ...state.rooms,
+          [action.roomId]: {
+            tileMap: {
+              previous: [...state.rooms[action.roomId].tileMap.present],
+              present: [...action.tileMap]
+            },
+            tileMapDiff: []
+          }
         }
       };
     case UPDATE_TILEMAP:
       // console.log('****current tilemap');
       // printTileMap(state.tileMap.present, state.tileMapRowLength);
-      let tileMapCopy = [...state.tileMap.present];
+      let tileMapCopy = [...state.rooms[action.roomId].tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
         tileMapCopy[tileInd] = tileIndex;
@@ -86,16 +97,30 @@ function tilesReducer(state = initialState, action) {
       // printTileMap(tileMapCopy, state.tileMapRowLength);
       return {
         ...state,
-        tileMap: {
-          previous: [...state.tileMap.present],
-          present: tileMapCopy
-        },
-        tileMapDiff: [...state.tileMapDiff, ...action.tileMapDiff]
+        rooms: {
+          ...state.rooms,
+          [action.roomId]: {
+            tileMap: {
+              previous: [...state.rooms[action.roomId].tileMap.present],
+              present: tileMapCopy
+            },
+            tileMapDiff: [
+              ...state.rooms[action.roomId].tileMapDiff,
+              ...action.tileMapDiff
+            ]
+          }
+        }
       };
     case RESET_TILEMAP_DIFF:
       return {
         ...state,
-        tileMapDiff: []
+        rooms: {
+          ...state.rooms,
+          [action.roomId]: {
+            ...state.rooms[action.roomId],
+            tileMapDiff: []
+          }
+        }
       };
     case REMOVE_PLAYERS_TILES:
       // when a player is killed or leaves the game we need to revert their tiles
@@ -108,11 +133,11 @@ function tilesReducer(state = initialState, action) {
         action.regularIndex
       );
       let newTileMap = [];
-      let newTileMapDiff = [...state.tileMapDiff];
+      let newTileMapDiff = [...state.rooms[action.roomId].tileMapDiff];
       printTileMap(state.tileMap.present, state.tileMapRowLength);
       // only need to remove tiles if the player wasnt killed
       if (action.harborIndex) {
-        state.tileMap.present.forEach((tileIndex, ind) => {
+        state.rooms[action.roomId].tileMap.present.forEach((tileIndex, ind) => {
           if (tileIndex === action.harborIndex) {
             newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
             // for the players harbor tiles, we revert themback to regular tiles
@@ -127,18 +152,26 @@ function tilesReducer(state = initialState, action) {
           }
         });
       } else {
-        newTileMap = [...state.tileMap.present];
+        newTileMap = [...state.rooms[action.roomId].tileMap.present];
       }
       console.log('newTileMapDiff', newTileMapDiff);
       console.log('vvvvvvvvvvvvremovedvvvvvvvvvvvv');
       printTileMap(newTileMap, state.tileMapRowLength);
       return {
         ...state,
-        tileMap: {
-          previous: [...state.tileMap.present],
-          present: newTileMap
-        },
-        tileMapDiff: [...state.tileMapDiff, ...newTileMapDiff]
+        rooms: {
+          ...state.rooms,
+          [action.roomId]: {
+            tileMap: {
+              previous: [...state.rooms[action.roomId].tileMap.present],
+              present: newTileMap
+            },
+            tileMapDiff: [
+              ...state.rooms[action.roomId].tileMapDiff,
+              ...newTileMapDiff
+            ]
+          }
+        }
       };
     default:
       return state;

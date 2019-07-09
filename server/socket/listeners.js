@@ -96,7 +96,7 @@ async function onPlayerStartGame(socket, name) {
     'startingInfo',
     playersCopy,
     newPlayer,
-    tiles.tileMap.present,
+    tiles.rooms[roomId].tileMap.present,
     tiles.tileMapRowLength
   );
 
@@ -117,14 +117,17 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     // not a thunk rn, just in store but need to make a thunk and place in DB
     // TODO
     await serverStore.dispatch(
-      serverActionCreators.tiles.updateTileMap(tilemapDiff)
+      serverActionCreators.tiles.updateTileMap(tilemapDiff, oldPlayer.roomId)
     );
 
     // update the player location
     await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
 
     // get the new state
-    const {players: {players}, tiles: {tileMapDiff}} = serverStore.getState();
+    const {
+      players: {players},
+      tiles: {rooms: {[oldPlayer.roomId]: tileMapDiff}}
+    } = serverStore.getState();
 
     // make a copy of players and make sure not sending any players not yet in the game
     // and only players in the room
@@ -138,7 +141,9 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
       .emit('updateState', playersCopy, tileMapDiff);
 
     // and clear the changes we just broadcast to the clients
-    serverStore.dispatch(serverActionCreators.tiles.resetTileMapDiff());
+    serverStore.dispatch(
+      serverActionCreators.tiles.resetTileMapDiff(oldPlayer.roomId)
+    );
   }
 }
 
@@ -171,11 +176,14 @@ async function onPlayerKilled(io, socket, pathIndex) {
       serverActionCreators.tiles.removePlayersTiles(
         killedPlayer.pathIndex,
         killedPlayer.harborIndex,
-        oldState.players.tileValues.regular
+        oldState.players.tileValues.regular,
+        killedPlayer.roomId
       )
     );
     // get the new state
-    const {tiles: {tileMapDiff}} = serverStore.getState();
+    const {
+      tiles: {rooms: {[killedPlayer.roomId]: tileMapDiff}}
+    } = serverStore.getState();
 
     // sending to all clients in specified room, including sender
     // send back to all players to remove opponent and update map
@@ -207,11 +215,15 @@ async function onDisconnect(socket) {
       serverActionCreators.tiles.removePlayersTiles(
         oldPlayer.pathIndex,
         oldPlayer.harborIndex,
-        oldState.players.tileValues.regular
+        oldState.players.tileValues.regular,
+        oldPlayer.roomId
       )
     );
     // get the new state
-    const {tiles: {tileMapDiff}, players: {players}} = serverStore.getState();
+    const {
+      tiles: {rooms: {[oldPlayer.roomId]: tileMapDiff}},
+      players: {players}
+    } = serverStore.getState();
     console.log('current players &&&&&&&&&&&', players);
 
     socket.broadcast
