@@ -128,7 +128,7 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     // get the new state
     const {
       players: {players},
-      tiles: {rooms: {[oldPlayer.roomId]: tileMapDiff}}
+      tiles: {rooms: {[oldPlayer.roomId]: {tileMapDiff}}}
     } = serverStore.getState();
 
     // make a copy of players and make sure not sending any players not yet in the game
@@ -184,7 +184,7 @@ async function onPlayerKilled(io, socket, pathIndex) {
     );
     // get the new state
     const {
-      tiles: {rooms: {[killedPlayer.roomId]: tileMapDiff}}
+      tiles: {rooms: {[killedPlayer.roomId]: {tileMapDiff}}}
     } = serverStore.getState();
 
     // sending to all clients in specified room, including sender
@@ -223,7 +223,7 @@ async function onDisconnect(socket) {
     );
     // get the new state
     const {
-      tiles: {rooms: {[oldPlayer.roomId]: tileMapDiff}},
+      tiles: {rooms: {[oldPlayer.roomId]: {tileMapDiff}}},
       players: {players}
     } = serverStore.getState();
     console.log('current players &&&&&&&&&&&', players);
