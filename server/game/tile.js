@@ -34,3 +34,5 @@ class Tile {
     this.previous = {color, type};
   }
 }
+
+module.exports = Tile;
