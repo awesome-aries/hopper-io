@@ -1,4 +1,4 @@
-import Tile from '../game/tile';
+const Tile = require('../game/tile');
 const {getTileIndices} = require('../game/utils');
 
 /* eslint-disable no-case-declarations */
