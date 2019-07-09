@@ -23,6 +23,7 @@ function initClientListeners(io, socket) {
 async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
   // here we'll want to convert the players object into a list that is useable by phaser
   console.log('Here are the other players', players);
+  console.log(tileMap);
   // dispatch INIT_OPPONENTS in opponent reducer
   clientStore.dispatch(clientActionCreators.opponent.setOpponents(players));
 
@@ -35,13 +36,10 @@ async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
       thisPlayer.harborIndex
     )
   );
-  let convertedTileMap = tileMap.map(tile => {
-    return tile.present.color;
-  });
 
   // set the client's tilemap
   await clientStore.dispatch(
-    clientActionCreators.game.setTilemap(convertedTileMap, tileMapRowLength)
+    clientActionCreators.game.setTilemap(tileMap, tileMapRowLength)
   );
 
   // set this players starting position in tile coords

@@ -1,6 +1,8 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
 
+const {convertServerToClient} = require('../game/utils');
+
 const {
   addPlayer,
   removePlayer,
@@ -80,12 +82,12 @@ async function onPlayerStartGame(socket, name) {
 
   // also need to send them the current tilemap to the new player
   console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
-
+  const convertedTileMap = convertServerToClient(tiles.tileMap.present);
   socket.emit(
     'startingInfo',
     playersCopy,
     newPlayer,
-    tiles.tileMap.present,
+    convertedTileMap,
     tiles.tileMapRowLength
   );
 
