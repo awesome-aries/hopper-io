@@ -57,11 +57,11 @@ function printTileMap(tileMap, rowLength) {
   let row = '';
   tileMap.forEach((tile, i) => {
     if ((i + 1) % rowLength === 0) {
-      row += ' ' + tile + ' ';
+      row += ' ' + tile.present.color + ' ';
       console.log(row);
       row = '';
     } else {
-      row += ' ' + tile + ' ';
+      row += ' ' + tile.present.color + ' ';
     }
   });
 }
@@ -96,7 +96,16 @@ function tilesReducer(state = initialState, action) {
       let tileMapCopy = [...state.tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
-        tileMapCopy[tileInd] = tileIndex;
+        let tileType;
+        if (state.tileValues.path.includes(tileIndex)) {
+          tileType = 'path';
+        } else if (state.tileValues.harbor.includes(tileIndex)) {
+          tileType = 'harbor';
+        } else {
+          tileType = 'regular';
+        }
+        let currentTile = tileMapCopy[tileInd];
+        currentTile.tileChange(tileIndex, tileType);
       });
       // console.log('****new tilemap');
       // printTileMap(tileMapCopy, state.tileMapRowLength);
@@ -123,23 +132,34 @@ function tilesReducer(state = initialState, action) {
         'changing to:',
         action.regularIndex
       );
-      let newTileMap = [];
+      let newTileMap = [...state.tileMap.present];
       let newTileMapDiff = [...state.tileMapDiff];
       printTileMap(state.tileMap.present, state.tileMapRowLength);
-      // only need to remove tiles if the player wasnt killed
+      // to check for the case where the player was killed then closed the browser
       if (action.harborIndex) {
-        state.tileMap.present.forEach((tileIndex, ind) => {
-          if (tileIndex === action.harborIndex) {
-            newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
-            // for the players harbor tiles, we revert themback to regular tiles
-            newTileMap.push(action.regularIndex);
-          } else if (tileIndex === action.pathIndex) {
-            newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
-            // for their path tiles, we want to revert it back to the previous value to  make sure if they are cutting into an opponents harbor that harbor is restored
-            // return state.tileMap.previous[ind];
-            newTileMap.push(action.regularIndex);
-          } else {
-            newTileMap.push(tileIndex);
+        newTileMap.map((tile, ind) => {
+          // if (tileIndex === action.harborIndex) {
+          //   newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
+          //   // for the players harbor tiles, we revert themback to regular tiles
+          //   newTileMap.push(action.regularIndex);
+          // } else if (tileIndex === action.pathIndex) {
+          //   newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
+          //   // for their path tiles, we want to revert it back to the previous value to  make sure if they are cutting into an opponents harbor that harbor is restored
+          //   // return state.tileMap.previous[ind];
+          //   newTileMap.push(action.regularIndex);
+          // } else {
+          //   newTileMap.push(tileIndex);
+          // }
+          let oldTileIndex = tile.present.color;
+          tile.playerCleared(
+            action.harborIndex,
+            action.pathIndex,
+            action.regularIndex
+          );
+          let newTileIndex = tile.present.color;
+          // check to see if the tile color changed, and if so add to tileMapDiff
+          if (oldTileIndex !== newTileIndex) {
+            newTileMapDiff.push({tileInd: ind, tileIndex: newTileIndex});
           }
         });
       } else {

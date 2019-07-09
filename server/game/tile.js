@@ -29,9 +29,31 @@ class Tile {
       this.present = {color, type};
     }
   }
-  playerCleared(color = this.regularTile.color, type = this.regularTile.type) {
+  playerCleared(killedPlayerHarbor, killedPlayerPath, regularTileColor) {
+    // when a player is killed, we want to remove and reference in the tilemap to their harbor and path values
+
     //if this tile is equal to a player's path and that player is killed, it changes the previous tile value to be a regular tile
-    this.previous = {color, type};
+    if (this.previous.color === killedPlayerHarbor) {
+      this.previous = {
+        color: regularTileColor,
+        type: 'regular'
+      };
+    } else if (this.previous.color === killedPlayerPath) {
+      this.previous = {
+        color: regularTileColor,
+        type: 'regular'
+      };
+    }
+    if (this.present.color === killedPlayerPath) {
+      // if the killed player had path on a tile when they died, change it back to whatever it was previously
+      this.present = this.previous;
+    } else if (this.present.color === killedPlayerHarbor) {
+      // everywhere their harbor was should go back to a regular tile
+      this.present = {
+        color: regularTileColor,
+        type: 'regular'
+      };
+    }
   }
 }
 
