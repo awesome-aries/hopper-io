@@ -12,6 +12,9 @@ import MuiDialogActions from '@material-ui/core/DialogActions';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import MenuIcon from '@material-ui/icons/Menu';
 import Footer from './Footer';
 
 const styles = theme => ({
@@ -109,6 +112,45 @@ class Welcome extends Component {
   render() {
     return (
       <div className="welcome-box">
+        <div className="navbar">
+          <AppBar
+            position="fixed"
+            style={{
+              background: 'transparent',
+              boxShadow: 'none'
+            }}
+          >
+            <Toolbar className="control-panel">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleClickOpen}
+                className="control-panel-button"
+              >
+                How To Play
+              </Button>
+
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={this.handleClickOpen}
+                className="control-panel-button"
+              >
+                About
+              </Button>
+
+              <Button variant="contained" className="control-panel-button">
+                <a
+                  target="_blank"
+                  href="https://github.com/awesome-aries/hopper-io"
+                >
+                  <i className="fab fa-github" /> Github
+                </a>
+              </Button>
+            </Toolbar>
+          </AppBar>
+        </div>
+
         <Container className="welcome" align="center">
           <h3 id="gh-quote1">
             A ship in harbor is safe, but that is not what ships are built for
@@ -131,37 +173,6 @@ class Welcome extends Component {
               Play
             </Button>
           </form>
-
-          <div id="control-panel">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleClickOpen}
-              className="control-panel-button"
-            >
-              How To Play
-            </Button>
-
-            {/* <Link to="/about"> */}
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={this.handleClickOpen}
-              className="control-panel-button"
-            >
-              About
-            </Button>
-            {/* </Link> */}
-
-            <Button variant="contained" className="control-panel-button">
-              <a
-                target="_blank"
-                href="https://github.com/awesome-aries/hopper-io"
-              >
-                <i className="fab fa-github" /> Github
-              </a>
-            </Button>
-          </div>
         </Container>
 
         <Container className="play-instructions" align="center">
