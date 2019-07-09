@@ -1,18 +1,22 @@
 import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
+import Footer from './Footer';
 import socket from '../socket';
-import Input from '@material-ui/core/Input';
-import Button from '@material-ui/core/Button';
-import Container from '@material-ui/core/Container';
-import {withStyles} from '@material-ui/core/styles';
-import Dialog from '@material-ui/core/Dialog';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import MuiDialogActions from '@material-ui/core/DialogActions';
-import IconButton from '@material-ui/core/IconButton';
+import {
+  Input,
+  Button,
+  Container,
+  Dialog,
+  IconButton,
+  Typography,
+  AppBar,
+  Toolbar
+} from '@material-ui/core';
+
+import {withStyles} from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
-import Typography from '@material-ui/core/Typography';
-import Footer from './Footer';
 
 const styles = theme => ({
   root: {
@@ -109,6 +113,45 @@ class Welcome extends Component {
   render() {
     return (
       <div className="welcome-box">
+        <div className="navbar">
+          <AppBar
+            position="fixed"
+            style={{
+              background: 'transparent',
+              boxShadow: 'none'
+            }}
+          >
+            <Toolbar className="control-panel">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleClickOpen}
+                className="control-panel-button"
+              >
+                How To Play
+              </Button>
+
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={this.handleClickOpen}
+                className="control-panel-button"
+              >
+                About
+              </Button>
+
+              <Button variant="contained" className="control-panel-button">
+                <a
+                  target="_blank"
+                  href="https://github.com/awesome-aries/hopper-io"
+                >
+                  <i className="fab fa-github" /> Github
+                </a>
+              </Button>
+            </Toolbar>
+          </AppBar>
+        </div>
+
         <Container className="welcome" align="center">
           <h3 id="gh-quote1">
             A ship in harbor is safe, but that is not what ships are built for
@@ -131,37 +174,6 @@ class Welcome extends Component {
               Play
             </Button>
           </form>
-
-          <div id="control-panel">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={this.handleClickOpen}
-              className="control-panel-button"
-            >
-              How To Play
-            </Button>
-
-            {/* <Link to="/about"> */}
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={this.handleClickOpen}
-              className="control-panel-button"
-            >
-              About
-            </Button>
-            {/* </Link> */}
-
-            <Button variant="contained" className="control-panel-button">
-              <a
-                target="_blank"
-                href="https://github.com/awesome-aries/hopper-io"
-              >
-                <i className="fab fa-github" /> Github
-              </a>
-            </Button>
-          </div>
         </Container>
 
         <Container className="play-instructions" align="center">
@@ -179,7 +191,7 @@ class Welcome extends Component {
             <DialogContent dividers>
               <Typography gutterBottom>
                 <ol>
-                  <li>Use arrows or WSAD to control your spacecraft</li>
+                  <li>Use arrow keys to control your spacecraft</li>
                   <li>
                     Capture more space territory by creating a path and
                     returning to your harbor

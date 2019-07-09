@@ -9,7 +9,8 @@ const initialState = {
   score: 0,
   playersKilled: [],
   gameStartTime: null,
-  duration: null
+  duration: null,
+  isDead: false
 };
 
 /**
@@ -72,6 +73,8 @@ export default function gameStateReducer(state = initialState, action) {
       let endTime = new Date();
       return {
         ...state,
+        isPlaying: false,
+        isDead: !state.isDead,
         duration: Math.floor((endTime - state.gameStartTime) / 1000) //get duration in seconds
       };
     case CALCULATE_SCORE:
@@ -87,6 +90,7 @@ export default function gameStateReducer(state = initialState, action) {
     case KILLED_PLAYER:
       return {
         ...state,
+
         playersKilled: [...state.playersKilled, name]
       };
     default:
