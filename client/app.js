@@ -3,9 +3,8 @@ import {connect} from 'react-redux';
 
 import Welcome from './components/Welcome';
 import GameView from './components/GameView';
+import GameOver from './components/GameOver';
 import GameControlPanel from './components/GameControlPanel';
-// import {Navbar} from './components';
-// import Routes from './routes';
 import {makeStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Routes from './routes';
@@ -24,24 +23,24 @@ const useStyles = makeStyles(theme => ({
 
 const App = props => {
   const classes = useStyles();
-  const {isPlaying} = props;
+  const {isPlaying, isDead} = props;
   return (
     <div id="app" className={classes.app}>
       <CssBaseline />
-      {/* <Navbar /> */}
       <Routes />
       <div className={classes.main}>
-        {!isPlaying && <Welcome />}
+        {!isPlaying && isDead ? <GameOver /> : null}
+        {!isPlaying && !isDead ? <Welcome /> : null}
         {isPlaying && <GameView />}
-        {isPlaying && <GameControlPanel />}
+        {/* {isPlaying && <GameControlPanel />} */}
       </div>
-      {/* <Footer /> */}
     </div>
   );
 };
 
 const mapStateToProps = state => ({
-  isPlaying: state.gameState.isPlaying
+  isPlaying: state.gameState.isPlaying,
+  isDead: state.gameState.isDead
 });
 
 export default connect(mapStateToProps)(App);

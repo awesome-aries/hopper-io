@@ -1,21 +1,22 @@
 import React, {Component} from 'react';
-import {Link} from 'react-router-dom';
+import Footer from './Footer';
 import socket from '../socket';
-import Input from '@material-ui/core/Input';
-import Button from '@material-ui/core/Button';
-import Container from '@material-ui/core/Container';
-import {withStyles} from '@material-ui/core/styles';
-import Dialog from '@material-ui/core/Dialog';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import MuiDialogActions from '@material-ui/core/DialogActions';
-import IconButton from '@material-ui/core/IconButton';
+import {
+  Input,
+  Button,
+  Container,
+  Dialog,
+  IconButton,
+  Typography,
+  AppBar,
+  Toolbar
+} from '@material-ui/core';
+
+import {withStyles} from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
-import Typography from '@material-ui/core/Typography';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import MenuIcon from '@material-ui/icons/Menu';
-import Footer from './Footer';
 
 const styles = theme => ({
   root: {
