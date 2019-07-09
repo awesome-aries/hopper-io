@@ -132,14 +132,13 @@ span.tile8 {
 }
 
 .control-panel {
-  width: 500px;
-  left: 30%;
-  /* vertical-align: middle;
-  text-align: center;
-  position: fixed;
-  top: 50%;
-
-  transform: translate(-50%, -50%); */
   display: flex;
+  width: 450px;
+  margin-top: 22px;
+  align-self: center;
   justify-content: space-evenly;
+  /* justify-content: center;
+  vertical-align: middle; */
+
+  /*If I remove vertical-align & justofy conetent: center, buttons are clustered together instead of spaced out*/
 }
