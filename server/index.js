@@ -110,7 +110,7 @@ const startListening = () => {
 const syncDb = () => db.sync({force: true});
 
 async function bootApp() {
-  await initTileMap(serverStore, serverActionCreators); //set the tilemap in server store
+  // await initTileMap(serverStore, serverActionCreators); //set the tilemap in server store
   await sessionStore.sync();
   await syncDb();
   await createApp();

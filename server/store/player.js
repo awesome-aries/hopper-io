@@ -91,7 +91,7 @@ const addPlayer = playerInfo => {
 };
 
 // may not need to separate this from add player.... might just be able to create player here
-const playerStartGame = (socketId, name) => {
+const playerStartGame = (socketId, name, roomId) => {
   return async (dispatch, getState) => {
     try {
       // update our player to be playing and the starting pos
@@ -119,7 +119,8 @@ const playerStartGame = (socketId, name) => {
         phaserX: tileStartPos.x,
         phaserY: tileStartPos.y,
         harborIndex: updatedTileValues.harbor.shift(),
-        pathIndex: updatedTileValues.path.shift()
+        pathIndex: updatedTileValues.path.shift(),
+        roomId: roomId
       });
 
       //and update in our store
@@ -201,7 +202,8 @@ const playerKilled = socketId => {
         y: 0,
         phaserX: 0,
         phaserY: 0,
-        direction: 'north'
+        direction: 'north',
+        roomId: null
       });
 
       dispatch(
@@ -310,7 +312,8 @@ function playersReducer(state = initialState, action) {
               x: action.updatedPlayer.x,
               y: action.updatedPlayer.y,
               harborIndex: action.updatedPlayer.harborIndex,
-              pathIndex: action.updatedPlayer.pathIndex
+              pathIndex: action.updatedPlayer.pathIndex,
+              roomId: action.updatedPlayer.roomId
             };
           } else {
             return player;
