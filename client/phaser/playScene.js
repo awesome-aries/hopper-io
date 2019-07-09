@@ -13,10 +13,9 @@ export default class PlayScene extends Phaser.Scene {
     super('play');
 
     this.TILE_MAP_PATH = 'assets/hopperio-tilemap.json';
-    this.TILE_SET_PATH = 'assets/tile-set50x50tiles.png';
+    this.TILE_SET_NAME = 'hopperio-tileset50x50';
+    this.TILE_SET_PATH = `assets/${this.TILE_SET_NAME}.png`;
     this.SHIP_SPRITE_PATH = 'assets/shipspritealpha.png';
-
-    this.TILE_SET_NAME = '8colors50x50Tileset';
 
     this.tileWidth = 50;
     this.tileHeight = 50;
@@ -164,7 +163,9 @@ export default class PlayScene extends Phaser.Scene {
     // this.manuallyMakeHarbor();
   }
 
-  onRemovePlayer = (removedPlayerID, newTileMapDiff) => {
+  onRemovePlayer = async (removedPlayerID, newTileMapDiff) => {
+    console.log('**********removedPlayer^%^%^%^%^%^%^%^%^%^%^%^');
+    console.log('newTileMapDiff', newTileMapDiff);
     // need to update our tile map
     this.updatePhaserTileMap(newTileMapDiff);
 
@@ -183,7 +184,7 @@ export default class PlayScene extends Phaser.Scene {
     removedOpponent.destroy();
 
     // when a player leaves the game or killed we want to remove them from the game.
-    clientStore.dispatch(
+    await clientStore.dispatch(
       clientActionCreators.opponent.removeOpponent(removedPlayerID)
     );
     let opponents = clientStore.getState().opponent;
@@ -426,9 +427,7 @@ export default class PlayScene extends Phaser.Scene {
     clientStore.dispatch(clientActionCreators.game.updateTileMap(tileMapDiff));
 
     // also update opponents in state
-    clientStore.dispatch(
-      clientActionCreators.opponent.updateOpponentsPos(players)
-    );
+    clientStore.dispatch(clientActionCreators.opponent.setOpponents(players));
 
     // and phaser
     this.updateOpponents();

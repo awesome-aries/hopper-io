@@ -10,9 +10,13 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 
 const useStyles = makeStyles(theme => ({
   footer: {
-    padding: theme.spacing(2),
-    marginTop: 'auto',
-    backgroundColor: 'white'
+    // padding: theme.spacing(1),
+    // marginTop: 'auto',
+    backgroundColor: 'white',
+    position: 'fixed',
+    width: '100%',
+    bottom: '0',
+    left: '0'
   },
   linkContainer: {
     display: 'flex',
@@ -21,6 +25,17 @@ const useStyles = makeStyles(theme => ({
   },
   listItemIcon: {
     minWidth: '30px'
+  },
+  listItem: {
+    paddingBottom: '0px',
+    paddingInline: '0px',
+    paddingTop: '0px'
+  },
+  list: {
+    paddingBottom: 'px',
+    paddingInline: '0px',
+    paddingTop: '0px',
+    paddingInlineStart: '0px'
   }
 }));
 
@@ -29,9 +44,6 @@ const Footer = props => {
   return (
     <footer className={classes.footer}>
       <Container maxWidth="lg">
-        <Typography variant="h4" align="center">
-          Hire Us!
-        </Typography>
         <div className={classes.linkContainer}>
           <List subheader={<ListSubheader>Allison Geismar</ListSubheader>}>
             <ListItem component="a" href="https://github.com/ageismar">
