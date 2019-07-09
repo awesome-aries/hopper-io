@@ -7,3 +7,4 @@
 export {default as GameView} from './GameView';
 export {default as Welcome} from './Welcome';
 export {default as About} from './About';
+export {default as GameControlPanel} from './GameControlPanel';

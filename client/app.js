@@ -3,11 +3,11 @@ import {connect} from 'react-redux';
 
 import Welcome from './components/Welcome';
 import GameView from './components/GameView';
+import GameControlPanel from './components/GameControlPanel';
 // import {Navbar} from './components';
 // import Routes from './routes';
 import {makeStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Footer from './components/Footer';
 import Routes from './routes';
 
 const useStyles = makeStyles(theme => ({
@@ -33,6 +33,7 @@ const App = props => {
       <div className={classes.main}>
         {!isPlaying && <Welcome />}
         {isPlaying && <GameView />}
+        {isPlaying && <GameControlPanel />}
       </div>
       {/* <Footer /> */}
     </div>

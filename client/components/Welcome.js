@@ -190,7 +190,7 @@ class Welcome extends Component {
             <DialogContent dividers>
               <Typography gutterBottom>
                 <ol>
-                  <li>Use arrows or WSAD to control your spacecraft</li>
+                  <li>Use arrow keys to control your spacecraft</li>
                   <li>
                     Capture more space territory by creating a path and
                     returning to your harbor

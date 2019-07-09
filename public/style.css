@@ -113,7 +113,7 @@ span.tile8 {
   transform: translate(-50%, -50%);
   font-size: 3vh;
   text-align: center;
-  /* letter-spacing: 10px; */
+
   font-weight: lighter;
   font-style: italic;
 }
