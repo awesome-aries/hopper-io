@@ -11,9 +11,10 @@ class Rooms {
     // tracks how many current rooms there are
     this.numRooms = 0;
     // also manage available tiles
-    const {path, harbor} = getTileIndices();
+    const {path, harbor, regular} = getTileIndices();
     this.path = path;
     this.harbor = harbor;
+    this.regular = regular;
   }
 
   assignRoom() {
@@ -54,7 +55,7 @@ class Rooms {
     };
 
     // set up the tilemap in our store
-    initTileMap(newRoomId, serverStore, serverActionCreators);
+    initTileMap(newRoomId, this.regular, serverStore, serverActionCreators);
 
     let playerHarbor = this.rooms[newRoomId].harbor.shift();
     let playerPath = this.rooms[newRoomId].path.shift();

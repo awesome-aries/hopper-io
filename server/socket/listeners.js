@@ -178,7 +178,7 @@ async function onPlayerKilled(io, socket, pathIndex) {
       serverActionCreators.tiles.removePlayersTiles(
         killedPlayer.pathIndex,
         killedPlayer.harborIndex,
-        oldState.players.tileValues.regular,
+        oldState.tiles.regularIndex,
         killedPlayer.roomId
       )
     );
