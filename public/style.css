@@ -131,37 +131,14 @@ span.tile8 {
   font-style: italic;
 }
 
-/* #about-info {
-  color: black;
-  font-family: sans-serif;
+#control-panel {
+  width: 500px;
+  /* vertical-align: middle;
+  text-align: center;
   position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2.8vh;
-  text-align: center;
-  background: #ffffff;
-} */
-
-.control-panel {
-  vertical-align: middle;
-  text-align: center;
-
-  /* position: fixed;
   top: 50%;
-  left: 50%; */
-  /* transform: translate(-50%, -50%); */
+  left: 50%;
+  transform: translate(-50%, -50%); */
+  display: flex;
+  justify-content: space-evenly;
 }
-
-/* footer {
-  margin-top: calc(5% + 420px);
-} */
-
-/* .control-panel-button {
-  vertical-align: middle;
-  text-align: center;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-} */

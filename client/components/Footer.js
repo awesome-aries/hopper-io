@@ -7,11 +7,14 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import {sizing} from '@material-ui/system';
 
 const useStyles = makeStyles(theme => ({
   footer: {
     // padding: theme.spacing(1),
     // marginTop: 'auto',
+    // marginTop: 'auto',
+    // padding: '0px 0px 0px 0px'
     backgroundColor: 'white',
     position: 'fixed',
     width: '100%',
@@ -21,18 +24,24 @@ const useStyles = makeStyles(theme => ({
   linkContainer: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    padding: '0px 0px 0px 0px'
   },
   listItemIcon: {
-    minWidth: '30px'
+    minWidth: '30px',
+    padding: '0px 0px 0px 0px'
   },
   listItem: {
-    paddingBottom: '0px',
-    paddingInline: '0px',
-    paddingTop: '0px'
+    // paddingBottom: '0px',
+    // paddingInline: '0px',
+    // paddingTop: '0px'
+    padding: '0px 0px 0px 0px'
+  },
+  listItemText: {
+    padding: '0px 0px 0px 0px'
   },
   list: {
-    paddingBottom: 'px',
+    paddingBottom: '0px',
     paddingInline: '0px',
     paddingTop: '0px',
     paddingInlineStart: '0px'
@@ -43,7 +52,7 @@ const Footer = props => {
   const classes = useStyles();
   return (
     <footer className={classes.footer}>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sizing>
         <div className={classes.linkContainer}>
           <List subheader={<ListSubheader>Allison Geismar</ListSubheader>}>
             <ListItem component="a" href="https://github.com/ageismar">
