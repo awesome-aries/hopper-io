@@ -78,7 +78,7 @@ function tilesReducer(state = initialState, action) {
           ...state.rooms,
           [action.roomId]: {
             tileMap: {
-              previous: [...state.rooms[action.roomId].tileMap.present],
+              previous: [...action.tileMap],
               present: [...action.tileMap]
             },
             tileMapDiff: []

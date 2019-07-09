@@ -119,12 +119,13 @@ function getTileIndices() {
   return tileValues;
 }
 
-function initTileMap(serverStore, serverActionCreators) {
+function initTileMap(roomId, serverStore, serverActionCreators) {
   // set the tilemap in the server store when the server starts up
   serverStore.dispatch(
     serverActionCreators.tiles.initTileMap(
       tileMap.layers[0].data,
-      tileMap.layers[0].width
+      tileMap.layers[0].width,
+      roomId
     )
   );
 }

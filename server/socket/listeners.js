@@ -63,13 +63,15 @@ async function createNewPlayer(socketId) {
 async function onPlayerStartGame(socket, name) {
   // this is called when the player hits the play game button and is navigated to the gameview component.
 
-  // assign them a room
-  const roomId = Rooms.assignRoom();
+  // assign them a room and path and harbor tiles
+  const {roomId, path, harbor} = Rooms.assignRoom();
   // and join the room
   socket.join(roomId);
 
   // update the player
-  await serverStore.dispatch(playerStartGame(socket.id, name, roomId));
+  await serverStore.dispatch(
+    playerStartGame(socket.id, name, roomId, path, harbor)
+  );
 
   // get all the players currently in the state
   const {players: {players}, tiles} = serverStore.getState();

@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 const {Player} = require('../db/models');
 const {randomizeXY, worldXYToTileXY} = require('../game/utils');
-const {getTileIndices} = require('../game/utils');
+
 /**
  * ACTION TYPES
  */
@@ -16,16 +16,7 @@ const PLAYER_KILLED = 'PLAYER_KILLED';
  */
 
 const initialState = {
-  players: [],
-  tileValues: getTileIndices(), //get tile values from tiled exported json
-  rooms: [
-    {
-      id: 1,
-      isFull: false,
-      players: [] //array of socketIds
-    }
-  ], //right now can support 3 players
-  gameIsFull: false
+  players: []
 };
 
 console.log('initialState', initialState);
@@ -38,24 +29,21 @@ const playersActionCreators = {
     type: ADDED_PLAYER,
     player
   }),
-  removedPlayer: (socketId, updatedTileValues) => ({
+  removedPlayer: socketId => ({
     type: REMOVED_PLAYER,
-    socketId,
-    updatedTileValues
+    socketId
   }),
-  playerStartGame: (updatedPlayer, updatedTileValues) => ({
+  playerStartGame: updatedPlayer => ({
     type: PLAYER_START_GAME,
-    updatedPlayer,
-    updatedTileValues
+    updatedPlayer
   }),
   movePlayer: updatedPlayer => ({
     type: MOVE_PLAYER,
     updatedPlayer
   }),
-  playerKilled: (killedPlayer, updatedTileValues) => ({
+  playerKilled: killedPlayer => ({
     type: PLAYER_KILLED,
-    killedPlayer,
-    updatedTileValues
+    killedPlayer
   })
 };
 
@@ -64,7 +52,7 @@ const playersActionCreators = {
  */
 
 const addPlayer = playerInfo => {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     try {
       // add the player to our database
       const player = await Player.create({
@@ -90,17 +78,13 @@ const addPlayer = playerInfo => {
   };
 };
 
-// may not need to separate this from add player.... might just be able to create player here
-const playerStartGame = (socketId, name, roomId) => {
-  return async (dispatch, getState) => {
+const playerStartGame = (socketId, name, roomId, pathIndex, harborIndex) => {
+  return async dispatch => {
     try {
       // update our player to be playing and the starting pos
       // Randomize spawn location
       let worldStartPos = randomizeXY();
       let tileStartPos = worldXYToTileXY(worldStartPos.x, worldStartPos.y);
-      let {players: {tileValues}} = getState();
-
-      let updatedTileValues = {...tileValues};
 
       const player = await Player.findOne({
         where: {
@@ -118,18 +102,13 @@ const playerStartGame = (socketId, name, roomId) => {
         y: tileStartPos.x,
         phaserX: tileStartPos.x,
         phaserY: tileStartPos.y,
-        harborIndex: updatedTileValues.harbor.shift(),
-        pathIndex: updatedTileValues.path.shift(),
+        harborIndex: harborIndex,
+        pathIndex: pathIndex,
         roomId: roomId
       });
 
       //and update in our store
-      dispatch(
-        playersActionCreators.playerStartGame(
-          player.dataValues,
-          updatedTileValues
-        )
-      );
+      dispatch(playersActionCreators.playerStartGame(player.dataValues));
     } catch (error) {
       console.error(error);
     }
@@ -147,28 +126,11 @@ const removePlayer = socketId => {
       // save field values
       let removedPlayer = player.dataValues;
       console.log('removedPlayer', removedPlayer);
-      let {players: {tileValues}} = getState();
-
-      let updatedTileValues = {...tileValues};
-
-      // if they were killed before they left then they wont have these assigned anymore
-      if (removedPlayer.isPlaying) {
-        updatedTileValues.harbor.push(removedPlayer.harborIndex);
-        updatedTileValues.path.push(removedPlayer.pathIndex);
-        console.log('player removed*******');
-        console.log('tileValues', updatedTileValues);
-        console.log('TTTTTTTTTTTTTTTTT');
-      }
 
       // and remove them from our database
       await player.destroy();
 
-      dispatch(
-        playersActionCreators.removedPlayer(
-          removedPlayer.socketId,
-          updatedTileValues
-        )
-      );
+      dispatch(playersActionCreators.removedPlayer(removedPlayer.socketId));
     } catch (error) {
       console.error(error);
     }
@@ -176,20 +138,13 @@ const removePlayer = socketId => {
 };
 
 const playerKilled = socketId => {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     try {
       const player = await Player.findOne({
         where: {
           socketId: socketId
         }
       });
-      let {players: {tileValues}} = getState();
-
-      // reset the tiles as playable
-      let updatedTileValues = {...tileValues};
-      updatedTileValues.harbor.push(player.harborIndex);
-      updatedTileValues.path.push(player.pathIndex);
-
       // revert to initial state
       await player.update({
         isPlaying: false,
@@ -206,9 +161,7 @@ const playerKilled = socketId => {
         roomId: null
       });
 
-      dispatch(
-        playersActionCreators.playerKilled(player.dataValues, updatedTileValues)
-      );
+      dispatch(playersActionCreators.playerKilled(player.dataValues));
     } catch (error) {
       console.error(error);
     }
@@ -273,13 +226,11 @@ function playersReducer(state = initialState, action) {
         ...state,
         players: state.players.filter(player => {
           return player.socketId !== action.socketId;
-        }),
-        tileValues: action.updatedTileValues
+        })
       };
     case PLAYER_KILLED:
       console.log('player killed*******');
       console.log('killedPLayer: ', action.killedPlayer);
-      console.log('tileValues', action.updatedTileValues);
       console.log('TTTTTTTTTTTTTTTTT');
       return {
         ...state,
@@ -289,13 +240,12 @@ function playersReducer(state = initialState, action) {
           } else {
             return player;
           }
-        }),
-        tileValues: action.updatedTileValues
+        })
       };
     case PLAYER_START_GAME:
       // update the player with game info
       console.log('player starting*******');
-      console.log('tileValues', action.updatedTileValues);
+      console.log('player: ', action.updatedPlayer);
       console.log('TTTTTTTTTTTTTTTTT');
       return {
         ...state,
@@ -318,9 +268,7 @@ function playersReducer(state = initialState, action) {
           } else {
             return player;
           }
-        }),
-        tileValues: action.updatedTileValues,
-        gameIsFull: action.updatedTileValues.harbor.length > 0 //as long as there are unassigned tiles, then game is not full
+        })
       };
     case MOVE_PLAYER:
       return {
