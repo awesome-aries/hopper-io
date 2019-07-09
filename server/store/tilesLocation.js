@@ -122,20 +122,9 @@ function tilesReducer(state = initialState, action) {
       };
     case REMOVE_PLAYERS_TILES:
       // when a player is killed or leaves the game we need to revert their tiles
-      console.log(
-        '*******removing*********:',
-        action.harborIndex,
-        '&',
-        action.pathIndex,
-        'changing to:',
-        action.regularIndex
-      );
       let newTileMap = [];
       let newTileMapDiff = [...state.rooms[action.roomId].tileMapDiff];
-      printTileMap(
-        state.rooms[action.roomId].tileMap.present,
-        state.tileMapRowLength
-      );
+
       // only need to remove tiles if the player wasnt killed
       if (action.harborIndex) {
         state.rooms[action.roomId].tileMap.present.forEach((tileIndex, ind) => {
@@ -155,9 +144,6 @@ function tilesReducer(state = initialState, action) {
       } else {
         newTileMap = [...state.rooms[action.roomId].tileMap.present];
       }
-      console.log('newTileMapDiff', newTileMapDiff);
-      console.log('vvvvvvvvvvvvremovedvvvvvvvvvvvv');
-      printTileMap(newTileMap, state.tileMapRowLength);
       return {
         ...state,
         rooms: {
