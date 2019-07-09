@@ -35,10 +35,13 @@ async function onStart(players, thisPlayer, tileMap, tileMapRowLength) {
       thisPlayer.harborIndex
     )
   );
+  let convertedTileMap = tileMap.map(tile => {
+    return tile.present.color;
+  });
 
   // set the client's tilemap
   await clientStore.dispatch(
-    clientActionCreators.game.setTilemap(tileMap, tileMapRowLength)
+    clientActionCreators.game.setTilemap(convertedTileMap, tileMapRowLength)
   );
 
   // set this players starting position in tile coords

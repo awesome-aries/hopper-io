@@ -51,7 +51,7 @@ function tileXYToWorldXY(tileX, tileY) {
     y
   };
 }
-/* 
+/*
 The tileMap exported by Tiled and that we use to represent the tileMap in the redux store is a flat array, so we must transform the grid style indicies as in the b array below (b[x][y]) into a single index as in a array (a[ind]) such that a[ind] === b[x][y]
 
 let a = [1,2,3,4,5,6,7,8,9]

@@ -71,7 +71,7 @@ function printTileMap(tileMap, rowLength) {
 function tilesReducer(state = initialState, action) {
   switch (action.type) {
     case INIT_TILEMAP:
-      let copyTileMap = action.tilemap.map(tileValue => {
+      let copyTileMap = action.tileMap.map((tileValue, ind) => {
         let tileType;
         if (state.tileValues.path.includes(tileValue)) {
           tileType = 'path';
@@ -80,12 +80,15 @@ function tilesReducer(state = initialState, action) {
         } else {
           tileType = 'regular';
         }
-        return new Tile(tileValue, tileType);
+        return new Tile(tileValue, tileType, ind);
       });
       return {
         ...state,
         tileMapRowLength: action.tileMapRowLength,
-        tileMap: copyTileMap
+        tileMap: {
+          present: copyTileMap,
+          previous: state.tileMap.present
+        }
       };
     case UPDATE_TILEMAP:
       // console.log('****current tilemap');

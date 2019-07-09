@@ -2,7 +2,7 @@ class Tile {
   constructor(initColor, initType, arrInd) {
     this.arrInd = arrInd;
     //each tile's current state (color and type-harbor, regular, or path) and previous state starting with an initial value of reg tile
-    this.current = {
+    this.present = {
       color: initColor,
       type: initType
     };
@@ -21,12 +21,12 @@ class Tile {
     //if we're switching from a current type = path to incoming type = harbor, we want to set previous type to regular (always)
     if (type === 'harbor') {
       this.previous = {...this.regularTile};
-    } else if (this.current.type !== type) {
-      this.previous = {...this.current};
-      this.current = {color, type};
-    } else if (this.current.type === type) {
-      //if the type is not different, just update current
-      this.current = {color, type};
+    } else if (this.present.type !== type) {
+      this.previous = {...this.present};
+      this.present = {color, type};
+    } else if (this.present.type === type) {
+      //if the type is not different, just update present
+      this.present = {color, type};
     }
   }
   playerCleared(color = this.regularTile.color, type = this.regularTile.type) {
