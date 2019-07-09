@@ -10,10 +10,13 @@ html {
   box-sizing: inherit;
 }
 body {
-  font-family: sans-serif;
-  margin: 0;
-  padding: 0;
-  background-image: url('./assets/Galaxy-Photo.jpg');
+  height: 100%;
+  color: #ffffff;
+  font-size: 1em;
+  font-family: Audiowide, cursive, sans-serif;
+  overflow: hidden;
+
+  background: url('./images/bg-7.jpg') no-repeat top center fixed;
   background-size: cover;
 }
 
@@ -52,18 +55,113 @@ span.tile8 {
   background-color: pink;
 }
 
-.hopper-header {
-  color: white;
-}
 #phaser-game {
   text-align: center;
 }
 
-.welcome-box {
-  background-color: white;
-  opacity: 0.5;
-  margin-left: 40vw;
-  margin-right: 40vw;
-  border-radius: 15px;
-  min-width: 240px;
+#name {
+  font-weight: bold;
+  color: white;
+  position: fixed;
+  font-size: 4vh;
+  top: 58%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25vw;
+  height: 7vh;
+  border: 1px solid;
+  border-radius: 8px;
+  background-color: transparent;
+  text-align: center;
 }
+
+#play-button {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: fixed;
+  font-size: 3.5vh;
+  top: 68%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid;
+  border-radius: 14px;
+  background-color: white;
+  text-align: center;
+  padding: 1vh 1vw;
+}
+
+#title {
+  color: white;
+  font-family: Audiowide, cursive;
+  position: fixed;
+  top: 22%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18vh;
+  text-align: center;
+  letter-spacing: 10px;
+  font-weight: lighter;
+}
+
+#gh-quote1 {
+  color: white;
+  font-family: sans-serif;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3vh;
+  text-align: center;
+  /* letter-spacing: 10px; */
+  font-weight: lighter;
+  font-style: italic;
+}
+
+#gh-quote2 {
+  color: white;
+  font-family: sans-serif;
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.8vh;
+  text-align: center;
+  font-weight: lighter;
+  font-style: italic;
+}
+
+/* #about-info {
+  color: black;
+  font-family: sans-serif;
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.8vh;
+  text-align: center;
+  background: #ffffff;
+} */
+
+.control-panel {
+  vertical-align: middle;
+  text-align: center;
+
+  /* position: fixed;
+  top: 50%;
+  left: 50%; */
+  /* transform: translate(-50%, -50%); */
+}
+
+/* footer {
+  margin-top: calc(5% + 420px);
+} */
+
+/* .control-panel-button {
+  vertical-align: middle;
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+} */

@@ -3,11 +3,12 @@ import {connect} from 'react-redux';
 
 import Welcome from './components/Welcome';
 import GameView from './components/GameView';
-import {Navbar} from './components';
+// import {Navbar} from './components';
 // import Routes from './routes';
 import {makeStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Footer from './components/Footer';
+import Routes from './routes';
 
 const useStyles = makeStyles(theme => ({
   app: {
@@ -27,13 +28,13 @@ const App = props => {
   return (
     <div id="app" className={classes.app}>
       <CssBaseline />
-      <Navbar />
-      {/* <Routes className={classes.main} /> */}
+      {/* <Navbar /> */}
+      <Routes />
       <div className={classes.main}>
         {!isPlaying && <Welcome />}
         {isPlaying && <GameView />}
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };
