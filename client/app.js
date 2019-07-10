@@ -29,7 +29,7 @@ const App = props => {
       <CssBaseline />
       <Routes />
       <div className={classes.main}>
-        {!isPlaying && isDead ? <GameOver /> : null}
+        {isDead && <GameOver />}
         {!isPlaying && !isDead ? <Welcome /> : null}
         {isPlaying && <GameView />}
         {/* {isPlaying && <GameControlPanel />} */}
