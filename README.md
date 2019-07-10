@@ -6,13 +6,29 @@ Inspired by [Paper.io](http://paper-io.com/), this is a multi-player version of 
 
 ### Live Demo
 
-A playable online build of Hopper.io can be found here (need to add deployed site link)
+A playable online build of Hopper.io can be found here http://hopperio.herokuapp.com
 
 ### Team Members
 
+Nida Jabbar
+Github: https://github.com/nj2296
+LinkedIn: https://www.linkedin.com/in/nidajabbar/
+
+Katie Guest
+Github: https://github.com/KatieGuest
+LinkedIn: https://www.linkedin.com/in/katieguest11/
+
+Cara Takemoto
+Github: https://github.com/ctakemoto
+LinkedIn: https://www.linkedin.com/in/cara-takemoto/
+
+Allison Geismar
+Github: https://github.com/ageismar
+LinkedIn: https://www.linkedin.com/in/allison-geismar/
+
 ### App Architecture
 
-Hopper.io is built on [Node.js](https://nodejs.org/) using the Javascript game framework [Phaser](http://phaser.io/) for implementing game mechanics, [Socket.IO](http://socket.io/) for client-server interaction, [React](https://facebook.github.io/react/) for HTML rendering, [Redux](http://redux.js.org/) for both client and server app state and game state management, [React-redux](https://github.com/reduxjs/react-redux) to maintain data flow and bind react components with redix store, [Webpack](https://github.com/webpack/webpack) to bundle our JavaScript assets, [Express](https://expressjs.com/) to manage HTTP requests, [PostgreSQL](https://www.postgresql.org/) to manage relational data [Sequelize](http://docs.sequelizejs.com/) to write SQL in Javascript fashion, and [Material UI](https://material-ui.com/) for design.
+Hopper.io is built on [Node.js](https://nodejs.org/) using the Javascript game framework [Phaser](http://phaser.io/) for implementing game mechanics, [Socket.IO](http://socket.io/) for client-server interaction, [React](https://facebook.github.io/react/) for HTML rendering, [Redux](http://redux.js.org/) for both client and server app state and game state management, [React-redux](https://github.com/reduxjs/react-redux) to maintain data flow and bind react components with redux store, [Webpack](https://github.com/webpack/webpack) to bundle our JavaScript assets, [Express](https://expressjs.com/) to manage HTTP requests, [PostgreSQL](https://www.postgresql.org/) to manage relational data [Sequelize](http://docs.sequelizejs.com/) to write SQL in Javascript fashion, and [Material UI](https://material-ui.com/) for design.
 
 ### How To Play
 
