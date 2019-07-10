@@ -217,7 +217,7 @@ async function onDisconnect(socket) {
       serverActionCreators.tiles.removePlayersTiles(
         oldPlayer.pathIndex,
         oldPlayer.harborIndex,
-        oldState.players.tileValues.regular,
+        oldState.tiles.regularIndex,
         oldPlayer.roomId
       )
     );
@@ -226,7 +226,6 @@ async function onDisconnect(socket) {
       tiles: {rooms: {[oldPlayer.roomId]: {tileMapDiff}}},
       players: {players}
     } = serverStore.getState();
-    console.log('current players &&&&&&&&&&&', players);
 
     socket.broadcast
       .to(oldPlayer.roomId)
