@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import {gameStateActionCreators} from '../store/gameState';
 
 const GameOver = props => {
-  const {gameOver, duration, score} = props;
+  const {stopGame, duration, score} = props;
   return (
     <div id="game-over-conatiner">
       <div className="split left">
@@ -31,7 +31,7 @@ const GameOver = props => {
               variant="contained"
               color="secondary"
               className="control-panel-button"
-              onClick={gameOver}
+              onClick={stopGame}
               style={{fontSize: '27px'}}
             >
               Play Again
@@ -49,8 +49,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  gameOver: () => {
-    dispatch(gameStateActionCreators.gameOver());
+  stopGame: () => {
+    dispatch(gameStateActionCreators.stopGame());
   }
 });
 

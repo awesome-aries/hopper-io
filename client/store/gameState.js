@@ -67,7 +67,8 @@ export default function gameStateReducer(state = initialState, action) {
       // transition player away from the gameView component to the welcome one again
       return {
         ...state,
-        isPlaying: false
+        isPlaying: false,
+        isDead: !state.isDead
       };
     case GAME_OVER:
       let endTime = new Date();
