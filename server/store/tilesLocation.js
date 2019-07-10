@@ -1,4 +1,6 @@
 /* eslint-disable no-case-declarations */
+const {getTileIndices} = require('../game/utils');
+
 /**
  * ACTION TYPES
  */
@@ -13,6 +15,7 @@ const RESET_TILEMAP_DIFF = 'RESET_TILEMAP_DIFF';
  */
 
 const initialState = {
+  tileValues: getTileIndices(),
   rooms: {}, //the keys will be the roomIds and the value will be an object with a tilemap property which will have present and precious values, and a tilemapdiff property
   regularIndex: null,
   tileMapRowLength: null //number
@@ -86,8 +89,20 @@ function tilesReducer(state = initialState, action) {
     case UPDATE_TILEMAP:
       // console.log('****current tilemap');
       // printTileMap(state.tileMap.present, state.tileMapRowLength);
+      let filteredTileMapDiff = state.rooms[action.roomId].tileMapDiff.filter(
+        ({tileInd}) => {
+          for (let i = 0; i < action.tileMapDiff.length; ++i) {
+            if (action.tileMapDiff[i].tileInd === tileInd) {
+              // if the tileMapDiff from the client has changes for the same tile the server has a in its tilemapDiff, we want to filer it out so were not sending multiple changes for the same tile
+              return false;
+            }
+          }
+        }
+      );
       let tileMapCopy = [...state.rooms[action.roomId].tileMap.present];
       // for all the reported changes from the client set them in our tilemap
+      //tileInd is position in array
+      //tileIndex is the color of the tile
       action.tileMapDiff.forEach(({tileInd, tileIndex}) => {
         tileMapCopy[tileInd] = tileIndex;
       });
@@ -102,21 +117,31 @@ function tilesReducer(state = initialState, action) {
               previous: [...state.rooms[action.roomId].tileMap.present],
               present: tileMapCopy
             },
-            tileMapDiff: [
-              ...state.rooms[action.roomId].tileMapDiff,
-              ...action.tileMapDiff
-            ]
+            tileMapDiff: [...filteredTileMapDiff, ...action.tileMapDiff]
           }
         }
       };
     case RESET_TILEMAP_DIFF:
+      const currentTileMap = [...state.rooms[action.roomId].tileMap.present];
+      const tileMapDiffCopy = currentTileMap.reduce(
+        (tileMapDiffAccum, tileIndex, tileInd) => {
+          if (
+            state.tileValues.path.includes(tileIndex) ||
+            state.tileValues.harbor.includes(tileIndex)
+          ) {
+            return tileMapDiffAccum.push({tileInd, tileIndex});
+          }
+        },
+        []
+      );
+
       return {
         ...state,
         rooms: {
           ...state.rooms,
           [action.roomId]: {
             ...state.rooms[action.roomId],
-            tileMapDiff: []
+            tileMapDiff: [...tileMapCopy]
           }
         }
       };
