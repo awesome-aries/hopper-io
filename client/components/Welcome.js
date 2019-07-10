@@ -171,8 +171,6 @@ class Welcome extends Component {
             </Button>
           </form>
         </Container>
-
-        <div />
         <Container align="center">
           <Dialog
             onClose={this.handleClose}

@@ -1,5 +1,4 @@
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import List from '@material-ui/core/List';
@@ -11,7 +10,7 @@ import {sizing} from '@material-ui/system';
 
 const useStyles = makeStyles(theme => ({
   footer: {
-    // padding: theme.spacing(1),
+    padding: theme.spacing(0),
     // marginTop: 'auto',
     // marginTop: 'auto',
     // padding: '0px 0px 0px 0px'
@@ -25,11 +24,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: '0px 0px 0px 0px'
+    padding: '0'
   },
   listItemIcon: {
     minWidth: '30px',
-    padding: '0px 0px 0px 0px'
+    padding: '0'
   },
   listItem: {
     // paddingBottom: '0px',
