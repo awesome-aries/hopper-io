@@ -89,16 +89,16 @@ function tilesReducer(state = initialState, action) {
     case UPDATE_TILEMAP:
       // console.log('****current tilemap');
       // printTileMap(state.tileMap.present, state.tileMapRowLength);
-      let filteredTileMapDiff = state.rooms[action.roomId].tileMapDiff.filter(
-        ({tileInd}) => {
-          for (let i = 0; i < action.tileMapDiff.length; ++i) {
-            if (action.tileMapDiff[i].tileInd === tileInd) {
-              // if the tileMapDiff from the client has changes for the same tile the server has a in its tilemapDiff, we want to filer it out so were not sending multiple changes for the same tile
-              return false;
-            }
-          }
-        }
-      );
+      // let filteredTileMapDiff = state.rooms[action.roomId].tileMapDiff.filter(
+      //   ({tileInd}) => {
+      //     for (let i = 0; i < action.tileMapDiff.length; ++i) {
+      //       if (action.tileMapDiff[i].tileInd === tileInd) {
+      //         // if the tileMapDiff from the client has changes for the same tile the server has a in its tilemapDiff, we want to filer it out so were not sending multiple changes for the same tile
+      //         return false;
+      //       }
+      //     }
+      //   }
+      // );
       let tileMapCopy = [...state.rooms[action.roomId].tileMap.present];
       // for all the reported changes from the client set them in our tilemap
       //tileInd is position in array
@@ -117,24 +117,27 @@ function tilesReducer(state = initialState, action) {
               previous: [...state.rooms[action.roomId].tileMap.present],
               present: tileMapCopy
             },
-            tileMapDiff: [...filteredTileMapDiff, ...action.tileMapDiff]
+            tileMapDiff: [
+              ...state.rooms[action.roomId].tileMapDiff,
+              ...action.tileMapDiff
+            ]
           }
         }
       };
     case RESET_TILEMAP_DIFF:
-      let currentTileMap = [...state.rooms[action.roomId].tileMap.present];
-      const tileMapDiffCopy = currentTileMap.reduce(
-        (tileMapDiffAccum, tileIndex, tileInd) => {
-          if (
-            state.tileValues.path.includes(tileIndex) ||
-            state.tileValues.harbor.includes(tileIndex)
-          ) {
-            tileMapDiffAccum.push({tileInd, tileIndex});
-          }
-          return tileMapDiffAccum;
-        },
-        []
-      );
+      // let currentTileMap = [...state.rooms[action.roomId].tileMap.present];
+      // const tileMapDiffCopy = currentTileMap.reduce(
+      //   (tileMapDiffAccum, tileIndex, tileInd) => {
+      //     if (
+      //       state.tileValues.path.includes(tileIndex) ||
+      //       state.tileValues.harbor.includes(tileIndex)
+      //     ) {
+      //       tileMapDiffAccum.push({tileInd, tileIndex});
+      //     }
+      //     return tileMapDiffAccum;
+      //   },
+      //   []
+      // );
 
       return {
         ...state,
@@ -142,13 +145,14 @@ function tilesReducer(state = initialState, action) {
           ...state.rooms,
           [action.roomId]: {
             ...state.rooms[action.roomId],
-            tileMapDiff: [...tileMapDiffCopy]
+            // tileMapDiff: [...tileMapDiffCopy]
+            tileMapDiff: []
           }
         }
       };
     case REMOVE_PLAYERS_TILES:
       // when a player is killed or leaves the game we need to revert their tiles
-      let newTileMap = [];
+      let newTileMap = [...state.rooms[action.roomId].tileMap.present];
       let newTileMapDiff = [...state.rooms[action.roomId].tileMapDiff];
 
       // only need to remove tiles if the player wasnt killed
@@ -157,18 +161,14 @@ function tilesReducer(state = initialState, action) {
           if (tileIndex === action.harborIndex) {
             newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
             // for the players harbor tiles, we revert themback to regular tiles
-            newTileMap.push(action.regularIndex);
+            newTileMap[ind] = action.regularIndex;
           } else if (tileIndex === action.pathIndex) {
             newTileMapDiff.push({tileInd: ind, tileIndex: action.regularIndex});
             // for their path tiles, we want to revert it back to the previous value to  make sure if they are cutting into an opponents harbor that harbor is restored
             // return state.tileMap.previous[ind];
-            newTileMap.push(action.regularIndex);
-          } else {
-            newTileMap.push(tileIndex);
+            newTileMap[ind] = action.regularIndex;
           }
         });
-      } else {
-        newTileMap = [...state.rooms[action.roomId].tileMap.present];
       }
       return {
         ...state,
