@@ -54,10 +54,9 @@ export default class Ship {
     // we want the player to start out moving
     this.sprite.body.setVelocity(0, this.absVelocity * this.direction);
   }
-  freeze() {
-    console.log('freeze');
-    this.sprite.body.moves = !this.sprite.body.moves;
-  }
+  // freeze() {
+  //   this.sprite.body.moves = !this.sprite.body.moves;
+  // }
 
   update(game) {
     const {keys, sprite} = this;
@@ -207,7 +206,6 @@ export default class Ship {
         currentTileIdx.previous === this.scene.harborIndex &&
         currentTileIdx.present !== this.scene.harborIndex
       ) {
-        console.log('setting exit point!!!');
         clientStore.dispatch(
           clientActionCreators.game.setExitPoint(
             playerPhaserXY.present.x,
@@ -223,7 +221,6 @@ export default class Ship {
         // *********** Set Entry Point ***********
       } else if (this.shouldSetEntryPoint(currentTileIdx, exitPoint)) {
         // If the user is moving from sea to harbor, then we must set the entry point
-        console.log('setting entry point!!!');
         clientStore.dispatch(
           clientActionCreators.game.setEntryPoint(
             playerPhaserXY.present.x,
@@ -283,12 +280,6 @@ export default class Ship {
   }
 
   isPath(currentTile) {
-    // if (currentTile.index !== 5) {
-    //   console.log('************isPath**********');
-    //   console.log('path tileValues', this.scene.tileValues.path);
-    //   console.log('currentTile', currentTile);
-    // }
-
     // if the tile is any of the path tiles
     if (this.scene.tileValues.path.includes(currentTile.index)) {
       return true;
@@ -309,7 +300,7 @@ export default class Ship {
 
   findFillPoint() {
     // This will take the point at which the ship exited the harbor, get all the surrounding squares, and loop through until it finds one that is enclosed in the path and select that as the fillPoint.
-
+    //console.log('Veritces info', this.vertices);
     let potentialFillPoints = [];
 
     // for each vertex
@@ -330,6 +321,7 @@ export default class Ship {
         // once we find a point inside the path we can stop.
         if (this.insidePoly(potentialFillPoints[i], this.vertices)) {
           let fillPoint = potentialFillPoints[i];
+          //console.log(fillPoint);
           this.floodFillArea(fillPoint);
           return;
         }

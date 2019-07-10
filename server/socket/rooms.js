@@ -30,15 +30,7 @@ class Rooms {
         // and assign the new path and harbor indices
         let harbor = this.rooms[roomId].harbor.shift();
         let path = this.rooms[roomId].path.shift();
-        console.log(
-          `assigning new player to room ${roomId}, with harbor ${harbor} and path ${path} which now has ${
-            this.rooms[roomId].numPlayers
-          } players
 
-          max capacity is ${this.maxCapacity}`
-        );
-        console.log(`this room:`);
-        console.log(this.rooms[roomId]);
         return {
           roomId,
           path,
@@ -61,14 +53,7 @@ class Rooms {
 
     let playerHarbor = this.rooms[newRoomId].harbor.shift();
     let playerPath = this.rooms[newRoomId].path.shift();
-    console.log(
-      `assigning new player to room ${newRoomId}, with harbor ${playerHarbor} and path ${playerPath} which now has ${
-        this.rooms[newRoomId].numPlayers
-      } players
-      max capacity is ${this.maxCapacity}`
-    );
-    console.log(`this room:`);
-    console.log(this.rooms[newRoomId]);
+
     return {
       roomId: newRoomId,
       path: playerPath,
@@ -83,11 +68,6 @@ class Rooms {
     // put their tile values back to be reused
     this.rooms[roomId].path.push(path);
     this.rooms[roomId].harbor.push(harbor);
-    console.log(
-      `leaving room ${roomId} which now has ${this.rooms[roomId].numPlayers}`
-    );
-    console.log(`this room:`);
-    console.log(this.rooms[roomId]);
   }
 }
 // export an instance of the rooms class

@@ -164,8 +164,6 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   onRemovePlayer = async (removedPlayerID, newTileMapDiff) => {
-    console.log('**********removedPlayer^%^%^%^%^%^%^%^%^%^%^%^');
-    console.log('newTileMapDiff', newTileMapDiff);
     // need to update our tile map
     this.updatePhaserTileMap(newTileMapDiff);
 
@@ -188,12 +186,6 @@ export default class PlayScene extends Phaser.Scene {
       clientActionCreators.opponent.removeOpponent(removedPlayerID)
     );
     let opponents = clientStore.getState().opponent;
-    console.log(
-      `This is the player that left:`,
-      removedPlayerID,
-      `opponents: `,
-      opponents
-    );
   };
 
   onNewPlayer = player => {
@@ -206,13 +198,10 @@ export default class PlayScene extends Phaser.Scene {
       player.direction,
       player.socketId
     );
-
-    console.log('A new player has joined', player);
   };
   createOpponents(opponent) {
     // this.opponents = [];
     //here we are creating the opponents if you are joining a pre-existing game
-    console.log('opponent', opponent);
     //if the opponent from state doesn't exist in phaser opponents array, call makeOpponent to add it and create sprite.
     this.opponents = this.add.group();
 
@@ -253,14 +242,12 @@ export default class PlayScene extends Phaser.Scene {
       clientActionCreators.opponent.filterOpponents(this.socketId)
     );
     const {opponent} = clientStore.getState();
-    console.log('opponents on local', this.opponents.getChildren());
 
     // go through all the opponents in the opponent group
     this.opponents.getChildren().forEach(phaserOpponent => {
       // go through the opponents in store
       for (let i = 0; i < opponent.length; i++) {
         const stateOpponent = opponent[i];
-        console.log('phaserOpponent', phaserOpponent);
         // and find its match and update the position
         if (phaserOpponent.socketId === stateOpponent.socketId) {
           // phaserOpponent.move(
@@ -273,7 +260,6 @@ export default class PlayScene extends Phaser.Scene {
           //   stateOpponent.worldY
           // );
           // still not updating***
-          // console.log('opponents direction', stateOpponent.direction);
 
           phaserOpponent.x = stateOpponent.worldX;
           phaserOpponent.y = stateOpponent.worldY;
@@ -286,7 +272,6 @@ export default class PlayScene extends Phaser.Scene {
   }
   playersCollided(ship, opponent) {
     // when a player and an opponent collide they should both die
-    console.log('You collided and died');
 
     // need to emit an event to the server that this player has been killed, this will trigger the server to send the player back the wasKilled event
     playerKilled(this.pathIndex);
@@ -320,7 +305,6 @@ export default class PlayScene extends Phaser.Scene {
 
   gameOver() {
     //this.ship.sprite.body.velocity.setTo(0, 0);
-    console.log('game over loser');
 
     // when we are killed we no longer want to listen to socket events
     socket.removeListener('updateState', this.onUpdateState);
@@ -335,7 +319,6 @@ export default class PlayScene extends Phaser.Scene {
 
   createShip(playerWorldXY) {
     // creates the ship when the game first starts
-    console.log('playerWorldXY', playerWorldXY);
 
     this.ship = new Ship(
       this,
@@ -360,7 +343,6 @@ export default class PlayScene extends Phaser.Scene {
         fill: 'black'
       }
     );
-    console.log('score text,', this.scoreText);
   }
 
   createTileMap(tileMap) {
@@ -390,38 +372,37 @@ export default class PlayScene extends Phaser.Scene {
     });
   }
 
-  manuallyMakeHarbor() {
-    // draw harbor tiles with mouse
-    const pointer = this.input.activePointer;
-    if (pointer.isDown) {
-      const worldPoint = pointer.positionToCamera(this.cameras.main);
-      const pointerTileXY = this.map.worldToTileXY(worldPoint.x, worldPoint.y);
-      const snappedWorldPoint = this.map.tileToWorldXY(
-        pointerTileXY.x,
-        pointerTileXY.y
-      );
+  //manuallyMakeHarbor() {
+  // // draw harbor tiles with mouse
+  // const pointer = this.input.activePointer;
+  // if (pointer.isDown) {
+  //   const worldPoint = pointer.positionToCamera(this.cameras.main);
+  //   const pointerTileXY = this.map.worldToTileXY(worldPoint.x, worldPoint.y);
+  //   const snappedWorldPoint = this.map.tileToWorldXY(
+  //     pointerTileXY.x,
+  //     pointerTileXY.y
+  //   );
 
-      let clickedTile = this.foregroundLayer.getTileAtWorldXY(
-        snappedWorldPoint.x,
-        snappedWorldPoint.y
-      );
-      console.log('clicked tile', clickedTile);
+  //   let clickedTile = this.foregroundLayer.getTileAtWorldXY(
+  //     snappedWorldPoint.x,
+  //     snappedWorldPoint.y
+  //   );
+  //   console.log('clicked tile', clickedTile);
 
-      if (this.keys.shift.isDown) {
-        this.ship.fillArea(clickedTile);
-      } else if (clickedTile.index !== this.harborIndex) {
-        this.setTileIndex(this.harborIndex, {
-          type: 'world', //must indicate format of xy
-          x: snappedWorldPoint.x,
-          y: snappedWorldPoint.y
-        });
-      }
-    }
-  }
+  //   if (this.keys.shift.isDown) {
+  //     this.ship.fillArea(clickedTile);
+  //   } else if (clickedTile.index !== this.harborIndex) {
+  //     this.setTileIndex(this.harborIndex, {
+  //       type: 'world', //must indicate format of xy
+  //       x: snappedWorldPoint.x,
+  //       y: snappedWorldPoint.y
+  //     });
+  //   }
+  // }
+  //}
 
   onUpdateState = (players, tileMapDiff) => {
     // when we get updates from the server we need to update the tilemap in phaser...
-    console.log('from server tileMapDiff', tileMapDiff);
 
     this.updatePhaserTileMap(tileMapDiff);
 
@@ -447,7 +428,6 @@ export default class PlayScene extends Phaser.Scene {
   }
 
   onWasKilled = () => {
-    console.log('You were killed');
     // stop the game timer
     clientStore.dispatch(clientActionCreators.gameState.gameOver());
     this.gameOver();
