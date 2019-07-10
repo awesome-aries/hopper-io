@@ -1,5 +1,6 @@
 //will have all the socket listeners and how they should interact with the data they are given
 const {serverStore, serverActionCreators} = require('../store/index');
+const Rooms = require('./rooms');
 
 const {
   addPlayer,
@@ -62,15 +63,28 @@ async function createNewPlayer(socketId) {
 async function onPlayerStartGame(socket, name) {
   // this is called when the player hits the play game button and is navigated to the gameview component.
 
-  await serverStore.dispatch(playerStartGame(socket.id, name));
+  // assign them a room and path and harbor tiles
+  const {roomId, path, harbor} = Rooms.assignRoom();
+  // and join the room
+  socket.join(roomId);
+
+  // update the player
+  await serverStore.dispatch(
+    playerStartGame(socket.id, name, roomId, path, harbor)
+  );
 
   // get all the players currently in the state
   const {players: {players}, tiles} = serverStore.getState();
 
   // make a copy of players and remove the current player from the object so the player only gets their opponents
   // also make sure not sending any players not yet in the game
+  // and only players in the same room
   const playersCopy = players.filter(player => {
-    return player.isPlaying && player.socketId !== socket.id;
+    return (
+      player.isPlaying &&
+      player.roomId === roomId &&
+      player.socketId !== socket.id
+    );
   });
 
   // get the new player
@@ -84,12 +98,12 @@ async function onPlayerStartGame(socket, name) {
     'startingInfo',
     playersCopy,
     newPlayer,
-    tiles.tileMap.present,
+    tiles.rooms[roomId].tileMap.present,
     tiles.tileMapRowLength
   );
 
-  // send the newPlayer to the other players
-  socket.broadcast.emit('newPlayer', newPlayer);
+  // send the newPlayer to the other players in the room
+  socket.broadcast.to(roomId).emit('newPlayer', newPlayer);
 }
 
 async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
@@ -105,25 +119,33 @@ async function onPlayerMove(socket, worldXY, direction, tilemapDiff) {
     // not a thunk rn, just in store but need to make a thunk and place in DB
     // TODO
     await serverStore.dispatch(
-      serverActionCreators.tiles.updateTileMap(tilemapDiff)
+      serverActionCreators.tiles.updateTileMap(tilemapDiff, oldPlayer.roomId)
     );
 
     // update the player location
     await serverStore.dispatch(movePlayer(socket.id, worldXY, direction));
 
     // get the new state
-    const {players: {players}, tiles: {tileMapDiff}} = serverStore.getState();
+    const {
+      players: {players},
+      tiles: {rooms: {[oldPlayer.roomId]: {tileMapDiff}}}
+    } = serverStore.getState();
 
     // make a copy of players and make sure not sending any players not yet in the game
+    // and only players in the room
     const playersCopy = players.filter(player => {
-      return player.isPlaying;
+      return player.isPlaying && player.roomId === oldPlayer.roomId;
     });
 
     // and then broadcast the new state to all the other players
-    socket.broadcast.emit('updateState', playersCopy, tileMapDiff);
+    socket.broadcast
+      .to(oldPlayer.roomId)
+      .emit('updateState', playersCopy, tileMapDiff);
 
     // and clear the changes we just broadcast to the clients
-    serverStore.dispatch(serverActionCreators.tiles.resetTileMapDiff());
+    serverStore.dispatch(
+      serverActionCreators.tiles.resetTileMapDiff(oldPlayer.roomId)
+    );
   }
 }
 
@@ -145,6 +167,9 @@ async function onPlayerKilled(io, socket, pathIndex) {
     io.to(`${killedPlayer.socketId}`).emit('wasKilled');
     console.log(`Player ${killedPlayer.socketId} was killed by ${socket.id}`);
 
+    // leave the room
+    Rooms.leaveRoom(killedPlayer.roomId);
+
     // update the player in db and store
     await serverStore.dispatch(playerKilled(killedPlayer.socketId));
 
@@ -153,14 +178,20 @@ async function onPlayerKilled(io, socket, pathIndex) {
       serverActionCreators.tiles.removePlayersTiles(
         killedPlayer.pathIndex,
         killedPlayer.harborIndex,
-        oldState.players.tileValues.regular
+        oldState.tiles.regularIndex,
+        killedPlayer.roomId
       )
     );
     // get the new state
-    const {tiles: {tileMapDiff}} = serverStore.getState();
+    const {
+      tiles: {rooms: {[killedPlayer.roomId]: {tileMapDiff}}}
+    } = serverStore.getState();
 
+    // sending to all clients in specified room, including sender
     // send back to all players to remove opponent and update map
-    io.sockets.emit('removePlayer', killedPlayer.socketId, tileMapDiff);
+    io
+      .in(killedPlayer.roomId)
+      .emit('removePlayer', killedPlayer.socketId, tileMapDiff);
   }
 }
 
@@ -178,19 +209,26 @@ async function onDisconnect(socket) {
 
   // and send the id of player to remove to the other players if the player left while currently playing
   if (oldPlayer.isPlaying) {
+    // leave the room
+    Rooms.leaveRoom(oldPlayer.roomId);
+
     // clear that players path and harbor tiles from the tilemap
     await serverStore.dispatch(
       serverActionCreators.tiles.removePlayersTiles(
         oldPlayer.pathIndex,
         oldPlayer.harborIndex,
-        oldState.players.tileValues.regular
+        oldState.tiles.regularIndex,
+        oldPlayer.roomId
       )
     );
     // get the new state
-    const {tiles: {tileMapDiff}, players: {players}} = serverStore.getState();
-    console.log('current players &&&&&&&&&&&', players);
+    const {
+      tiles: {rooms: {[oldPlayer.roomId]: {tileMapDiff}}}
+    } = serverStore.getState();
 
-    socket.broadcast.emit('removePlayer', socket.id, tileMapDiff);
+    socket.broadcast
+      .to(oldPlayer.roomId)
+      .emit('removePlayer', socket.id, tileMapDiff);
   }
 }
 
