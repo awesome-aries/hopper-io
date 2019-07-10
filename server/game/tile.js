@@ -21,6 +21,7 @@ class Tile {
     //if we're switching from a current type = path to incoming type = harbor, we want to set previous type to regular (always)
     if (type === 'harbor') {
       this.previous = {...this.regularTile};
+      this.present = {color, type};
     } else if (this.present.type !== type) {
       this.previous = {...this.present};
       this.present = {color, type};
