@@ -16,7 +16,7 @@ Hopper.io is built on [Node.js](https://nodejs.org/) using the Javascript game f
 
 ### How To Play
 
-* Use the arrow keys (or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>) to move your ship left, right, up, or down.
+* Use the arrow keys to move your ship left, right, up, or down.
 * Outline the area you wish to capture by creating a path from the harbor, forming a loop, and closing the loop by returning to your harbor.
 * Take area from opponents by capturing territory from their harbor.
 * To kill an opponent, run through their 'tail path' that they leave behind.
