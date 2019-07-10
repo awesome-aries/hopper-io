@@ -93,7 +93,6 @@ async function onPlayerStartGame(socket, name) {
   });
 
   // also need to send them the current tilemap to the new player
-  console.log('startingInfo', playersCopy, 'newPlayer', newPlayer);
   socket.emit(
     'startingInfo',
     playersCopy,

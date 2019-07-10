@@ -53,18 +53,18 @@ const tilesActionCreators = {
  * THUNK CREATORS
  */
 
-function printTileMap(tileMap, rowLength) {
-  let row = '';
-  tileMap.forEach((tile, i) => {
-    if ((i + 1) % rowLength === 0) {
-      row += ' ' + tile + ' ';
-      console.log(row);
-      row = '';
-    } else {
-      row += ' ' + tile + ' ';
-    }
-  });
-}
+// function printTileMap(tileMap, rowLength) {
+//   let row = '';
+//   tileMap.forEach((tile, i) => {
+//     if ((i + 1) % rowLength === 0) {
+//       row += ' ' + tile + ' ';
+//       console.log(row);
+//       row = '';
+//     } else {
+//       row += ' ' + tile + ' ';
+//     }
+//   });
+// }
 /**
  * REDUCER
  */

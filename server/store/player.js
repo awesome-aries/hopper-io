@@ -19,8 +19,6 @@ const initialState = {
   players: []
 };
 
-console.log('initialState', initialState);
-
 /**
  * ACTION CREATORS
  */
@@ -125,7 +123,6 @@ const removePlayer = socketId => {
       });
       // save field values
       let removedPlayer = player.dataValues;
-      console.log('removedPlayer', removedPlayer);
 
       // and remove them from our database
       await player.destroy();
@@ -229,9 +226,6 @@ function playersReducer(state = initialState, action) {
         })
       };
     case PLAYER_KILLED:
-      console.log('player killed*******');
-      console.log('killedPLayer: ', action.killedPlayer);
-      console.log('TTTTTTTTTTTTTTTTT');
       return {
         ...state,
         players: state.players.map(player => {
@@ -244,9 +238,7 @@ function playersReducer(state = initialState, action) {
       };
     case PLAYER_START_GAME:
       // update the player with game info
-      console.log('player starting*******');
-      console.log('player: ', action.updatedPlayer);
-      console.log('TTTTTTTTTTTTTTTTT');
+
       return {
         ...state,
         players: state.players.map(player => {

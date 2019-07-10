@@ -1,8 +1,8 @@
-const passport = require('passport')
-const router = require('express').Router()
-const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
-const {User} = require('../db/models')
-module.exports = router
+const passport = require('passport');
+const router = require('express').Router();
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const {User} = require('../db/models');
+module.exports = router;
 
 /**
  * For OAuth keys and other secrets, your Node process will search
@@ -18,34 +18,32 @@ module.exports = router
  * process.env.GOOGLE_CALLBACK = '/your/google/callback'
  */
 
-if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-  console.log('Google client ID / secret not found. Skipping Google OAuth.')
-} else {
+{
   const googleConfig = {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.GOOGLE_CALLBACK
-  }
+  };
 
   const strategy = new GoogleStrategy(
     googleConfig,
     (token, refreshToken, profile, done) => {
-      const googleId = profile.id
-      const name = profile.displayName
-      const email = profile.emails[0].value
+      const googleId = profile.id;
+      const name = profile.displayName;
+      const email = profile.emails[0].value;
 
       User.findOrCreate({
         where: {googleId},
         defaults: {name, email}
       })
         .then(([user]) => done(null, user))
-        .catch(done)
+        .catch(done);
     }
-  )
+  );
 
-  passport.use(strategy)
+  passport.use(strategy);
 
-  router.get('/', passport.authenticate('google', {scope: 'email'}))
+  router.get('/', passport.authenticate('google', {scope: 'email'}));
 
   router.get(
     '/callback',
@@ -53,5 +51,5 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
       successRedirect: '/home',
       failureRedirect: '/login'
     })
-  )
+  );
 }

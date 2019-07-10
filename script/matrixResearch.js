@@ -31,7 +31,6 @@ let isInside = insidePoly({x: 7, y: 2}, [
   [5, 6],
   [7, 5]
 ]);
-console.log('is INSIDE?', isInside);
 
 const createTileMatrix = (x, y) => {
   // generates the matrix representation of our plane

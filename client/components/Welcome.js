@@ -93,7 +93,6 @@ class Welcome extends Component {
 
   onSubmit = e => {
     e.preventDefault();
-    console.log('onSubmit, name:', this.state.name);
 
     // when a user hits play, we want to send a message to the server that they are starting the game
     socket.emit('playerStartGame', this.state.name);
@@ -147,7 +146,7 @@ class Welcome extends Component {
 
         <Container className="welcome" align="center">
           <h3 id="gh-quote1" className="gh-quote">
-            A ship in harbor is safe, but that is not what ships are built for
+            "A ship in harbor is safe, but that is not what ships are built for"
           </h3>
           <h3 id="gh-quote2" className="gh-quote">
             {' '}
