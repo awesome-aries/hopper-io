@@ -153,10 +153,13 @@ class Welcome extends Component {
         </div>
 
         <Container className="welcome" align="center">
-          <h3 id="gh-quote1">
+          <h3 id="gh-quote1" className="gh-quote">
             A ship in harbor is safe, but that is not what ships are built for
           </h3>
-          <h3 id="gh-quote2"> - Rear Admiral Grace Hopper</h3>
+          <h3 id="gh-quote2" className="gh-quote">
+            {' '}
+            - Rear Admiral Grace Hopper
+          </h3>
           <h1 id="title">Hopper.io</h1>
 
           <form onSubmit={this.onSubmit}>

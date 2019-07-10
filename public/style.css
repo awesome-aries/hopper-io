@@ -106,34 +106,36 @@ span.tile8 {
   letter-spacing: 10px;
   font-weight: lighter;
 }
-
-#gh-quote1 {
+.gh-quote {
   color: white;
   font-family: sans-serif;
   position: fixed;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-weight: lighter;
+  min-width: 810px;
+}
+
+#gh-quote1 {
   top: 15%;
   left: 50%;
-  transform: translate(-50%, -50%);
   font-size: 3vh;
-  text-align: center;
-
-  font-weight: lighter;
   font-style: italic;
 }
 
 #gh-quote2 {
-  color: white;
-  font-family: sans-serif;
-  position: fixed;
   top: 20%;
   left: 50%;
-  transform: translate(-50%, -50%);
   font-size: 2.8vh;
-  text-align: center;
-  font-weight: lighter;
   font-style: italic;
 }
+#name {
+  min-width: 300px;
+}
 
+#title {
+  min-width: 810px;
+}
 .control-panel {
   display: flex;
   width: 450px;
