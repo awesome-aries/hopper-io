@@ -9,7 +9,7 @@ const Ui = props => {
     <Container id="ui">
       <Score />
       <div>{props.children}</div>
-      <h3>Quick n Dirty view of the store tilemap</h3>
+      {/* <h3>Quick n Dirty view of the store tilemap</h3>
       <div>
         {props.rowLength ? (
           props.tileMap.map((tile, ind) => {
@@ -34,7 +34,7 @@ const Ui = props => {
           <p>Loading...</p>
         )}
       </div>
-      <div>currentTileIdx: {props.currentTileIndex}</div>
+      <div>currentTileIdx: {props.currentTileIndex}</div> */}
     </Container>
   );
 };
