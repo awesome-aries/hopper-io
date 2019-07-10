@@ -1,5 +1,23 @@
+html {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  box-sizing: inherit;
+}
 body {
-  font-family: sans-serif;
+  height: 100%;
+  color: #ffffff;
+  font-size: 1em;
+  font-family: Audiowide, cursive, sans-serif;
+  overflow: hidden;
+
+  background: url('./images/bg-7.jpg') no-repeat top center fixed;
+  background-size: cover;
 }
 
 a {
@@ -18,4 +36,156 @@ nav a {
 form div {
   margin: 1em;
   display: inline-block;
+}
+
+/* Testing styles */
+span.tile {
+  padding: 0 5px;
+}
+span.tile5 {
+  background-color: white;
+}
+span.tile6 {
+  background-color: purple;
+}
+span.tile7 {
+  background-color: rgb(49, 49, 49);
+}
+span.tile8 {
+  background-color: pink;
+}
+
+#phaser-game {
+  text-align: center;
+}
+
+#name {
+  font-weight: bold;
+  color: white;
+  position: fixed;
+  font-size: 4vh;
+  top: 58%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 25vw;
+  height: 7vh;
+  border: 1px solid;
+  border-radius: 8px;
+  background-color: transparent;
+  text-align: center;
+}
+
+#play-button {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  position: fixed;
+  font-size: 3.5vh;
+  top: 68%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid;
+  border-radius: 14px;
+  background-color: white;
+  color: purple;
+  /* background-color: transparent; */
+  text-align: center;
+  /* font-family: Roboto; */
+  padding: 1vh 1vw;
+}
+
+#title {
+  color: white;
+  font-family: Audiowide, cursive;
+  position: fixed;
+  top: 22%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18vh;
+  text-align: center;
+  letter-spacing: 10px;
+  font-weight: lighter;
+}
+.gh-quote {
+  color: white;
+  font-family: sans-serif;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-weight: lighter;
+  min-width: 810px;
+}
+
+#gh-quote1 {
+  top: 15%;
+  left: 50%;
+  font-size: 3vh;
+  font-style: italic;
+}
+
+#gh-quote2 {
+  top: 20%;
+  left: 50%;
+  font-size: 2.8vh;
+  font-style: italic;
+}
+#name {
+  min-width: 300px;
+}
+
+#title {
+  min-width: 810px;
+}
+.control-panel {
+  display: flex;
+  width: 450px;
+  margin-top: 22px;
+  align-self: center;
+  justify-content: space-evenly;
+  /* justify-content: center;
+  vertical-align: middle; */
+
+  /*If I remove vertical-align & justofy conetent: center, buttons are clustered together instead of spaced out*/
+}
+
+/* Split the screen in half */
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+/* Make content in split screen centered horizontally and vertically */
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* Control the left side */
+.left {
+  left: 15;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+}
+
+.game-over-list {
+  color: white;
+  font-family: Audiowide, cursive;
+  font-size: 5vh;
+  /* letter-spacing: 10px; */
+  /* font-weight: lighter; */
+}
+
+#game-over-conatiner {
+  /* text-align: center; */
+  padding-left: 100px;
 }

@@ -3,6 +3,9 @@
  * This way, we can import all of our components from the same place, rather than
  * having to figure out which file they belong to!
  */
-export {default as Navbar} from './navbar'
-export {default as UserHome} from './user-home'
-export {Login, Signup} from './auth-form'
+// export {default as Navbar} from './Navbar';
+export {default as GameView} from './GameView';
+export {default as Welcome} from './Welcome';
+export {default as About} from './About';
+export {default as GameControlPanel} from './GameControlPanel';
+export {default as GameOver} from './GameOver';

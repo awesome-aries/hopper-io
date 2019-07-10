@@ -1,9 +1,6 @@
-module.exports = io => {
-  io.on('connection', socket => {
-    console.log(`A socket connection to the server has been made: ${socket.id}`)
+const initServerListeners = require('./listeners');
 
-    socket.on('disconnect', () => {
-      console.log(`Connection ${socket.id} has left the building`)
-    })
-  })
-}
+module.exports = io => {
+  // connect our initialize listeners function so the server listens to events from the clients
+  io.on('connection', socket => initServerListeners(io, socket));
+};
