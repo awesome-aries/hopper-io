@@ -154,9 +154,13 @@ async function onPlayerKilled(io, socket, pathIndex) {
 
   let oldState = serverStore.getState();
 
+  let killer = oldState.players.players.find(player => {
+    return player.socketId === socket.id;
+  });
+
   // get the player that was killed
   let killedPlayer = oldState.players.players.find(player => {
-    return player.pathIndex === pathIndex;
+    return player.pathIndex === pathIndex && player.roomId === killer.roomId;
   });
 
   if (killedPlayer) {
