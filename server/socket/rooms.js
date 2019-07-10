@@ -7,7 +7,7 @@ class Rooms {
     // the value is the numbe
     this.rooms = {};
     // how many players can play together in one room
-    this.maxCapacity = 2;
+    this.maxCapacity = 4;
     // tracks how many current rooms there are
     this.numRooms = 0;
     // also manage available tiles
