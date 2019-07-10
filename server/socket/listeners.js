@@ -168,7 +168,11 @@ async function onPlayerKilled(io, socket, pathIndex) {
     console.log(`Player ${killedPlayer.socketId} was killed by ${socket.id}`);
 
     // leave the room
-    Rooms.leaveRoom(killedPlayer.roomId);
+    Rooms.leaveRoom(
+      killedPlayer.roomId,
+      killedPlayer.pathIndex,
+      killedPlayer.harborIndex
+    );
 
     // update the player in db and store
     await serverStore.dispatch(playerKilled(killedPlayer.socketId));
@@ -210,7 +214,11 @@ async function onDisconnect(socket) {
   // and send the id of player to remove to the other players if the player left while currently playing
   if (oldPlayer.isPlaying) {
     // leave the room
-    Rooms.leaveRoom(oldPlayer.roomId);
+    Rooms.leaveRoom(
+      oldPlayer.roomId,
+      oldPlayer.pathIndex,
+      oldPlayer.harborIndex
+    );
 
     // clear that players path and harbor tiles from the tilemap
     await serverStore.dispatch(

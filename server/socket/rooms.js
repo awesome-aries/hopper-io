@@ -37,7 +37,8 @@ class Rooms {
           
           max capacity is ${this.maxCapacity}`
         );
-        console.log(`this room: ${this.rooms[roomId]}`);
+        console.log(`this room:`);
+        console.log(this.rooms[roomId]);
         return {
           roomId,
           path,
@@ -66,6 +67,8 @@ class Rooms {
       } players
       max capacity is ${this.maxCapacity}`
     );
+    console.log(`this room:`);
+    console.log(this.rooms[newRoomId]);
     return {
       roomId: newRoomId,
       path: playerPath,
@@ -83,7 +86,8 @@ class Rooms {
     console.log(
       `leaving room ${roomId} which now has ${this.rooms[roomId].numPlayers}`
     );
-    console.log(`this room ${this.rooms[roomId]}`);
+    console.log(`this room:`);
+    console.log(this.rooms[roomId]);
   }
 }
 // export an instance of the rooms class
