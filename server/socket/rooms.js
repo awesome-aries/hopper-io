@@ -7,7 +7,7 @@ class Rooms {
     // the value is the numbe
     this.rooms = {};
     // how many players can play together in one room
-    this.maxCapacity = 4;
+    this.maxCapacity = 2;
     // tracks how many current rooms there are
     this.numRooms = 0;
     // also manage available tiles
@@ -34,7 +34,7 @@ class Rooms {
           `assigning new player to room ${roomId}, with harbor ${harbor} and path ${path} which now has ${
             this.rooms[roomId].numPlayers
           } players
-          
+
           max capacity is ${this.maxCapacity}`
         );
         console.log(`this room:`);

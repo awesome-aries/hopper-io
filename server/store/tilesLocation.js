@@ -122,15 +122,16 @@ function tilesReducer(state = initialState, action) {
         }
       };
     case RESET_TILEMAP_DIFF:
-      const currentTileMap = [...state.rooms[action.roomId].tileMap.present];
+      let currentTileMap = [...state.rooms[action.roomId].tileMap.present];
       const tileMapDiffCopy = currentTileMap.reduce(
         (tileMapDiffAccum, tileIndex, tileInd) => {
           if (
             state.tileValues.path.includes(tileIndex) ||
             state.tileValues.harbor.includes(tileIndex)
           ) {
-            return tileMapDiffAccum.push({tileInd, tileIndex});
+            tileMapDiffAccum.push({tileInd, tileIndex});
           }
+          return tileMapDiffAccum;
         },
         []
       );
@@ -141,7 +142,7 @@ function tilesReducer(state = initialState, action) {
           ...state.rooms,
           [action.roomId]: {
             ...state.rooms[action.roomId],
-            tileMapDiff: [...tileMapCopy]
+            tileMapDiff: [...tileMapDiffCopy]
           }
         }
       };
