@@ -328,6 +328,8 @@ export default class PlayScene extends Phaser.Scene {
     socket.removeListener('newPlayer', this.onNewPlayer);
     socket.removeListener('removePlayer', this.onRemovePlayer);
 
+    //remove keyboard listeners
+    this.game.input.keyboard.enabled = false;
     this.scene.start('losing');
   }
 
