@@ -223,8 +223,7 @@ async function onDisconnect(socket) {
     );
     // get the new state
     const {
-      tiles: {rooms: {[oldPlayer.roomId]: {tileMapDiff}}},
-      players: {players}
+      tiles: {rooms: {[oldPlayer.roomId]: {tileMapDiff}}}
     } = serverStore.getState();
 
     socket.broadcast
