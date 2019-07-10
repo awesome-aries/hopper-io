@@ -213,7 +213,7 @@ class Welcome extends Component {
           </Dialog>
         </Container>
 
-        <Container className="about-dialog-box">
+        {/* <Container className="about-dialog-box">
           <Dialog
             onClose={this.handleClose}
             aria-labelledby="customized-dialog-title"
@@ -252,7 +252,7 @@ class Welcome extends Component {
               </Button>
             </DialogActions>
           </Dialog>
-        </Container>
+        </Container> */}
 
         <Container />
 

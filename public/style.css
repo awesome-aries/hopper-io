@@ -87,7 +87,10 @@ span.tile8 {
   border: 1px solid;
   border-radius: 14px;
   background-color: white;
+  color: purple;
+  /* background-color: transparent; */
   text-align: center;
+  /* font-family: Roboto; */
   padding: 1vh 1vw;
 }
 
@@ -141,4 +144,46 @@ span.tile8 {
   vertical-align: middle; */
 
   /*If I remove vertical-align & justofy conetent: center, buttons are clustered together instead of spaced out*/
+}
+
+/* Split the screen in half */
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+/* Make content in split screen centered horizontally and vertically */
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* Control the left side */
+.left {
+  left: 15;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+}
+
+.game-over-list {
+  color: white;
+  font-family: Audiowide, cursive;
+  font-size: 5vh;
+  /* letter-spacing: 10px; */
+  /* font-weight: lighter; */
+}
+
+#game-over-conatiner {
+  /* text-align: center; */
+  padding-left: 100px;
 }

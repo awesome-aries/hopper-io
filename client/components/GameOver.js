@@ -3,31 +3,50 @@ import {connect} from 'react-redux';
 import Button from '@material-ui/core/Button';
 import {gameStateActionCreators} from '../store/gameState';
 
-class GameOver extends React.Component {
-  render() {
-    const {gameOver} = this.props;
-    return (
-      <div id="game-over-page">
-        <div>
-          <img src="/images/disappointedGH.png" alt="game-over" />
+const GameOver = props => {
+  const {gameOver, duration, score} = props;
+  return (
+    <div id="game-over-conatiner">
+      <div className="split left">
+        <div id="gh-image" className="centered">
+          <img
+            src="/images/disappointedGH.png"
+            alt="game-over"
+            // height="100px"
+            // width="100px"
+            // style={{"max-height: 100px, max-width: 100px"}}
+          />
         </div>
-
-        <Button
-          variant="contained"
-          color="primary"
-          className="control-panel-button"
-          onClick={gameOver}
-        >
-          Play Again
-        </Button>
       </div>
-    );
-  }
-}
 
-// const mapStateToProps = state => ({
-//   isPlaying: state.gameState.isPlaying
-// });
+      <div className="split right">
+        <div className="centered">
+          <div id="game-stats">
+            <h1 className="game-over-list">Your Score: {score}</h1>
+            <h1 className="game-over-list">Time Played: {duration} sec</h1>
+          </div>
+
+          <div id="play-again-button">
+            <Button
+              variant="contained"
+              color="secondary"
+              className="control-panel-button"
+              onClick={gameOver}
+              style={{fontSize: '27px'}}
+            >
+              Play Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const mapStateToProps = state => ({
+  duration: state.gameState.duration,
+  score: state.gameState.score
+});
 
 const mapDispatchToProps = dispatch => ({
   gameOver: () => {
@@ -35,4 +54,4 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export default connect(null, mapDispatchToProps)(GameOver);
+export default connect(mapStateToProps, mapDispatchToProps)(GameOver);
