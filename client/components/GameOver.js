@@ -6,7 +6,7 @@ import {gameStateActionCreators} from '../store/gameState';
 const GameOver = props => {
   const {stopGame, duration, score} = props;
   return (
-    <div id="game-over-conatiner">
+    <div id="game-over-container">
       <div className="split left">
         <div id="gh-image" className="centered">
           <img

@@ -184,11 +184,13 @@ span.tile8 {
   color: white;
   font-family: Audiowide, cursive;
   font-size: 5vh;
+  min-width: 400px;
   /* letter-spacing: 10px; */
   /* font-weight: lighter; */
 }
 
-#game-over-conatiner {
+#game-over-container {
   /* text-align: center; */
   padding-left: 100px;
+  min-width: 1150px;
 }
