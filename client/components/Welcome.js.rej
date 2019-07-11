@@ -1,0 +1,4 @@
+diff a/client/components/Welcome.js b/client/components/Welcome.js	(rejected hunks)
+@@ -229 +229 @@ class Welcome extends Component {
+-                    your territory. Be careful to gaurd your tail from being
++                    your territory. Be careful to guard your tail from being
