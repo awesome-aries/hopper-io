@@ -17,7 +17,12 @@ const ADD_TO_QUEUE = 'ADD_TO_QUEUE';
 
 const initialState = {
   tileValues: getTileIndices(),
-  rooms: {}, //the keys will be the roomIds and the value will be an object with a tilemap property which will have present and precious values, and a tilemapdiff property
+  rooms: {
+    tileMap: [],
+    tileMapRowLength: 0,
+    roomId: null,
+    regularIndex: 0
+  }, //the keys will be the roomIds and the value will be an object with a tilemap property which will have present and precious values, and a tilemapdiff property
   regularIndex: null,
   tileMapRowLength: null, //number
   tileDiffQueue: []
