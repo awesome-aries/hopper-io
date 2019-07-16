@@ -7,7 +7,7 @@ class Game extends React.Component {
     const config = {
       type: Phaser.AUTO,
       parent: 'phaser-game',
-      width: 800,
+      width: 900,
       height: 600,
       physics: {
         default: 'arcade',
