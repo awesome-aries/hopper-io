@@ -9,6 +9,7 @@ const INIT_TILEMAP = 'INIT_TILEMAP';
 const UPDATE_TILEMAP = 'UPDATE_TILEMAP';
 const REMOVE_PLAYERS_TILES = 'REMOVE_PLAYERS_TILES';
 const RESET_TILEMAP_DIFF = 'RESET_TILEMAP_DIFF';
+const ADD_TO_QUEUE = 'ADD_TO_QUEUE';
 
 /**
  * INITIAL STATE
@@ -18,7 +19,8 @@ const initialState = {
   tileValues: getTileIndices(),
   rooms: {}, //the keys will be the roomIds and the value will be an object with a tilemap property which will have present and precious values, and a tilemapdiff property
   regularIndex: null,
-  tileMapRowLength: null //number
+  tileMapRowLength: null, //number
+  tileDiffQueue: []
 };
 
 /**
