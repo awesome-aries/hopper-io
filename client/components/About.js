@@ -1,10 +1,6 @@
 import React from 'react';
-import {
-  Container,
-  Typography,
-  DialogTitle,
-  DialogContent
-} from '@material-ui/core';
+import {Container, Typography} from '@material-ui/core';
+import {DialogTitle, DialogContent} from '.';
 
 const About = props => {
   return (
