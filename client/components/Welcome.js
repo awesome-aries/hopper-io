@@ -1,66 +1,16 @@
 import React, {Component} from 'react';
 import Footer from './Footer';
 import socket from '../socket';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import MuiDialogContent from '@material-ui/core/DialogContent';
-import MuiDialogActions from '@material-ui/core/DialogActions';
 import {
   Input,
   Button,
   Container,
   Dialog,
-  IconButton,
-  Typography,
   AppBar,
   Toolbar
 } from '@material-ui/core';
 
-import {withStyles} from '@material-ui/core/styles';
-import CloseIcon from '@material-ui/icons/Close';
-
-const styles = theme => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(2)
-  },
-  closeButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.grey[500]
-  }
-});
-
-const DialogTitle = withStyles(styles)(props => {
-  const {children, classes, onClose} = props;
-  return (
-    <MuiDialogTitle disableTypography className={classes.root}>
-      <Typography variant="h6">{children}</Typography>
-      {onClose ? (
-        <IconButton
-          aria-label="Close"
-          className={classes.closeButton}
-          onClick={onClose}
-        >
-          <CloseIcon />
-        </IconButton>
-      ) : null}
-    </MuiDialogTitle>
-  );
-});
-
-const DialogContent = withStyles(theme => ({
-  root: {
-    padding: theme.spacing(2)
-  }
-}))(MuiDialogContent);
-
-const DialogActions = withStyles(theme => ({
-  root: {
-    margin: 0,
-    padding: theme.spacing(1)
-  }
-}))(MuiDialogActions);
+import {HowToPlay, About, DialogActions} from '.';
 
 class Welcome extends Component {
   constructor() {
@@ -177,64 +127,9 @@ class Welcome extends Component {
             open={this.state.openInstruction || this.state.openAbout}
           >
             {this.state.openInstruction ? (
-              <Container className="play-instructions">
-                <DialogTitle
-                  id="customized-dialog-title"
-                  onClose={this.handleClose}
-                >
-                  How To Play
-                </DialogTitle>
-                <DialogContent dividers>
-                  <Typography gutterBottom>
-                    <ol>
-                      <li>Use arrow keys to control your spacecraft</li>
-                      <li>
-                        Capture more space territory by creating a path and
-                        returning to your harbor.
-                      </li>
-                      <li>
-                        If you or a rival player crosses your path, you lose! So
-                        gaurd your path when you are outside of your harbor.
-                      </li>
-                      <li>To crush opponents, cut off their path</li>
-                      <li>
-                        Compete with other players to capture the most space
-                        territory in the galaxy!
-                      </li>
-                    </ol>
-                  </Typography>
-                </DialogContent>
-              </Container>
+              <HowToPlay handleClose={this.handleClose} />
             ) : (
-              <Container className="about">
-                <DialogTitle
-                  id="customized-dialog-title"
-                  onClose={this.handleClose}
-                >
-                  About
-                </DialogTitle>
-                <DialogContent dividers>
-                  <Typography gutterBottom>
-                    Inspired by Paper.io, Hopper.io is a multi-player version of
-                    the popular game released by Voodoo. The goal of the game is
-                    to attain as much territory as possible.
-                  </Typography>
-                  <Typography gutterBottom>
-                    Players compete to try and capture territory by forming a
-                    tail and linking it back to their territory. Like in any
-                    other game, there are rivals willing to outwit you and take
-                    your territory. Be careful to guard your tail from being
-                    attacked by an opponent! You must crush your opponents by
-                    hitting their tail before they eliminate you!
-                  </Typography>
-                  <Typography gutterBottom>
-                    The more space you win, the higher ranking and scores you
-                    get. You have to act and think quickly. Develop your own
-                    strategy and action plan. Play the game and see if you can
-                    claim the biggest territory!
-                  </Typography>
-                </DialogContent>
-              </Container>
+              <About handleClose={this.handleClose} />
             )}
 
             <DialogActions>

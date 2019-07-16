@@ -6,7 +6,7 @@ import {emitState, playerKilled} from '../socket/emitEvents';
 export default class Ship {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.absVelocity = 200;
+    this.absVelocity = 400;
     this.direction = -1; //positive is down and right, negative is up and left
     this.didTurn = false; // we have to know if we turned or not
     this.facingDir = 'north'; //keep track of direction we're facing

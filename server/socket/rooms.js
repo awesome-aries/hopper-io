@@ -65,9 +65,16 @@ class Rooms {
     // decrease the number of players in the room by 1
 
     this.rooms[roomId].numPlayers -= 1;
+
     // put their tile values back to be reused
     this.rooms[roomId].path.push(path);
     this.rooms[roomId].harbor.push(harbor);
+
+    // if there are no more players in the room reset the tilemap
+    if (this.rooms[roomId].numPlayers <= 0) {
+      // set up the tilemap in our store
+      initTileMap(roomId, this.regular, serverStore, serverActionCreators);
+    }
   }
 }
 // export an instance of the rooms class
